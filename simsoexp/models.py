@@ -5,20 +5,31 @@ import pickle
 class ConfigurationFile(models.Model):
 	# Name of the configuration file.
 	name = models.CharField(max_length=255)
-	# Pickled conf object
+	# XML conf file
 	conf = models.TextField()
 	
-	def get_conf(self):
-		return pickle.loads(self.conf)
+	def __str__(self):
+		return self.name
+
+class TestCategory(models.Model):
+	# Name of the test category
+	name = models.CharField(max_length=255)
+	# Description of the test category
+	description = models.TextField()
 	
-	def set_conf(self, conf):
-		self.conf = pickle.dumps(conf)
+	def __str__(self):
+		return self.name
 	
 class TestSet(models.Model):
 	# Name of the test set. It does not have to be unique.
 	name = models.CharField(max_length=255)
 	# Files contained in the test set
 	files = models.ManyToManyField(ConfigurationFile)
+	# All the categories labels of this test set.
+	categories = models.ManyToManyField(TestCategory)
+	
+	def __str__(self):
+		return self.name
 	
 class SchedulingPolicy(models.Model):
 	# Name of the policy. Is does not have to be unique
@@ -30,8 +41,11 @@ class SchedulingPolicy(models.Model):
 	# MD5 hash of the code
 	md5 = models.TextField()
 	
+	def __str__(self):
+		return self.name
+	
 class Results(models.Model):
-	# Pickled python object containing the metrics
+	# XML file containing the metrics
 	metrics = models.TextField()
 	# The scheduling policy used to get those results.
 	scheduling_policy = models.ForeignKey(SchedulingPolicy)
@@ -43,4 +57,8 @@ class Results(models.Model):
 	
 	def set_metrics(self, metrics):
 		self.metrics = pickle.dumps(conf)
+		
+	def __str__(self):
+		return "Result of testset '" + self.test_set.name + \
+			"' with scheduling policy '" + self.scheduling_policy.name + "'";
 	
