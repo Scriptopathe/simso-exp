@@ -7,6 +7,8 @@ class ConfigurationFile(models.Model):
 	name = models.CharField(max_length=255)
 	# XML conf file
 	conf = models.TextField()
+	# True if approved by the admin
+	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return self.name
@@ -15,7 +17,7 @@ class TestCategory(models.Model):
 	# Name of the test category
 	name = models.CharField(max_length=255)
 	# Description of the test category
-	description = models.TextField()
+	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return self.name
@@ -27,6 +29,8 @@ class TestSet(models.Model):
 	files = models.ManyToManyField(ConfigurationFile)
 	# All the categories labels of this test set.
 	categories = models.ManyToManyField(TestCategory)
+	# True if approved by the admin
+	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return self.name
@@ -40,6 +44,8 @@ class SchedulingPolicy(models.Model):
 	sha1 = models.TextField()
 	# MD5 hash of the code
 	md5 = models.TextField()
+	# True if approved by the admin
+	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return self.name
@@ -51,6 +57,8 @@ class Results(models.Model):
 	scheduling_policy = models.ForeignKey(SchedulingPolicy)
 	# The test set used to get those results.
 	test_set = models.ForeignKey(TestSet)
+	# True if approved by the admin
+	approved = models.BooleanField(default=False)
 	
 	def get_metrics(self):
 		return pickle.loads(self.metrics)

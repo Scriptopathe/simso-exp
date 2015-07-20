@@ -37,7 +37,19 @@ def api_get_schedulers_by_sha(request, sha):
 	
 	return HttpResponse(s);
 
-
+def api_get_scheduler_code(request, scheduler_id):
+	"""
+	Gets the code associated to the given scheduler id
+	"""
+	response = None
+	s = ""
+	
+	response = SchedulingPolicy.objects.filter(id__exact=scheduler_id);
+	if(len(response) > 0):
+		s += response[0].code
+	
+	return HttpResponse(s)
+	
 def api_get_metrics(request, testset_id, scheduler_id):
 	"""
 	Gets the metrics corresponding to the given testset and id
@@ -116,6 +128,3 @@ def api_get_conf_files(self, testset_id):
 			s += name+","+filecontent+","
 	
 	return HttpResponse(s)
-	
-	
-	

@@ -12,9 +12,8 @@ class Api:
 		at the given address (includes port number)
 		"""
 		self.base_addr = address;
-		pass
 	
-	def get_testsets(self, category="all"):
+	def get_testsets_by_category(self, category=""):
 		"""
 		Gets a tuple (id, name) for each test in the database matching
 		the given category. (if category = None, gives all tests)
@@ -37,7 +36,10 @@ class Api:
 		
 		
 	def get_conf_files(self, testset_id):
-		"""Gets a list of XML configuration files for the given test id"""
+		"""
+		Gets a list of XML configuration files for the given test id
+		They are given as tuples (name, content)
+		"""
 		r = url.urlopen(self.base_addr + "/app/api/conffiles/" + str(testset_id))
 		if(r.code == 200):
 			val = str(r.read(), encoding='utf8')
@@ -89,11 +91,15 @@ class Api:
 			return tuples
 		else:
 			return [];
-		pass
 	
-	def get_schedulers_code(self, schedid):
+	def get_scheduler_code(self, sched_id):
 		"""Gets the scheduler code given the scheduler id"""
-		pass
+		r = url.urlopen(self.base_addr + "/app/api/schedulers/code/" + sched_id)
+		if(r.code == 200):
+			val = str(r.read(), encoding='utf8')
+			return val;
+		else:
+			return ""
 	
 	def get_metrics(self, testset_id, scheduler_id):
 		"""Returns a list of metrics corresponding to the given test set and scheduler id"""
@@ -107,5 +113,3 @@ class Api:
 			return tuples
 		else:
 			return []
-			
-		pass
