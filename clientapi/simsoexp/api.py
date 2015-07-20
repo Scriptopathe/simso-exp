@@ -2,17 +2,24 @@ import urllib.request as url
 import hashlib
 import base64
 
+def b64(string):
+	return str(base64.b64encode(string.encode()), 'utf8')
+	
 class Api:
 	def __init__(self, address):
-		"""Initializes a connection to the Simso Experiment server
-		at the given address (includes port number)"""
+		"""
+		Initializes a connection to the Simso Experiment server
+		at the given address (includes port number)
+		"""
 		self.base_addr = address;
 		pass
 	
 	def get_testsets(self, category="all"):
-		"""Gets a tuple (id, name) for each test in the database matching
-		the given category. (if category = None, gives all tests)"""
-		category = str(base64.b64encode(category.encode()), 'utf8');
+		"""
+		Gets a tuple (id, name) for each test in the database matching
+		the given category. (if category = None, gives all tests)
+		"""
+		category = b64(category)
 		r = url.urlopen(self.base_addr + "/app/api/testsets/" + category)
 		if(r.code == 200):
 			val = str(r.read(), encoding='utf8')
@@ -47,16 +54,41 @@ class Api:
 			return []
 		
 	
-	def get_scheduler_by_code(self, code):
-		"""Returns the scheduler id that corresponds to the scheduler with
-		the given code"""
+	def get_schedulers_by_code(self, code):
+		"""
+		Returns the scheduler id that corresponds to the scheduler with
+		the given code. -1 if no scheduler matches.
+		"""
 		md5 = hashlib.md5(code).hexdigest();
 		sha = hashlib.sha1(code).hexdigest();
-		
-		pass
+		r = url.urlopen(self.base_addr + "/app/api/schedulers/sha/" + sha);
+		if(r.code == 200):
+			val = str(r.read(), encoding='utf8')
+			values = val.rsplit(',')
+			tuples = []
+			for i in range(0, len(values)):
+				tuples.append(
+					 str(base64.b64decode(values[i]), encoding='utf8'),
+				)
+			return tuples
+		else:
+			return [];
 	
 	def get_schedulers_by_name(self, name):
 		"""Returns the scheduler ids corresponding to the scheduler name"""
+		name = b64(name);
+		r = url.urlopen(self.base_addr + "/app/api/schedulers/name/" + name);
+		if(r.code == 200):
+			val = str(r.read(), encoding='utf8')
+			values = val.rsplit(',')
+			tuples = []
+			for i in range(0, len(values)):
+				tuples.append(
+					 str(base64.b64decode(values[i]), encoding='utf8'),
+				)
+			return tuples
+		else:
+			return [];
 		pass
 	
 	def get_schedulers_code(self, schedid):
@@ -65,4 +97,15 @@ class Api:
 	
 	def get_metrics(self, testset_id, scheduler_id):
 		"""Returns a list of metrics corresponding to the given test set and scheduler id"""
+		r = url.urlopen(self.base_addr + "/app/api/metrics/" + str(testset_id) + "/" + str(scheduler_id))
+		if(r.code == 200):
+			val = str(r.read(), encoding='utf8')
+			values = val.rsplit(',')
+			tuples = []
+			for i in range(0, len(values)):
+				tuples.append(str(base64.b64decode(values[i]), encoding='utf-8'))
+			return tuples
+		else:
+			return []
+			
 		pass
