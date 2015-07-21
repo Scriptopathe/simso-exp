@@ -89,7 +89,7 @@ def api_get_metric(request, metric_id):
 		s += str(res.test_set.id) + ","
 		s += str(res.scheduling_policy.id) + ","
 		for metric in all_metrics:
-			s += b64(metric) + "," + b64(str(getattr(res, metric)))
+			s += b64(metric) + "," + b64(str(getattr(res, metric))) + ","
 	
 	return HttpResponse(s.rstrip(','))
 
