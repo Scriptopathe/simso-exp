@@ -37,28 +37,39 @@ class Api:
 			return [];
 		
 		
-	def get_conf_files(self, testset_id):
+	def get_testset_files(self, testset_id):
 		"""
 		Gets a list of XML configuration files for the given test id
-		They are given as tuples (id, name, content)
+		Only their id is returned.
 		"""
-		r = url.urlopen(self.base_addr + "/app/api/conffiles/" + str(testset_id))
+		r = url.urlopen(self.base_addr + "/app/api/testfiles/" + str(testset_id))
 		if(r.code == 200):
 			val = str(r.read(), encoding='utf8')
 			values = val.rsplit(',')
 			tuples = []
-			for i in range(0, int(len(values)//3)):
-				tuples.append((
-					 b64str(values[i*2]),
-					 b64str(values[i*2+1]),
-					 b64str(values[i*2+2])
-				))
+			for i in range(0, len(values)):
+				tuples.append(
+					 int(values[i]),
+				)
 			return tuples
 			
 		else:
 			return []
 		
-	
+	def get_conf_file(self, file_id):
+		"""
+		Gets the configuration file whose id is file_id.
+		Given as tuple (name, content)
+		"""
+		r = url.urlopen(self.base_addr + "/app/api/conf_file/" + str(file_id))
+		if(r.code == 200):
+			val = str(r.read(), encoding='utf8')
+			values = val.rsplit(',')
+			return (b64str(values[0]), b64str(values[1]))
+			
+		else:
+			return []
+		
 	def get_schedulers_by_code(self, code):
 		"""
 		Returns the scheduler id that corresponds to the scheduler with

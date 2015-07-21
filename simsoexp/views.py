@@ -111,9 +111,9 @@ def api_get_testsets(request, category):
 	
 	return HttpResponse(s.rstrip(','))
 	
-def api_get_conf_files(self, testset_id):
+def api_get_test_files(self, testset_id):
 	"""
-	Gets a list of XML configuration files for the given test set id.
+	Gets a list of XML configuration files ids for the given test set id.
 	
 	:param testset_id: ID of the test set.
 	"""
@@ -126,9 +126,20 @@ def api_get_conf_files(self, testset_id):
 	s = ""
 	if(len(response) > 0):
 		for conffile in response:
-			identifier = b64(str(conffile.id))
-			name = b64(conffile.name)
-			filecontent = b64(conffile.conf)
-			s += identifier+","+name+","+filecontent+","
+			identifier = str(conffile.id)
+			s += identifier+","
 	
 	return HttpResponse(s.rstrip(','))
+
+def api_get_conf_file(self, file_id):
+	"""
+	Gets a tuple (name, content) for the configuration file with the given id.
+	"""
+	response = ConfigurationFile.objects.filter(pk=file_id)
+	s = ""
+	if len(response) > 0:
+		name = b64(response[0].name)
+		content = b64(response[0].conf)
+		s = name + "," + content
+	
+	return HttpResponse(s)

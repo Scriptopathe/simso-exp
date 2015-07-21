@@ -13,8 +13,8 @@ class DBTestSet:
 			self.__load_conf_files()
 		
 	def __load_conf_files(self):
-		files = self.db.api.get_conf_files(self.identifier);
-		self.__conf_files = [DBConfFile(self.db, self, f[0], f[1], f[2]) for f in files]
+		files = self.db.api.get_testset_files(self.identifier);
+		self.__conf_files = [DBConfFile(self.db, self, f) for f in files]
 	
 	@property
 	def conf_files(self):
@@ -23,16 +23,23 @@ class DBTestSet:
 		if self.__conf_files == None:
 			self.__load_conf_files()
 		return self.__conf_files
+	
+	def __repr__(self):
+		return "<DBTestSet id={}>".format(self.identifier)
 
 class DBConfFile:
-	def __init__(self, db, testset, identifier, name, content):
+	def __init__(self, db, testset, identifier):
 		self.db = db
 		self.identifier = identifier
 		self.testset = testset
-		self.name = name
-		self.content = content
+		self.__name = None
+		self.__content = None
 		self.__configuration = None
 	
+	def __load_data(self):
+		data = self.db.api.get_conf_file(self.identifier)
+		self.__name, self.__content = data
+		
 	def __load_configuration(self):
 		directory = self.db.local_conf_dir + "/testset_" + str(self.testset.identifier);
 		if not os.path.exists(directory):
@@ -46,7 +53,25 @@ class DBConfFile:
 		
 		# Loads it
 		self.__configuration = Configuration(filename)
-		
+	
+	@property
+	def name(self):
+		"""
+		Gets this configuration file's name
+		"""
+		if self.__name == None:
+			self.__load_data()
+		return self.__name
+	
+	@property
+	def content(self):
+		"""
+		Gets this configuration file's content as a string.
+		"""
+		if self.__content == None:
+			self.__load_data()
+		return self.__content
+	
 	@property
 	def configuration(self):
 		"""
@@ -56,7 +81,9 @@ class DBConfFile:
 			self.__load_configuration()
 		return self.__configuration
 		
-
+	def __repr__(self):
+		return "<DBConfFile id={} name={}>".format(self.identifier, self.name)
+		
 class DBScheduler:
 	def __init__(self, db, identifier):
 		self.db = db
@@ -108,6 +135,8 @@ class DBScheduler:
 			self.__load_data()
 		return self.__class_name
 	
+	def __repr__(self):
+		return "<DBScheduler id={} name={} class_name={}>".format(self.identifier, self.name, self.class_name)
 
 class SimsoDatabase:
 	def __init__(self, address):
