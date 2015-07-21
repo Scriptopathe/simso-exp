@@ -4,6 +4,8 @@ import base64
 
 def b64(string):
 	return str(base64.b64encode(string.encode()), 'utf8')
+def b64str(b64encoded_string):
+	return str(base64.b64decode(b64encoded_string), 'utf8')
 	
 class Api:
 	def __init__(self, address):
@@ -27,7 +29,7 @@ class Api:
 			for i in range(0, int(len(values)//2)):
 				tuples.append(
 					(int(base64.b64decode(values[i*2])),
-					 str(base64.b64decode(values[i*2+1]), encoding='utf8')
+					 b64str(values[i*2+1])
 				))
 			return tuples
 			
@@ -38,17 +40,18 @@ class Api:
 	def get_conf_files(self, testset_id):
 		"""
 		Gets a list of XML configuration files for the given test id
-		They are given as tuples (name, content)
+		They are given as tuples (id, name, content)
 		"""
 		r = url.urlopen(self.base_addr + "/app/api/conffiles/" + str(testset_id))
 		if(r.code == 200):
 			val = str(r.read(), encoding='utf8')
 			values = val.rsplit(',')
 			tuples = []
-			for i in range(0, int(len(values)//2)):
+			for i in range(0, int(len(values)//3)):
 				tuples.append((
-					 str(base64.b64decode(values[i*2]), encoding='utf8'),
-					 str(base64.b64decode(values[i*2+1]), encoding='utf8')
+					 b64str(values[i*2]),
+					 b64str(values[i*2+1]),
+					 b64str(values[i*2+2])
 				))
 			return tuples
 			
@@ -70,7 +73,7 @@ class Api:
 			tuples = []
 			for i in range(0, len(values)):
 				tuples.append(
-					 str(base64.b64decode(values[i]), encoding='utf8'),
+					 b64str(values[i])
 				)
 			return tuples
 		else:
@@ -86,18 +89,22 @@ class Api:
 			tuples = []
 			for i in range(0, len(values)):
 				tuples.append(
-					 str(base64.b64decode(values[i]), encoding='utf8'),
+					 int(values[i]),
 				)
 			return tuples
 		else:
 			return [];
 	
-	def get_scheduler_code(self, sched_id):
-		"""Gets the scheduler code given the scheduler id"""
-		r = url.urlopen(self.base_addr + "/app/api/schedulers/code/" + sched_id)
+	def get_scheduler_data(self, sched_id):
+		"""
+		Gets the scheduler data given the scheduler id.
+		The scheduler data is a tuple (name, class_name, code).
+		"""
+		r = url.urlopen(self.base_addr + "/app/api/schedulers/data/" + str(sched_id))
 		if(r.code == 200):
 			val = str(r.read(), encoding='utf8')
-			return val;
+			values = [b64str(value) for value in val.rsplit(',')]
+			return (values[0], values[1], values[2]);
 		else:
 			return ""
 	
@@ -109,7 +116,8 @@ class Api:
 			values = val.rsplit(',')
 			tuples = []
 			for i in range(0, len(values)):
-				tuples.append(str(base64.b64decode(values[i]), encoding='utf-8'))
+				tuples.append(b64str(values[i]))
 			return tuples
 		else:
 			return []
+

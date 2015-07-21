@@ -44,6 +44,9 @@ class SchedulingPolicy(models.Model):
 	sha1 = models.TextField()
 	# MD5 hash of the code
 	md5 = models.TextField()
+	# Class name of the Scheduler in the script
+	class_name = models.TextField()
+	
 	# True if approved by the admin
 	approved = models.BooleanField(default=False)
 	

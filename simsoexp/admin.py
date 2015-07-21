@@ -7,3 +7,5 @@ admin.site.register(TestSet)
 admin.site.register(SchedulingPolicy)
 admin.site.register(Results)
 admin.site.register(TestCategory)
+
+# $uper$trongp@$$w0rd

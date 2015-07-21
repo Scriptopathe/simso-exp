@@ -13,7 +13,10 @@ def decode_base64(data):
     if missing_padding:
         data += b'='* missing_padding
     return base64.decodestring(data)
-	
+
+def b64(data):
+	return base64.b64encode(data)
+
 def index(request):
 	template = loader.get_template('simsoexp/index.html')
 	context = RequestContext(request, {
@@ -35,18 +38,18 @@ def api_get_schedulers_by_sha(request, sha):
 	for sched in response:
 		s += str(sched.id) + ","
 	
-	return HttpResponse(s);
+	return HttpResponse(s.rstrip(','));
 
-def api_get_scheduler_code(request, scheduler_id):
+def api_get_scheduler_data(request, scheduler_id):
 	"""
-	Gets the code associated to the given scheduler id
+	Gets the tuple (name, class_name, code) associated to the given scheduler id
 	"""
 	response = None
 	s = ""
 	
 	response = SchedulingPolicy.objects.filter(id__exact=scheduler_id);
 	if(len(response) > 0):
-		s += response[0].code
+		s += b64(response[0].name) + "," + b64(response[0].class_name) + "," + b64(response[0].code)
 	
 	return HttpResponse(s)
 	
@@ -62,9 +65,9 @@ def api_get_metrics(request, testset_id, scheduler_id):
 		scheduling_policy__id__exact=scheduler_id)
 		
 	for res in response:
-		s += base64.b64encode(res.metrics) + ","
+		s += b64(res.metrics) + ","
 	
-	return HttpResponse(s)
+	return HttpResponse(s.rstrip(','))
 
 def api_get_schedulers_by_name(request, name):
 	"""
@@ -82,9 +85,9 @@ def api_get_schedulers_by_name(request, name):
 	
 	s = ""
 	for sched in response:
-		s += str(sched.id) + ","
+		s += unicode(sched.id) + ","
 	
-	return HttpResponse(s);
+	return HttpResponse(s.rstrip(','));
 
 
 def api_get_testsets(request, category):
@@ -104,9 +107,9 @@ def api_get_testsets(request, category):
 	
 	s = "";
 	for testset in response:
-		s += base64.b64encode(str(testset.id)) + "," + base64.b64encode(testset.name) + ","
+		s += b64(str(testset.id)) + "," + b64(testset.name) + ","
 	
-	return HttpResponse(s)
+	return HttpResponse(s.rstrip(','))
 	
 def api_get_conf_files(self, testset_id):
 	"""
@@ -123,8 +126,9 @@ def api_get_conf_files(self, testset_id):
 	s = ""
 	if(len(response) > 0):
 		for conffile in response:
-			name = base64.b64encode(conffile.name)
-			filecontent = base64.b64encode(conffile.conf)
-			s += name+","+filecontent+","
+			identifier = b64(str(conffile.id))
+			name = b64(conffile.name)
+			filecontent = b64(conffile.conf)
+			s += identifier+","+name+","+filecontent+","
 	
-	return HttpResponse(s)
+	return HttpResponse(s.rstrip(','))
