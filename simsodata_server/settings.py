@@ -15,7 +15,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -24,9 +23,8 @@ SECRET_KEY = 'y$*!c^c0186+-cz&p(2lp-l9xtu1db086@+jhczzs=3u-xc%!='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
-
+LOGIN_REDIRECT_URL = "/login/"
 
 # Application definition
 

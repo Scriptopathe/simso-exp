@@ -10,5 +10,6 @@ urlpatterns = [
 	url('^api/schedulers/name/(.*)$', views.api_get_schedulers_by_name, name='schedulers_name'),
 	url('^api/metrics/id/([0-9]*)$', views.api_get_metric, name='metrics_by_id'),
 	url('^api/metrics/([0-9]*)/([0-9]*)$', views.api_get_metrics, name='metrics'),
-	url('^api/schedulers/data/([0-9]*)$', views.api_get_scheduler_data, name="schedulers_code")
+	url('^api/schedulers/data/([0-9]*)$', views.api_get_scheduler_data, name="schedulers_code"),
+	url('^logout$', views.logout, name="logout")
 ]
