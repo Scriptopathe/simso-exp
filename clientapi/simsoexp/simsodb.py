@@ -54,7 +54,16 @@ class DBMetrics:
 			self.__load_metrics()
 		
 		return self.__metrics[index]
-
+	
+	def all(self):
+		"""Returns all the set of metrics"""
+		return self.__metrics
+	
+	def __repr__(self):
+		return "<DBMetrics id={} testset={} scheduler={}>".format(
+			self.identifier, self.testset_id, self.scheduler_id
+		)
+		
 class DBTestSet:
 	def __init__(self, db, identifier):
 		self.db = db
@@ -215,12 +224,14 @@ class SimsoDatabase:
 	def scheduler(self, identifier):
 		return DBScheduler(self, identifier)
 	
+	def metrics(self, testset_id, scheduler_id):
+		m = self.api.get_metrics(testset_id, scheduler_id)
+		return [DBMetrics(self, identifier) for identifier in m]
+		
 	def testsets(self, category=""):
 		"""Gets a list of testset given a category"""
 		sets = self.api.get_testsets_by_category(category)
-		tests = []
-		for identifier, name in sets:
-			tests.append(DBTestSet(self, identifier))
+		tests = [DBTestSet(self, identifier) for identifier, name in sets]
 		return tests
 	
 	def schedulers(self, name=""):
