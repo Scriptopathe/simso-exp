@@ -54,8 +54,6 @@ class SchedulingPolicy(models.Model):
 		return self.name
 	
 class Results(models.Model):
-	# XML file containing the metrics
-	metrics = models.TextField()
 	# The scheduling policy used to get those results.
 	scheduling_policy = models.ForeignKey(SchedulingPolicy)
 	# The test set used to get those results.
@@ -63,12 +61,17 @@ class Results(models.Model):
 	# True if approved by the admin
 	approved = models.BooleanField(default=False)
 	
-	def get_metrics(self):
-		return pickle.loads(self.metrics)
-	
-	def set_metrics(self, metrics):
-		self.metrics = pickle.dumps(conf)
-		
+	# Metrics
+	preemptions = models.IntegerField()
+	sys_preempt = models.IntegerField()
+	migrations = models.IntegerField()
+	task_migrations = models.IntegerField()
+	norm_laxity = models.IntegerField()
+	on_schedule = models.IntegerField()
+	timers = models.IntegerField()
+	aborted_jobs = models.IntegerField()
+	jobs = models.IntegerField()
+
 	def __str__(self):
 		return "Result of testset '" + self.test_set.name + \
 			"' with scheduling policy '" + self.scheduling_policy.name + "'";

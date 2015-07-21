@@ -4,6 +4,57 @@ from .api import Api
 from simso.configuration import Configuration
 import os
 
+class DBMetrics:
+	def __init__(self, db, identifier):
+		self.db = db
+		self.identifier = identifier
+		self.__testset_id = None
+		self.__scheduler_id = None
+		self.__metrics = None
+		if db.preload:
+			self.__load_metrics()
+	
+	def __load_metrics(self):
+		m = self.db.api.get_metric(self.identifier)
+		self.__testset_id = m[0]
+		self.__scheduler_id = m[1]
+		self.__metrics = m[2]
+
+	@property	
+	def testset_id(self):
+		"""Gets the id of the test set associated with these metrics"""
+		if self.__testset_id == None:
+			self.__load_metrics()
+		return self.__testset_id
+	
+	@property
+	def scheduler_id(self):
+		"""
+		Gets the id of the scheduler associated with these metrics
+		"""
+		if self.__scheduler_id == None:
+			self.__load_metrics()
+		return self.__scheduler_id
+	
+	def __getitem__(self, index):
+		"""
+		Gets the metric with the given name.
+		Available metrics are : 
+			preemptions
+			sys_preempt
+			migrations
+			task_migrations
+			norm_laxity
+			on_schedule
+			timers
+			aborted_jobs
+			jobs
+		"""
+		if self.__metrics == None:
+			self.__load_metrics()
+		
+		return self.__metrics[index]
+
 class DBTestSet:
 	def __init__(self, db, identifier):
 		self.db = db

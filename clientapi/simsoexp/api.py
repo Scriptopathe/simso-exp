@@ -8,12 +8,13 @@ def b64str(b64encoded_string):
 	return str(base64.b64decode(b64encoded_string), 'utf8')
 	
 class Api:
-	def __init__(self, address):
+	def __init__(self, address, use_cache=True):
 		"""
 		Initializes a connection to the Simso Experiment server
 		at the given address (includes port number)
 		"""
 		self.base_addr = address;
+		self.use_cache = use_cache;
 	
 	def get_testsets_by_category(self, category=""):
 		"""
@@ -120,15 +121,37 @@ class Api:
 			return ""
 	
 	def get_metrics(self, testset_id, scheduler_id):
-		"""Returns a list of metrics corresponding to the given test set and scheduler id"""
+		"""Returns a list of metrics ids corresponding to the given test set and scheduler id"""
 		r = url.urlopen(self.base_addr + "/app/api/metrics/" + str(testset_id) + "/" + str(scheduler_id))
 		if(r.code == 200):
 			val = str(r.read(), encoding='utf8')
 			values = val.rsplit(',')
 			tuples = []
 			for i in range(0, len(values)):
-				tuples.append(b64str(values[i]))
+				tuples.append(int(values[i]))
 			return tuples
 		else:
 			return []
 
+	def get_metric(self, identifier):
+		"""
+		Gets all the metrics associated to the given metric_id.
+		Gives testset_id and scheduler_id first, then a 
+		dictionary with a key value pair for each metric.
+			Ex : [1, 2, {'metric' : 'value'}]
+		"""
+		r = url.urlopen(self.base_addr + "/app/api/metrics/id/" + str(identifier))
+		if(r.code == 200):
+			val = str(r.read(), encoding='utf8')
+			values = val.rsplit(',')
+			dic = {}
+			array = [int(values[0]), int(values[1]), dic]
+			for i in range(2, (len(values) - 2)//2):
+				key = b64str(values[i*2])
+				value = b64str(values[i*2+1])
+				dic.append(key, value)
+				
+			return array
+			
+		else:
+			return [-1, -1, {}]

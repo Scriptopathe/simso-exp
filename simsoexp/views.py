@@ -55,7 +55,7 @@ def api_get_scheduler_data(request, scheduler_id):
 	
 def api_get_metrics(request, testset_id, scheduler_id):
 	"""
-	Gets the metrics corresponding to the given testset and id
+	Gets the metrics ids corresponding to the given testset and scheduler.
 	"""
 	reponse = None
 	s = ""
@@ -65,7 +65,31 @@ def api_get_metrics(request, testset_id, scheduler_id):
 		scheduling_policy__id__exact=scheduler_id)
 		
 	for res in response:
-		s += b64(res.metrics) + ","
+		s += str(res.id) + ","
+	
+	return HttpResponse(s.rstrip(','))
+
+def api_get_metric(request, metric_id):
+	"""
+	Gets all the metrics associated to the given metric_id.
+	Gives testset_id and scheduler_id first, then key values in the following format :
+		base64(key),base64(value)
+	"""
+	response = None
+	s = ""
+	response = Results.objects.filter(pk=metric_id)
+	
+	all_metrics = ['preemptions', 'sys_preempt', 
+		'migrations', 'task_migrations', 'norm_laxity',
+		'on_schedule', 'timers', 'aborted_jobs', 'jobs']
+	
+	
+	if(len(response) > 0):
+		res = response[0]
+		s += str(res.test_set.id) + ","
+		s += str(res.scheduling_policy.id) + ","
+		for metric in all_metrics:
+			s += b64(metric) + "," + b64(str(getattr(res, metric)))
 	
 	return HttpResponse(s.rstrip(','))
 
