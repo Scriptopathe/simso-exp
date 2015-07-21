@@ -164,7 +164,7 @@ class SimsoDatabase:
 	def scheduler(self, identifier):
 		return DBScheduler(self, identifier)
 	
-	def get_testsets_by_category(self, category=""):
+	def testsets(self, category=""):
 		"""Gets a list of testset given a category"""
 		sets = self.api.get_testsets_by_category(category)
 		tests = []
@@ -172,7 +172,7 @@ class SimsoDatabase:
 			tests.append(DBTestSet(self, identifier))
 		return tests
 	
-	def get_schedulers_by_name(self, name):
+	def schedulers(self, name=""):
 		"""
 		Gets a list of DBScheduler objects matching the given name
 		Usually there is only one matching result.
