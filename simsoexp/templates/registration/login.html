@@ -1,0 +1,60 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+{% if form.errors %}
+<div class="alert alert-danger">
+    Your username and password didn't match. Please try again.
+</div>
+{% endif %}
+
+
+{% if user.is_authenticated %}
+<div class="alert alert-success">
+    You are currently logged as <b>{{ user.username }}</b>
+    <a class="btn btn-default" href="{% url 'logout' %}">
+        Log Out
+    </a>
+</div>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <div class="alert alert-danger">
+        Your account doesn't have access to this page. To proceed,
+        please login with an account that has access.
+    </div>
+    {% else %}
+    <div class="alert alert-danger">
+        You are not allowed to access <b>{{ next }}</b>.
+        Please login to see this page.<br />
+        If do not have any credentials, please contact 'some contact address'.
+    </div>
+    {% endif %}
+{% endif %}
+
+<form class="form-horizontal" method="post" action="{% url 'django.contrib.auth.views.login' %}">
+    {% csrf_token %}
+    <div class="well">
+        <h4>Log in</h4>
+        
+        <table class="table">
+            <tr>
+                <td width="200px">{{ form.username.label_tag }}</td>
+                <td width="300px">{{ form.username }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.password.label_tag }}</td>
+                <td>{{ form.password }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input class="btn btn-primary" type="submit" value="login" /></td>
+            </tr>
+        </table>
+    </div>
+    <input type="hidden" name="next" value="{{ next }}" />
+</form>
+
+
+{% endblock %}
