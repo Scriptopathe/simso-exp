@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
 	url('^$', views.index, name='index'),
+	url('^validation/', views.manage_validation, name="manage_validation"),
 	url('^api/testsets/(.*)$', views.api_get_testsets, name='testsets'),
 	url('^api/testfiles/([0-9]*)$', views.api_get_test_files, name='testfiles'),
 	url('^api/conf_file/([0-9]*)$', views.api_get_conf_file, name='conf_file'),

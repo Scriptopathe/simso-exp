@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+
 from django.contrib.auth import logout as user_logout
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
@@ -27,29 +29,61 @@ def logout(request):
 	user_logout(request)
 	return redirect(auth_views.login)
 
+
+@user_passes_test(lambda u: u.is_superuser)
+def manage_validation(request):
+	"""
+	View where the admins can validate database entries.
+	"""
+	template = loader.get_template('manage_validation.html')
+	context = RequestContext(request, {
+		
+	})
+	return HttpResponse(template.render(context))
+
 @login_required
 def upload_scheduler(request):
-	name = request.POST['sched_name']
+	"""
+	View called with a POST method when an user
+	submits a scheduler.
+	This view is requested with an AJAX request.
+	"""
+	name = request.user.username + ".schedulers." + request.POST['sched_name']
 	class_name = request.POST['sched_class_name']
 	code = request.POST['sched_content']
 	
-	if(len(get_schedulers_by_name(name)) > 0):
+	validated = get_schedulers_by_name(name, True)
+	
+	# If a validated scheduler with the same name exists,
+	# throws an error.
+	if(len(validated) > 0):
 		return HttpResponse("error:name")
 	
-	sched = SchedulingPolicy()
+	sched = None
+	
+	# If there is an existing scheduler with the same name,
+	# replace it.
+	non_validated = get_schedulers_by_name(name, False)
+	code = ""
+	if(len(non_validated) > 0):
+		sched = non_validated[0]
+		code = "override"
+	else:
+		sched = SchedulingPolicy()
+		code = "new"
+		
 	sched.name = name
 	sched.class_name = class_name
 	sched.code = code
 	sched.sha1 = hashlib.sha1(code).hexdigest()
 	sched.save()
-	return HttpResponse("success")
+	return HttpResponse(code)
 
 
 @login_required
 def index(request):
 	template = loader.get_template('app.html')
 	context = RequestContext(request, {
-		'test' : 'this is a string variable'
 	})
 	return HttpResponse(template.render(context))
 
@@ -129,10 +163,13 @@ def api_get_metric(request, metric_id):
 	
 	return HttpResponse(s.rstrip(','))
 
-def get_schedulers_by_name(name=""):
+def get_schedulers_by_name(name="", need_validation=None):
 	"""
 	Gets the scheduler(s) corresponding to the given name.
 	
+	:param need_validation: if true : return only the validated 
+	schedulers. If false : return only the non validated schedulers.
+	If None : returns all schedulers.
 	:param name: name of the scheduler.
 	"""
 	response = None
@@ -140,6 +177,10 @@ def get_schedulers_by_name(name=""):
 		response = SchedulingPolicy.objects.all()
 	else:
 		response = SchedulingPolicy.objects.filter(name__exact=name)
+	
+	if need_validation != None:
+		response = response.filter(approved=need_validation)
+	
 	return response
 	
 @login_required
@@ -151,7 +192,7 @@ def api_get_schedulers_by_name(request, name):
 	"""
 	name = str(decode_base64(name))
 	
-	response = get_schedulers_by_name(name)
+	response = get_schedulers_by_name(name, True)
 	
 	s = ""
 	for sched in response:

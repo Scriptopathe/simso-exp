@@ -17,7 +17,11 @@
         <div class="form-group">
             <label class="control-label col-sm-4">Scheduler name : </label>
             <div class="col-sm-4">
-                <input class="form-control" type="text" name="sched_name"></input>
+                <div class="input-group">
+                    <span class="input-group-addon">{{user.username}}.schedulers.</span>
+                    <input class="form-control" type="text" name="sched_name"></input>
+                </div>
+                
             </div>            
             <div id="name_error" class="alert alert-danger alert-sm col-sm-4" style="display: none">
                     This scheduler name is already in use.
@@ -51,7 +55,7 @@
         <div class="form-group" id="upload_success" style="display: none">
             <label class="control-label col-sm-4"></label>
             <div class="col-sm-8">
-                <div  class="alert alert-success">
+                <div id="upload_success_text" class="alert alert-success">
                     File Successfully uploaded.
                 </div>
             </div>
@@ -122,6 +126,15 @@
                 } else {
                     // Everything went fine.
                     $('#upload_success').css('display', 'block');
+                    if(data == "new") {
+                        $('#upload_success_text').text("New scheduler " + name +" successfully uploaded.");
+                    }
+                    else if(data == "override") {
+                        $('#upload_success_text').text("Scheduler " + name + " successfully updated.");
+                    }
+                    else {
+                        $('#upload_success_text').text("Unkown answer from the server...");
+                    }
                     $('#name_error').css('display', 'none');
                     $('#form_error').css('display', 'none');
                 }
