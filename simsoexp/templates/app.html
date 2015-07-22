@@ -1,0 +1,18 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<form class="form-horizontal" method="post" action="{% url 'django.contrib.auth.views.login' %}">
+    {% csrf_token %}
+    <div class="well">
+        <h4>Welcome to Simso Experiment Database.</h4>
+        Here you can ask to submit data to be included into the database.<br />
+        This data will be manually validated by Simso maintainers.<br />
+    </div>
+    <div class="well">
+        <h4>Upload a new scheduler.</h4>
+        <input class="btn btn-default" type="file"></input>
+    </div>
+</form>
+
+{% endblock %}
