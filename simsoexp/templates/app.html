@@ -114,6 +114,7 @@
             
             $('#upload_animation').css('display', 'inline');
             posting.done(function(data) {
+                $('#upload_error').css('display', 'none');
                 $('#upload_animation').css('display', 'none');
                 if(data.indexOf("error") > -1) {
                     // There is an error
@@ -143,6 +144,10 @@
             // Shows an error message when the posting fails.
             posting.fail(function(data) {
                 $('#upload_error').css('display', 'block');
+                $('#name_error').css('display', 'none');
+                $('#form_error').css('display', 'none');
+                $('#upload_success').css('display', 'none');
+                $('#upload_animation').css('display', 'none');
             });
         });
     </script>
