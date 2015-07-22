@@ -37,9 +37,32 @@ def manage_validation(request):
 	"""
 	template = loader.get_template('manage_validation.html')
 	context = RequestContext(request, {
-		
+		'scheds' : get_schedulers_by_name("", False),
 	})
 	return HttpResponse(template.render(context))
+
+@user_passes_test(lambda u: u.is_superuser)
+def scheduler_validation_action(request):
+	"""
+	View which only removes / validates schedulers.
+	"""
+	action = request.GET['action']
+	identifier = request.GET['id']
+	objs = SchedulingPolicy.objects.filter(pl=int(identifier))
+	if len(objs) == 0:
+		return HttpResponse("error:bad id")
+	sched = objs[0]
+	
+	if action == "delete":
+		sched.delete()
+		return HttpResponse("success")
+	elif action == "validate"
+		sched.approved = True
+		return HttpResponse("success")
+	else:
+		return HttpResponse("error:bad action")
+	
+	
 
 @login_required
 def upload_scheduler(request):
@@ -64,20 +87,20 @@ def upload_scheduler(request):
 	# If there is an existing scheduler with the same name,
 	# replace it.
 	non_validated = get_schedulers_by_name(name, False)
-	code = ""
+	ret_code = ""
 	if(len(non_validated) > 0):
 		sched = non_validated[0]
-		code = "override"
+		ret_code = "override"
 	else:
 		sched = SchedulingPolicy()
-		code = "new"
+		ret_code = "new"
 		
 	sched.name = name
 	sched.class_name = class_name
 	sched.code = code
 	sched.sha1 = hashlib.sha1(code).hexdigest()
 	sched.save()
-	return HttpResponse(code)
+	return HttpResponse(ret_code)
 
 
 @login_required
@@ -86,6 +109,7 @@ def index(request):
 	context = RequestContext(request, {
 	})
 	return HttpResponse(template.render(context))
+
 
 
 
