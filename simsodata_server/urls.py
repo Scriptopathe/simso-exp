@@ -21,5 +21,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 	url(r'^accounts/login/$', auth_views.login),
     url(r'^accounts/profile/$', auth_views.login),
-    url(r'^app/', include('simsoexp.urls'))
+    url(r'^', include('simsoexp.urls'))
 ]

@@ -88,7 +88,7 @@ class Api:
 		the given category. (if category = None, gives all tests)
 		"""
 		category = b64(category)
-		r = self.urlopen(self.base_addr + "/app/api/testsets/" + category)
+		r = self.urlopen(self.base_addr + "/api/testsets/" + category)
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = val.rsplit(',');
@@ -110,7 +110,7 @@ class Api:
 		"""
 		md5 = hashlib.md5(code).hexdigest();
 		sha = hashlib.sha1(code).hexdigest();
-		r = self.urlopen(self.base_addr + "/app/api/schedulers/sha/" + sha);
+		r = self.urlopen(self.base_addr + "/api/schedulers/sha/" + sha);
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = val.rsplit(',')
@@ -125,7 +125,7 @@ class Api:
 	def get_schedulers_by_name(self, name):
 		"""Returns the scheduler ids corresponding to the scheduler name"""
 		name = b64(name);
-		r = self.urlopen(self.base_addr + "/app/api/schedulers/name/" + name);
+		r = self.urlopen(self.base_addr + "/api/schedulers/name/" + name);
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = val.rsplit(',')
@@ -139,7 +139,7 @@ class Api:
 			
 	def get_metrics(self, testset_id, scheduler_id):
 		"""Returns a list of metrics ids corresponding to the given test set and scheduler id"""
-		r = self.urlopen(self.base_addr + "/app/api/metrics/" + str(testset_id) + "/" + str(scheduler_id))
+		r = self.urlopen(self.base_addr + "/api/metrics/" + str(testset_id) + "/" + str(scheduler_id))
 		if self.urlok(r):
 			val = self.urlread(r)
 			
@@ -159,7 +159,7 @@ class Api:
 		Gets the scheduler data given the scheduler id.
 		The scheduler data is a tuple (name, class_name, code).
 		"""
-		r = self.urlopen(self.base_addr + "/app/api/schedulers/data/" + str(identifier))
+		r = self.urlopen(self.base_addr + "/api/schedulers/data/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = [b64str(value) for value in val.rsplit(',')]
@@ -172,7 +172,7 @@ class Api:
 		Gets a list of XML configuration files for the given test id
 		Only their id is returned.
 		"""
-		r = self.urlopen(self.base_addr + "/app/api/testfiles/" + str(identifier))
+		r = self.urlopen(self.base_addr + "/api/testfiles/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = val.rsplit(',')
@@ -191,7 +191,7 @@ class Api:
 		Gets the configuration file whose id is identifier.
 		Given as tuple (name, content)
 		"""
-		r = self.urlopen(self.base_addr + "/app/api/conf_file/" + str(identifier))
+		r = self.urlopen(self.base_addr + "/api/conf_file/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = val.rsplit(',')
@@ -207,7 +207,7 @@ class Api:
 		dictionary with a key value pair for each metric.
 			Ex : [1, 2, {'metric' : 'value'}]
 		"""
-		r = self.urlopen(self.base_addr + "/app/api/metrics/id/" + str(identifier))
+		r = self.urlopen(self.base_addr + "/api/metrics/id/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
 			print(val)
