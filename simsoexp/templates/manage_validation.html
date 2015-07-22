@@ -15,7 +15,7 @@
     {% for sched in scheds %}
     
     <div class="panel panel-primary" id="panel{{sched.id}}">
-    	<div class="well" 
+    	<div class="well well-sm" 
     		data-toggle="collapse"
     		style="margin-bottom: 0px; cursor: pointer;"
     		data-target="#collapse{{ sched.id }}">
@@ -46,7 +46,6 @@
                                 'action' : 'delete',
                                 'id' : '{{sched.id}}'
                         }, function(data) {
-                            alert(data)
                             if(data == "success")
                                 $("#panel{{sched.id}}").fadeOut(100);
                         
@@ -59,7 +58,6 @@
                            'action' : 'validate',
                            'id' : '{{sched.id}}'
                        }, function(data) {
-                            alert(data)
                             if(data == "success")
                                 $("#panel{{sched.id}}").fadeOut(100);
                            

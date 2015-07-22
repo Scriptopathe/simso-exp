@@ -30,6 +30,18 @@ def logout(request):
 	return redirect(auth_views.login)
 
 
+@login_required
+def contributions(request):
+	"""
+	View where an user can see his contributions (validated or not validated
+	"""
+	template = loader.get_template('contributions.html')
+	name = request.user.username + ".schedulers.";
+	context = RequestContext(request, {
+		'scheds' : SchedulingPolicy.objects.filter(contributor=request.user)
+	})
+	return HttpResponse(template.render(context))
+
 @user_passes_test(lambda u: u.is_superuser)
 def manage_validation(request):
 	"""
@@ -97,6 +109,7 @@ def upload_scheduler(request):
 		ret_code = "new"
 		
 	sched.name = name
+	sched.contributor = request.user
 	sched.class_name = class_name
 	sched.code = code
 	sched.sha1 = hashlib.sha1(code).hexdigest()

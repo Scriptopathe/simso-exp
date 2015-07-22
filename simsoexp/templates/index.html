@@ -30,12 +30,13 @@
 					</a>
 					
 					<ul class="dropdown-menu">
-						<li><a href="{% url 'simsoexp.views.logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+						<li><a href="{% url 'simsoexp.views.contributions' %}"></span> My Contributions</a></li>
 						{% if user.is_superuser %}
 							<li><a href="{% url 'simsoexp.views.manage_validation' %}">Request validations</a></li>
 							<li><a href="{% url 'admin:index' %}">Administration</a></li>
 						
 						{% endif %}
+						<li><a href="{% url 'simsoexp.views.logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 					</ul>
 				</li>
 				{% endif %}

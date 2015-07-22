@@ -8,16 +8,6 @@
 </div>
 {% endif %}
 
-
-{% if user.is_authenticated %}
-<div class="alert alert-success">
-    You are currently logged as <b>{{ user.username }}</b>
-    <a class="btn btn-default" href="{% url 'logout' %}">
-        Log Out
-    </a>
-</div>
-{% endif %}
-
 {% if next %}
     {% if user.is_authenticated %}
     <div class="alert alert-danger">
