@@ -1,6 +1,8 @@
 import urllib.request as url
+import requests
 import hashlib
 import base64
+import getpass
 
 def b64(string):
 	return str(base64.b64encode(string.encode()), 'utf8')
@@ -24,7 +26,7 @@ def cached(name):
 	return f
 	
 class Api:
-	def __init__(self, address, use_cache=True):
+	def __init__(self, address, use_cache=True, username=None, password=None):
 		"""
 		Initializes a connection to the Simso Experiment server
 		at the given address (includes port number)
@@ -37,16 +39,58 @@ class Api:
 			'conf_files': {},
 			'schedulers' : {}
 		}
+		
+		self.session = requests.session()
+		
+		# Prompts user name / password.
+		if(username == None):
+			print("Please enter your credentials for Simso Experiment Database")
+			username = input("Username : ")
+		if(password == None):
+			password = getpass.getpass()
+		
+		self.login(username, password)
+
+	def login(self, username, password):
+		"""
+		Performs login to Simso Experiment Database.
+		"""
+		self.session.get(self.base_addr + "/accounts/login/")
+		csrftoken = self.session.cookies['csrftoken']
+		login_data = {'username':username,'password':password, 'csrfmiddlewaretoken':csrftoken, 'next': '/accounts/login'}
+		p = self.session.post(self.base_addr + "/accounts/login/", data=login_data)
+		self.handle_error(p)
+		
+	def urlopen(self, url):
+		"""
+		Opens the given url and returns the response.
+		"""
+		response = self.session.get(url, allow_redirects=False)
+		if response.status_code == 302:
+			raise Exception("You cannot access the database beccause you have not logged in properly.")
+		return response
 	
+	def urlread(self, r):
+		"""
+		Reads the response's content
+		"""
+		return r.text
+	
+	def urlok(self, r):
+		return r.ok
+	
+	def handle_error(self, r):
+		r.raise_for_status()
+		
 	def get_testsets_by_category(self, category=""):
 		"""
 		Gets a tuple (id, name) for each test in the database matching
 		the given category. (if category = None, gives all tests)
 		"""
 		category = b64(category)
-		r = url.urlopen(self.base_addr + "/app/api/testsets/" + category)
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/testsets/" + category)
+		if self.urlok(r):
+			val = self.urlread(r)
 			values = val.rsplit(',');
 			tuples = []
 			for i in range(0, int(len(values)//2)):
@@ -56,8 +100,7 @@ class Api:
 				))
 			return tuples
 			
-		else:
-			return [];
+		else: self.handle_error(r)
 		
 		
 	def get_schedulers_by_code(self, code):
@@ -67,9 +110,9 @@ class Api:
 		"""
 		md5 = hashlib.md5(code).hexdigest();
 		sha = hashlib.sha1(code).hexdigest();
-		r = url.urlopen(self.base_addr + "/app/api/schedulers/sha/" + sha);
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/schedulers/sha/" + sha);
+		if self.urlok(r):
+			val = self.urlread(r)
 			values = val.rsplit(',')
 			tuples = []
 			for i in range(0, len(values)):
@@ -77,15 +120,14 @@ class Api:
 					 b64str(values[i])
 				)
 			return tuples
-		else:
-			return [];
+		else: self.handle_error(r)
 	
 	def get_schedulers_by_name(self, name):
 		"""Returns the scheduler ids corresponding to the scheduler name"""
 		name = b64(name);
-		r = url.urlopen(self.base_addr + "/app/api/schedulers/name/" + name);
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/schedulers/name/" + name);
+		if self.urlok(r):
+			val = self.urlread(r)
 			values = val.rsplit(',')
 			tuples = []
 			for i in range(0, len(values)):
@@ -93,14 +135,13 @@ class Api:
 					 int(values[i]),
 				)
 			return tuples
-		else:
-			return [];
+		else: self.handle_error(r)
 			
 	def get_metrics(self, testset_id, scheduler_id):
 		"""Returns a list of metrics ids corresponding to the given test set and scheduler id"""
-		r = url.urlopen(self.base_addr + "/app/api/metrics/" + str(testset_id) + "/" + str(scheduler_id))
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/metrics/" + str(testset_id) + "/" + str(scheduler_id))
+		if self.urlok(r):
+			val = self.urlread(r)
 			
 			if(val == ''):
 				return []
@@ -110,8 +151,7 @@ class Api:
 			for i in range(0, len(values)):
 				tuples.append(int(values[i]))
 			return tuples
-		else:
-			return []
+		else: self.handle_error(r)
 	
 	@cached('schedulers')
 	def get_scheduler_data(self, identifier):
@@ -119,13 +159,12 @@ class Api:
 		Gets the scheduler data given the scheduler id.
 		The scheduler data is a tuple (name, class_name, code).
 		"""
-		r = url.urlopen(self.base_addr + "/app/api/schedulers/data/" + str(identifier))
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/schedulers/data/" + str(identifier))
+		if self.urlok(r):
+			val = self.urlread(r)
 			values = [b64str(value) for value in val.rsplit(',')]
 			return (values[0], values[1], values[2]);
-		else:
-			return ""
+		else: self.handle_error(r)
 	
 	@cached('testsets')
 	def get_testset_files(self, identifier):
@@ -133,9 +172,9 @@ class Api:
 		Gets a list of XML configuration files for the given test id
 		Only their id is returned.
 		"""
-		r = url.urlopen(self.base_addr + "/app/api/testfiles/" + str(identifier))
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/testfiles/" + str(identifier))
+		if self.urlok(r):
+			val = self.urlread(r)
 			values = val.rsplit(',')
 			tuples = []
 			for i in range(0, len(values)):
@@ -144,8 +183,7 @@ class Api:
 				)
 			return tuples
 			
-		else:
-			return []
+		else: self.handle_error(r)
 	
 	@cached('conf_files')
 	def get_conf_file(self, identifier):
@@ -153,14 +191,13 @@ class Api:
 		Gets the configuration file whose id is identifier.
 		Given as tuple (name, content)
 		"""
-		r = url.urlopen(self.base_addr + "/app/api/conf_file/" + str(identifier))
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/conf_file/" + str(identifier))
+		if self.urlok(r):
+			val = self.urlread(r)
 			values = val.rsplit(',')
 			return (b64str(values[0]), b64str(values[1]))
 			
-		else:
-			return []
+		else: self.handle_error(r)
 	
 	@cached('metrics')
 	def get_metric(self, identifier):
@@ -170,9 +207,9 @@ class Api:
 		dictionary with a key value pair for each metric.
 			Ex : [1, 2, {'metric' : 'value'}]
 		"""
-		r = url.urlopen(self.base_addr + "/app/api/metrics/id/" + str(identifier))
-		if(r.code == 200):
-			val = str(r.read(), encoding='utf8')
+		r = self.urlopen(self.base_addr + "/app/api/metrics/id/" + str(identifier))
+		if self.urlok(r):
+			val = self.urlread(r)
 			print(val)
 			values = val.rsplit(',')
 			dic = {}
@@ -185,5 +222,4 @@ class Api:
 				
 			return array
 			
-		else:
-			return [-1, -1, {}]
+		else: self.handle_error(r)
