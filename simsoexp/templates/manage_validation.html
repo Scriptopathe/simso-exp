@@ -19,8 +19,12 @@
     		data-toggle="collapse"
     		style="margin-bottom: 0px; cursor: pointer;"
     		data-target="#collapse{{ sched.id }}">
-            <button class="btn btn-danger" id="remove{{sched.id}}"><span class="glyphicon glyphicon-remove"></span></button>
-            <button class="btn btn-success" id="validate{{sched.id}}"><span class="glyphicon glyphicon-ok"></span></button>
+            <button 
+                data-toggle="tooltip" data-placement="top" title="Deletes this scheduler proposition."
+                class="btn btn-danger" id="remove{{sched.id}}"><span class="glyphicon glyphicon-remove"></span></button>
+            <button 
+                data-toggle="tooltip" data-placement="top" title="Validates this scheduler."
+                class="btn btn-success" id="validate{{sched.id}}"><span class="glyphicon glyphicon-ok"></span></button>
             <b>{{sched.name}}</b>
         </div>
         
@@ -76,6 +80,9 @@
     
     
     <script>
+        $(document).ready(function() {
+    		$('[data-toggle="tooltip"]').tooltip();
+        });
     </script>
 </div>
 
