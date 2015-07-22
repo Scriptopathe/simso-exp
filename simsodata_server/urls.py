@@ -19,7 +19,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-	url(r'^login/$', auth_views.login),
+	url(r'^accounts/login/$', auth_views.login),
     url(r'^accounts/profile/$', auth_views.login),
     url(r'^app/', include('simsoexp.urls'))
 ]

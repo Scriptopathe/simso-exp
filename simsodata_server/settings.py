@@ -24,8 +24,8 @@ SECRET_KEY = 'y$*!c^c0186+-cz&p(2lp-l9xtu1db086@+jhczzs=3u-xc%!='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = []
-LOGIN_REDIRECT_URL = "/login/"
-
+LOGIN_REDIRECT_URL = "/accounts/login/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 # Application definition
 
 INSTALLED_APPS = (
