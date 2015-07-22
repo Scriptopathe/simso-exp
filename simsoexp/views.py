@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as user_logout
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
-
+import hashlib
 import base64
 from models import *
 
@@ -27,12 +27,32 @@ def logout(request):
 	user_logout(request)
 	return redirect(auth_views.login)
 
+@login_required
+def upload_scheduler(request):
+	name = request.POST['sched_name']
+	class_name = request.POST['sched_class_name']
+	code = request.POST['sched_content']
+	
+	if(len(get_schedulers_by_name(name)) > 0):
+		return HttpResponse("error:name")
+	
+	sched = SchedulingPolicy()
+	sched.name = name
+	sched.class_name = class_name
+	sched.code = code
+	sched.sha1 = hashlib.sha1(code).hexdigest()
+	sched.save()
+	return HttpResponse("success")
+
+
+@login_required
 def index(request):
-	template = loader.get_template('simsoexp/index.html')
+	template = loader.get_template('app.html')
 	context = RequestContext(request, {
 		'test' : 'this is a string variable'
 	})
 	return HttpResponse(template.render(context))
+
 
 
 @login_required
@@ -109,6 +129,19 @@ def api_get_metric(request, metric_id):
 	
 	return HttpResponse(s.rstrip(','))
 
+def get_schedulers_by_name(name=""):
+	"""
+	Gets the scheduler(s) corresponding to the given name.
+	
+	:param name: name of the scheduler.
+	"""
+	response = None
+	if(name == ""):
+		response = SchedulingPolicy.objects.all()
+	else:
+		response = SchedulingPolicy.objects.filter(name__exact=name)
+	return response
+	
 @login_required
 def api_get_schedulers_by_name(request, name):
 	"""
@@ -116,13 +149,9 @@ def api_get_schedulers_by_name(request, name):
 	
 	:param name: Base 64 encoded scheduler name.
 	"""
-	response = None
 	name = str(decode_base64(name))
 	
-	if(name == ""):
-		response = SchedulingPolicy.objects.all()
-	else:
-		response = SchedulingPolicy.objects.filter(name__exact=name)
+	response = get_schedulers_by_name(name)
 	
 	s = ""
 	for sched in response:

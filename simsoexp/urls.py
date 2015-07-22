@@ -6,6 +6,7 @@ urlpatterns = [
 	url('^api/testsets/(.*)$', views.api_get_testsets, name='testsets'),
 	url('^api/testfiles/([0-9]*)$', views.api_get_test_files, name='testfiles'),
 	url('^api/conf_file/([0-9]*)$', views.api_get_conf_file, name='conf_file'),
+	url('^api/schedulers/upload/', views.upload_scheduler, name='scheduler_upload'),
 	url('^api/schedulers/sha/(.*)$', views.api_get_schedulers_by_sha, name='schedulers_sha'),
 	url('^api/schedulers/name/(.*)$', views.api_get_schedulers_by_name, name='schedulers_name'),
 	url('^api/metrics/id/([0-9]*)$', views.api_get_metric, name='metrics_by_id'),
