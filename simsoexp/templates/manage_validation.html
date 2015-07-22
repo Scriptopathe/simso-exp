@@ -41,15 +41,29 @@
                     editor.setTheme("ace/theme/chrome");
                     editor.getSession().setMode("ace/mode/python");
                     $("#remove{{sched.id}}").click(function(e) {
-                       e.stopPropagation();
-                       /*$.get("{% url 'simsoexp.views.scheduler_validation_action' %}", 
-                       );*/
-                       $("#panel{{sched.id}}").fadeOut(100);
+                        e.stopPropagation();
+                        $.get("{% url 'simsoexp.views.scheduler_validation_action' %}", {
+                                'action' : 'delete',
+                                'id' : '{{sched.id}}'
+                        }, function(data) {
+                            alert(data)
+                            if(data == "success")
+                                $("#panel{{sched.id}}").fadeOut(100);
+                        
+                        });
                     });
                     
-                    $("#remove{{sched.id}}").click(function(e) {
+                    $("#validate{{sched.id}}").click(function(e) {
                        e.stopPropagation();
-                       $("#panel{{sched.id}}").fadeOut(100);
+                       $.get("{% url 'simsoexp.views.scheduler_validation_action' %}", {
+                           'action' : 'validate',
+                           'id' : '{{sched.id}}'
+                       }, function(data) {
+                            alert(data)
+                            if(data == "success")
+                                $("#panel{{sched.id}}").fadeOut(100);
+                           
+                       });
                     });
                 </script>
             </div>
@@ -59,7 +73,7 @@
 
         
     {% empty %}
-        <p>je pleure (((</p>
+        <p>No item to display.</p>
     {% endfor %}
     
     

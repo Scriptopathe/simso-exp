@@ -48,7 +48,7 @@ def scheduler_validation_action(request):
 	"""
 	action = request.GET['action']
 	identifier = request.GET['id']
-	objs = SchedulingPolicy.objects.filter(pl=int(identifier))
+	objs = SchedulingPolicy.objects.filter(pk=int(identifier))
 	if len(objs) == 0:
 		return HttpResponse("error:bad id")
 	sched = objs[0]
@@ -56,8 +56,9 @@ def scheduler_validation_action(request):
 	if action == "delete":
 		sched.delete()
 		return HttpResponse("success")
-	elif action == "validate"
+	elif action == "validate":
 		sched.approved = True
+		sched.save()
 		return HttpResponse("success")
 	else:
 		return HttpResponse("error:bad action")
