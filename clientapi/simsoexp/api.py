@@ -192,6 +192,10 @@ class Api:
 		r = self.urlopen(self.base_addr + "/api/testfiles/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
+			
+			if val == '':
+				raise Exception("Testset " + str(identifier) + " doesn't exist.")
+			
 			values = val.rsplit(',')
 			tuples = []
 			for i in range(0, len(values)):
