@@ -72,12 +72,37 @@ class DBTestSet:
 		self.db = db
 		self.identifier = identifier
 		self.__conf_files = None
+		self.__name = None
+		self.__categories = None
 		if db.preload:
 			self.__load_conf_files()
+	
+	def __load_data(self):
+		name, categories, fileIds = self.db.api.get_testset(self.identifier)
+		self.__categories = categories
+		self.__name = name
 		
 	def __load_conf_files(self):
 		files = self.db.api.get_testset_files(self.identifier);
 		self.__conf_files = [DBConfFile(self.db, self, f) for f in files]
+	
+	@property
+	def name(self):
+		"""
+		Gets the name of the test set
+		"""
+		if self.__name == None:
+			self.__load_data()
+		return self.__name
+	
+	@property
+	def categories(self):
+		"""
+		Gets this test set's categories
+		"""
+		if self.__categories == None:
+			self.__load_data()
+		return self.__categories
 	
 	@property
 	def conf_files(self):
