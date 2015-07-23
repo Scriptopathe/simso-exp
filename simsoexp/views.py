@@ -30,6 +30,9 @@ def paginate(requestFunction, page, pageSize=10, dispPages=5):
 	returns a tuple (count, page, start, end, items, pagesDisp, pagesCount)
 	"""
 	itemCount = requestFunction().count()
+	if(itemCount == 0):
+		return (0, 0, 0, 0, [], [0], 0)
+	
 	pagesCount = int(itemCount / pageSize) - (1 if (itemCount % pageSize == 0) else 0)
 	page = min(pagesCount, max(0, int(page)))
 		
