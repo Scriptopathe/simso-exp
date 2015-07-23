@@ -1,4 +1,4 @@
-from simsoexp.simsodb import SimsoDatabase
+from simsoexp.simsodb import SimsoDatabase, Experiment
 from simso.configuration import Configuration
 from simso.core import Model
 
@@ -40,10 +40,6 @@ model = Model(cf)
 model.run_model()
 print(HEADER + "------ SUCCESSFULLY RUN MODEL" + ENDC)
 
-
-db = SimsoDatabase("http://localhost:8000")
-sets = db.testsets()
-test = sets[0]
-conf = test.conf_files
-sched = db.schedulers("simso.schedulers.EDF")[0]
-cf = conf[0].configuration
+e = Experiment(db, ("test", [c.configuration for c in conf]), sched)
+e.run()
+e.upload()

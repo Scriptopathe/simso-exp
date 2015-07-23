@@ -15,8 +15,6 @@ class Notification(models.Model):
 	ntype = models.CharField(max_length=255)
 	
 class ConfigurationFile(models.Model):
-	# Name of the configuration file.
-	name = models.CharField(max_length=255)
 	# XML conf file
 	conf = models.TextField()
 	# True if approved by the admin

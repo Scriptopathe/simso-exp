@@ -3,6 +3,7 @@ import requests
 import hashlib
 import base64
 import getpass
+import os
 
 def b64(string):
 	return str(base64.b64encode(string.encode()), 'utf8')
@@ -70,6 +71,14 @@ class Api:
 			raise Exception("You cannot access the database beccause you have not logged in properly.")
 		return response
 	
+	def post(self, url, data):
+		"""
+		Makes a post request to the given url with the given data.
+		"""
+		response = self.session.post(url, data=data)
+		self.handle_error(response)
+		return response
+		
 	def urlread(self, r):
 		"""
 		Reads the response's content
@@ -80,6 +89,13 @@ class Api:
 		return r.ok
 	
 	def handle_error(self, r):
+		
+		if not r.ok:
+			f = open("f.html", "w+")
+			f.write(r.text)
+			f.close()
+			os.system("firefox f.html")
+		
 		r.raise_for_status()
 		
 	def get_testsets_by_category(self, category=""):
@@ -193,9 +209,7 @@ class Api:
 		"""
 		r = self.urlopen(self.base_addr + "/api/conf_file/" + str(identifier))
 		if self.urlok(r):
-			val = self.urlread(r)
-			values = val.rsplit(',')
-			return (b64str(values[0]), b64str(values[1]))
+			return self.urlread(r)
 			
 		else: self.handle_error(r)
 	
@@ -223,3 +237,15 @@ class Api:
 			return array
 			
 		else: self.handle_error(r)
+
+	
+	def upload_experiment(self, postdata):
+		"""
+		Uploads an experiment (with the given post data)
+		"""
+		response = self.post(self.base_addr + "/api/experiment/upload", postdata)
+		value = self.urlread(response)
+		if "error" in value:
+			raise Exception("upload_experiment: The server returned the following status : " + value)
+		
+		

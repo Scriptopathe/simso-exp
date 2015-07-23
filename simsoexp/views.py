@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import logout as user_logout
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
@@ -24,7 +25,7 @@ def decode_base64(data):
 def b64(data):
 	return base64.b64encode(data)
 	
-def paginate(requestFunction, page, pageSize=10, dispPages=5):
+def paginate(requestFunction, page, pageSize=5, dispPages=5):
 	"""
 	Given a requesr function, a page number and a page size, 
 	returns a tuple (count, page, start, end, items, pagesDisp, pagesCount)
@@ -213,6 +214,93 @@ def upload_scheduler(request):
 	sched.save()
 	return HttpResponse(ret_code)
 
+def get_test_category(name):
+	"""
+	Gets the test category with the given name
+	"""
+	cats = TestCategory.objects.filter(name=name)
+	if len(cats) > 0:
+		return cats[0]
+	
+	cat = TestCategory()
+	cat.name = name
+	cat.save()
+	return cat
+
+@login_required
+@csrf_exempt
+def api_upload_experiment(request):
+	# Metrics
+	preemptions = request.POST["preemptions"]
+	sys_preempt = request.POST["sys_preempt"]
+	migrations = request.POST["migrations"]
+	task_migrations = request.POST["task_migrations"]
+	norm_laxity = request.POST["norm_laxity"]
+	on_schedule = request.POST["on_schedule"]
+	timers = request.POST["timers"]
+	aborted_jobs = request.POST["aborted_jobs"]
+	jobs = request.POST["jobs"]
+	test_name = request.POST['test_name']
+	
+	# Conf file or testset id
+	testset_id = request.POST["testset_id"]
+	conf_files = request.POST.getlist('conf_files[]')
+	
+	# Categories
+	test_categories = request.POST.getlist('categories')
+	
+	# Scheduler
+	scheduling_policy_id = request.POST['scheduler']
+		
+	# Gets the scheduler
+	schedulers = SchedulingPolicy.objects.filter(pk=scheduling_policy_id)
+	if len(schedulers) == 0:
+		return HttpResponse("error: no such scheduler")
+	scheduler = schedulers[0]
+
+	
+	# Creates all the conf files
+	files = []
+	for i in range(0, len(conf_files)):
+		f = ConfigurationFile()
+		f.conf = conf_files[i]
+		f.save()
+		files.append(f)
+	
+	# If testset_id is provided, takes an existing one
+	# if not, create a new one
+	testset = None
+	if(testset_id == "-1"):
+		# Creates the test set object
+		testset = TestSet()
+		testset.save() # necessary to use many to many relationships
+		testset.name = test_name
+		testset.categories = [get_test_category(cat) for cat in test_categories]
+		testset.files = files
+		testset.save()
+	else:
+		# Takes an existing one
+		testsets = TestSet.objects.filter(pk=testset_id)
+		if len(testsets) == 0:
+			return "error:bad testset"
+		testset = testsets[0]
+	
+	# Creates the result object
+	result = Results()
+	result.test_set = testset
+	result.scheduling_policy = scheduler
+	result.preemptions = int(preemptions)
+	result.sys_preempt = int(sys_preempt)
+	result.migrations = int(migrations)
+	result.task_migrations = int(task_migrations)
+	result.norm_laxity = int(norm_laxity)
+	result.on_schedule = int(on_schedule)
+	result.timers = int(timers)
+	result.aborted_jobs = int(aborted_jobs)
+	result.jobs = int(jobs)
+	result.save()
+	
+	return HttpResponse("success")
 
 @login_required
 def index(request):
@@ -386,8 +474,6 @@ def api_get_conf_file(self, file_id):
 	response = ConfigurationFile.objects.filter(pk=file_id)
 	s = ""
 	if len(response) > 0:
-		name = b64(response[0].name)
-		content = b64(response[0].conf)
-		s = name + "," + content
+		s = response[0].conf
 	
 	return HttpResponse(s)
