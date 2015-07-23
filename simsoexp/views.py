@@ -244,7 +244,7 @@ def api_upload_experiment(request):
 	
 	# Conf file or testset id
 	testset_id = request.POST["testset_id"]
-	conf_files = request.POST.getlist('conf_files[]')
+	conf_files = request.POST.getlist('conf_files')
 	
 	# Categories
 	test_categories = request.POST.getlist('categories')
