@@ -71,7 +71,7 @@ def contributions(request):
 	})
 	return HttpResponse(template.render(context))
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.user.is_staff)
 def manage_validation(request):
 	"""
 	View where the admins can validate database entries.
@@ -82,7 +82,7 @@ def manage_validation(request):
 	})
 	return HttpResponse(template.render(context))
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.user.is_staff)
 def scheduler_validation_action(request):
 	"""
 	View which only removes / validates schedulers.

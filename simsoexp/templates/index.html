@@ -43,7 +43,7 @@
 							<span class="badge badge-custom" id="notifications_badge"></span></a>
 						</li>
 						  
-						{% if user.is_superuser %}
+						{% if user.is_staff %}
 							<li>
 								<a href="{% url 'simsoexp.views.manage_validation' %}">
 									<span class="glyphicon glyphicon-ok"></span> Request validations
