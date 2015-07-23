@@ -2,7 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 import pickle
 
-# Create your models here.
+class Notification(models.Model):
+	# The notification's title
+	title = models.TextField()
+	# The notification's description
+	content = models.TextField()
+	# The destination user of the notification.
+	user = models.ForeignKey(User)
+
 class ConfigurationFile(models.Model):
 	# Name of the configuration file.
 	name = models.CharField(max_length=255)
