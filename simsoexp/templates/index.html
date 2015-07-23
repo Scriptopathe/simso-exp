@@ -32,18 +32,37 @@
 					</a>
 					
 					<ul class="dropdown-menu">
-						<li><a href="{% url 'simsoexp.views.contributions' %}"></span> My Contributions</a></li>
-						{% if user.is_superuser %}
-							<li><a href="{% url 'simsoexp.views.manage_validation' %}">Request validations</a></li>
-							<li><a href="{% url 'admin:index' %}">Administration</a></li>
-						
-						{% endif %}
+						<li>
+							<a href="{% url 'simsoexp.views.contributions' %}">
+								 <span class="glyphicon glyphicon-briefcase"></span> My Contributions
+							</a>
+						</li>
 						<li>
 							<a href="{% url 'simsoexp.views.notifications' %}">
 							<span class="glyphicon glyphicon-bell"></span> Notifications 
 							<span class="badge badge-custom" id="notifications_badge"></span></a>
 						</li>
+						  
+						{% if user.is_superuser %}
+							<li>
+								<a href="{% url 'simsoexp.views.manage_validation' %}">
+									<span class="glyphicon glyphicon-ok"></span> Request validations
+								</a>
+							</li>
+						{% endif %}
+						
+  						<li role="separator" class="divider"></li>
+						
+						{% if user.is_superuser %}
+							<li>
+								<a href="{% url 'admin:index' %}">
+									<span class="glyphicon glyphicon-user"></span> <b>Administration</b>
+								</a>
+							</li>
+						{% endif %}						
+						
 						<li><a href="{% url 'simsoexp.views.logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+						
 					</ul>
 				</li>
 				{% endif %}
