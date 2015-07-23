@@ -11,7 +11,9 @@ class Notification(models.Model):
 	user = models.ForeignKey(User)
 	# Indicates if this notification has been read.
 	read = models.BooleanField(default=False)
-
+	# Notification type (danger, success, warning) :
+	ntype = models.CharField(max_length=255)
+	
 class ConfigurationFile(models.Model):
 	# Name of the configuration file.
 	name = models.CharField(max_length=255)

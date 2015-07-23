@@ -71,7 +71,7 @@ def contributions(request):
 	})
 	return HttpResponse(template.render(context))
 
-@user_passes_test(lambda u: u.user.is_staff)
+@user_passes_test(lambda u: u.is_staff)
 def manage_validation(request):
 	"""
 	View where the admins can validate database entries.
@@ -82,7 +82,7 @@ def manage_validation(request):
 	})
 	return HttpResponse(template.render(context))
 
-@user_passes_test(lambda u: u.user.is_staff)
+@user_passes_test(lambda u: u.is_staff)
 def scheduler_validation_action(request):
 	"""
 	View which only removes / validates schedulers.
@@ -97,15 +97,22 @@ def scheduler_validation_action(request):
 	if action == "delete":
 		reason = request.GET['reason']
 		notif = Notification()
-		notif.title = "Submission of scheduler " + sched.name + " refused."
+		notif.title = "Submission of scheduler " + sched.name + " : refused."
 		notif.user = request.user
 		notif.content = reason
+		notif.ntype = "danger"
 		notif.save()
-		#sched.delete()
+		sched.delete()
 		return HttpResponse("success")
 	elif action == "validate":
 		sched.approved = True
 		sched.save()
+		notif = Notification()
+		notif.title = "Submission of scheduler " + sched.name + " : approved."
+		notif.user = request.user
+		notif.content = "Congratulations ! Your scheduler has been added to the database."
+		notif.ntype = "success"
+		notif.save()
 		return HttpResponse("success")
 	else:
 		return HttpResponse("error:bad action")

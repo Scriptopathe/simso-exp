@@ -40,7 +40,7 @@
     <script>var read = {};</script>
     <div class="list-group">
     {% for notif in notifs %}
-      <a href="#" class="list-group-item" id="notif{{notif.id}}">
+      <a href="#" class="list-group-item list-group-item-{{notif.ntype}}" id="notif{{notif.id}}">
         <h4 class="list-group-item-heading">
              {% if not notif.read %}
              <span id="notifsign{{notif.id}}" class="glyphicon glyphicon-exclamation-sign"></span>
