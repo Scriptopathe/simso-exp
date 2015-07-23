@@ -13,12 +13,6 @@ UNDERLINE = '\033[4m'
 HEADER = OKBLUE + BOLD
 
 
-a = Api("http://localhost:8000")
-print(a.get_testset(1))
-
-a.djeidjei
-
-
 db = SimsoDatabase("http://localhost:8000")
 print(HEADER + "------ Simso DB test program ------" + ENDC)
 print(HEADER + "------ All test sets" + ENDC)
@@ -48,6 +42,6 @@ model = Model(cf)
 model.run_model()
 print(HEADER + "------ SUCCESSFULLY RUN MODEL" + ENDC)
 
-e = Experiment(db, ("test", [c.configuration for c in conf]), sched)
+e = Experiment(db, ("test", ["category1"], [c.configuration for c in conf]), sched)
 e.run()
 e.upload()

@@ -222,7 +222,8 @@ class Experiment:
 	"""
 	Represent an experiment, which contains :
 		- a set of configuration files 
-		  (either DBTestSet or a tuple (name, list of Configuration objects))
+		  (either DBTestSet or a 
+		  tuple (name, categories, list of Configuration objects))
 		- a scheduler
 		- a set of metrics
 	"""
@@ -234,16 +235,24 @@ class Experiment:
 			self.testset = conf_files
 			self.testname = self.testset.name
 			self.conf_files = [f.configuration for f in conf_files.conf_files]
+			self.categories = self.testset.categories
 		else:
 			assert(isinstance(conf_files, tuple))
 			assert(isinstance(conf_files[0], str))
 			assert(isinstance(conf_files[1], list))
-			for f in conf_files[1]:
+			
+			# Check categories
+			for c in conf_files[1]:
+				assert(isinstance(c, str))
+			
+			# Check files	
+			assert(isinstance(conf_files[2], list))
+			for f in conf_files[2]:
 				assert(isinstance(f, Configuration))
 			self.testset = None
-			self.conf_files = conf_files[1]
 			self.testname = conf_files[0]
-				
+			self.categories = conf_files[1]
+			self.conf_files = conf_files[2]
 		# Check scheduler
 		assert(isinstance(scheduler, DBScheduler))
 		self.scheduler = scheduler
@@ -300,7 +309,7 @@ class Experiment:
 		data["test_name"] = self.testname
 		
 		# Categories
-		data["categories"] = ["test"] # TODO
+		data["categories"] = self.categories
 		
 		# Scheduler
 		data["scheduler"] = self.scheduler.identifier
