@@ -1,6 +1,8 @@
 # This file contains high-level api designed to work with simso
 import sys
 from .api import Api
+from .metrics_collector import MetricsCollector
+from simso.core import Model
 from simso.configuration import Configuration
 from simso.configuration.GenerateConfiguration import generate
 import os
@@ -189,6 +191,8 @@ class DBScheduler:
 	def __repr__(self):
 		return "<DBScheduler id={} name={} class_name={}>".format(self.identifier, self.name, self.class_name)
 
+
+		
 class Experiment:
 	"""
 	Represent an experiment, which contains :
@@ -226,6 +230,15 @@ class Experiment:
 		"""
 		Runs the experiment and computes the metrics
 		"""
+		
+		all_results = []
+		for configuration in self.conf_files:
+			model = Model(configuration)
+			model.run_model()
+			all_results.append(MetricsCollector(model.results))
+		
+		# TODO : do some magic
+		
 		# Check metrics
 		self.metrics = {}
 		self.metrics["preemptions"] = 0
