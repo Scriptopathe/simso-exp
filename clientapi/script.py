@@ -42,7 +42,17 @@ if False:
 	model.run_model()
 	print(HEADER + "------ SUCCESSFULLY RUN MODEL" + ENDC)
 
-
+db = SimsoDatabase("http://localhost:8000")
 e = Experiment(db, db.testset(1), db.schedulers("simso.schedulers.EDF")[0])
+e.run()
+e.upload()
+
+e = Experiment(db, 
+	(
+		"Custom test", 
+		["testcat1", "testcat2"],
+		[c.configuration for  c in db.testset(1).conf_files],
+	),
+	db.schedulers("simso.schedulers.EDF")[0])
 e.run()
 e.upload()
