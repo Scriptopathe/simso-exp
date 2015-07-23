@@ -21,7 +21,7 @@ class ConfigurationFile(models.Model):
 	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
-		return self.name
+		return "Conf " + str(self.id)
 
 class TestCategory(models.Model):
 	# Name of the test category

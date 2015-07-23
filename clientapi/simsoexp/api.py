@@ -36,6 +36,7 @@ class Api:
 		self.use_cache = use_cache;
 		self.cache = {
 			'testsets': {},
+			'testsets_id': {},
 			'metrics' : {},
 			'conf_files': {},
 			'schedulers' : {}
@@ -104,7 +105,7 @@ class Api:
 		the given category. (if category = None, gives all tests)
 		"""
 		category = b64(category)
-		r = self.urlopen(self.base_addr + "/api/testsets/" + category)
+		r = self.urlopen(self.base_addr + "/api/testsets/category/" + category)
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = val.rsplit(',');
@@ -199,6 +200,25 @@ class Api:
 				)
 			return tuples
 			
+		else: self.handle_error(r)
+	
+	@cached('testsets_id')
+	def get_testset(self, identifier):
+		"""
+		Gets a tuple (name, categories[], files[]) for the testset with the given id.
+		"""
+		r = self.urlopen(self.base_addr + "/api/testsets/id/" + str(identifier))
+		if self.urlok(r):
+			val = self.urlread(r)
+			values = val.rsplit(',')
+			tuples = (b64str(values[0]), [], [])
+			n = int(values[1])+1
+			for i in range(2, n+1):
+				tuples[1].append(b64str(values[i]))
+			n2 = int(values[n+1])
+			for i in range(n+1, n+n2+2):
+				tuples[2].append(values[i])
+			return tuples
 		else: self.handle_error(r)
 	
 	@cached('conf_files')

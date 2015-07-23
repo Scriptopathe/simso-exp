@@ -1,4 +1,5 @@
 from simsoexp.simsodb import SimsoDatabase, Experiment
+from simsoexp.api import Api
 from simso.configuration import Configuration
 from simso.core import Model
 
@@ -10,6 +11,13 @@ ENDC = '\033[0m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 HEADER = OKBLUE + BOLD
+
+
+a = Api("http://localhost:8000")
+print(a.get_testset(1))
+
+a.djeidjei
+
 
 db = SimsoDatabase("http://localhost:8000")
 print(HEADER + "------ Simso DB test program ------" + ENDC)

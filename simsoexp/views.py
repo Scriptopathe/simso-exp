@@ -377,7 +377,7 @@ def api_get_metric(request, metric_id):
 		'on_schedule', 'timers', 'aborted_jobs', 'jobs']
 	
 	
-	if(len(response) > 0):
+	if response.count() > 0:
 		res = response[0]
 		s += str(res.test_set.id) + ","
 		s += str(res.scheduling_policy.id) + ","
@@ -444,7 +444,29 @@ def api_get_testsets(request, category):
 		s += b64(str(testset.id)) + "," + b64(testset.name) + ","
 	
 	return HttpResponse(s.rstrip(','))
+
+@login_required
+def api_get_testsets_by_id(request, identifier):
+	"""
+	Gets a tuple (name, categoryCount, category1, category2, fileCount, file1, ...)
+	for the testset with the given id.
+	"""
+	response = TestSet.objects.filter(pk=identifier)
+	if response.count() == 0:
+		return HttpResponse("")
 	
+	testset = response[0]
+	s = b64(testset.name) + ",";
+	s += str(testset.categories.count()) + ","
+	for cat in testset.categories.all():
+		s += b64(cat.name) + ","
+	s += str(testset.files.count()) + ","
+	for f in testset.files.all():
+		s += str(f.id) + ","
+	
+	return HttpResponse(s)
+	
+
 @login_required
 def api_get_test_files(self, testset_id):
 	"""
@@ -459,7 +481,7 @@ def api_get_test_files(self, testset_id):
 		response = ConfigurationFile.objects.filter(testset__id=testset_id);
 	
 	s = ""
-	if(len(response) > 0):
+	if response.count() > 0:
 		for conffile in response:
 			identifier = str(conffile.id)
 			s += identifier+","
@@ -473,7 +495,7 @@ def api_get_conf_file(self, file_id):
 	"""
 	response = ConfigurationFile.objects.filter(pk=file_id)
 	s = ""
-	if len(response) > 0:
+	if response.count() > 0:
 		s = response[0].conf
 	
 	return HttpResponse(s)
