@@ -5,6 +5,7 @@ urlpatterns = [
 	url('^$', views.index, name='index'),
 	url('^validation/action/$', views.scheduler_validation_action, name="scheduler_validation_action"),
 	url('^validation/$', views.manage_validation, name="manage_validation"),
+	url('^notifications/$', views.notifications, name="notifications"),
 	url('^contributions/$', views.contributions, name="contributions"),
 	url('^api/testsets/(.*)$', views.api_get_testsets, name='testsets'),
 	url('^api/testfiles/([0-9]*)$', views.api_get_test_files, name='testfiles'),

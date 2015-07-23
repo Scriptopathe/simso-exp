@@ -1,0 +1,56 @@
+{% extends "index.html" %}
+
+
+{% block content %}
+
+{% load staticfiles %}
+<script src="{% static 'ace.js' %}" type="text/javascript" charset="utf-8"></script>
+<div class="well">
+    <h4>Welcome to Simso Experiment Database.</h4>
+    Here you can validate the submissions of the users.<br />
+</div>
+
+<div class="well">
+    <h4>Notifications <span class="badge">{{unread_count}}</h4>
+    
+    {% for notif in notifs %}
+        <h4>{{notif.title}}</h4>
+        <p>{{notif.content}}</h4>
+        
+    {% empty %}
+        <p>No item to display.</p>
+    {% endfor %}
+
+
+    <ul class="pagination">
+        <li>
+          <a href="{% url 'simsoexp.views.notifications' %}?page=0" aria-label="First">
+            <span aria-hidden="true">&laquo; First</span>
+          </a>
+        </li>
+        {% for pageId in pagesDisp %}
+        
+        {% if pageId == page %}
+        <li class="active"><a><b>{{pageId}}</b></a></li>
+        
+        {% else %}
+        <li><a href="{% url 'simsoexp.views.notifications' %}?page={{pageId}}">{{pageId}}</a></li>
+        
+        {% endif %}
+        {% endfor %}
+        <li>
+          <a href="{% url 'simsoexp.views.notifications' %}?page={{pagesCount}}" aria-label="Last">
+            <span aria-hidden="true">Last &raquo;</span>
+          </a>
+        </li>
+    </ul>
+    
+    <script>
+        $(document).ready(function() {
+    		$('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+</div>
+
+{% endblock %}
+

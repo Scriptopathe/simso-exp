@@ -3,12 +3,12 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import logout as user_logout
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 import hashlib
 import base64
+from math import ceil
 from models import *
 
 def decode_base64(data):
@@ -23,7 +23,33 @@ def decode_base64(data):
 
 def b64(data):
 	return base64.b64encode(data)
-
+	
+def paginate(requestFunction, page, pageSize=10, dispPages=5):
+	"""
+	Given a requesr function, a page number and a page size, 
+	returns a tuple (count, page, start, end, items, pagesDisp, pagesCount)
+	"""
+	itemCount = requestFunction().count()
+	pagesCount = int(itemCount / pageSize) - (1 if (itemCount % pageSize == 0) else 0)
+	page = min(pagesCount, max(0, int(page)))
+		
+	start = pageSize * page
+	end = min((page+1)*pageSize, itemCount)
+	
+	# Fills the page numbers displayed to the user.
+	pagesDisp = []
+	if(pagesCount <= dispPages):
+		pagesDisp = [x for x in range(0, pagesCount+1)]
+	else:
+		curPage = max(0, page-dispPages/2)
+		for i in range(0, dispPages):
+			pagesDisp.append(curPage)
+			curPage += 1
+			if curPage > pagesCount:
+				break
+	
+	return (itemCount, page, start, end, requestFunction()[start:end], pagesDisp, pagesCount)
+	
 def logout(request):
 	"""Logs out the user"""
 	user_logout(request)
@@ -66,7 +92,13 @@ def scheduler_validation_action(request):
 	sched = objs[0]
 	
 	if action == "delete":
-		sched.delete()
+		reason = request.GET['reason']
+		notif = Notification()
+		notif.title = "Submission of scheduler " + sched.name + " refused."
+		notif.user = request.user
+		notif.content = reason
+		notif.save()
+		#sched.delete()
 		return HttpResponse("success")
 	elif action == "validate":
 		sched.approved = True
@@ -74,8 +106,48 @@ def scheduler_validation_action(request):
 		return HttpResponse("success")
 	else:
 		return HttpResponse("error:bad action")
+
+
+
+@login_required
+def notifications(request):
+	"""
+	View where an user can view his notifications.
+	"""
+	page = 0
+	if 'page' in request.GET:
+		page = int(request.GET['page'])
 	
+	display = "unread"
+	if 'display' in request.GET:
+		display = request.GET['display']
 	
+	req = None
+	if display == "unread":	
+		req = lambda: Notification.objects.filter(user=request.user, read=False)
+	else:
+		req = lambda: Notification.objects.filter(user=request.user)
+		
+	count, page, start, end, items, pagesDisp, pagesCount = paginate(req, page)
+	
+	template = loader.get_template('notifications.html')
+	context = RequestContext(request, {
+		'count' : count,
+		'page' : page,
+		'start' : start,
+		'end' : end,
+		'notifs' : items,
+		'pagesDisp' : pagesDisp,
+		'pagesCount' : pagesCount,
+		'unread_count' : Notification.objects.filter(user=request.user, read=False).count()
+	})
+	
+	return HttpResponse(template.render(context))
+
+@login_required
+def unread_notifications_count(request):
+	return HttpResponse(str(Notification.objects.filter(user=request.user, read=False).count()))
+		
 
 @login_required
 def upload_scheduler(request):

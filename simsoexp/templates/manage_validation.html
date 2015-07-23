@@ -46,14 +46,8 @@
                     editor.getSession().setMode("ace/mode/python");
                     $("#remove{{sched.id}}").click(function(e) {
                         e.stopPropagation();
-                        $.get("{% url 'simsoexp.views.scheduler_validation_action' %}", {
-                                'action' : 'delete',
-                                'id' : '{{sched.id}}'
-                        }, function(data) {
-                            if(data == "success")
-                                $("#panel{{sched.id}}").fadeOut(100);
-                        
-                        });
+                        $("#deleteModalId").text("{{sched.id}}");
+                        $("#deleteModal").modal('show');
                     });
                     
                     $("#validate{{sched.id}}").click(function(e) {
@@ -77,7 +71,42 @@
     {% empty %}
         <p>No item to display.</p>
     {% endfor %}
-    
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    	<div class="modal-dialog">
+    		<div class="modal-content">
+    			<div class="modal-header">
+    				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    				<h4 class="modal-title">Request deletion</h4>
+    			</div>
+    			<div class="modal-body">
+                    <span id="deleteModalId" style="display: none"></span>
+    				<p>Please explain why you did not validate the request.</p>
+    				<textarea class="form-control" id="deleteReasonArea"></textarea>
+                    
+    			</div>
+                <div class="modal-footer">
+                    <button id="deleteModalSubmit" data-dismiss="modal" type="button" class="btn btn-primary">Delete this !</button>
+                    
+                </div>
+                <script>
+                    $("#deleteModalSubmit").click(function() {
+                        var schedId = $("#deleteModalId").text();
+                        var reason = $("#deleteReasonArea").val();
+                        
+                        $.get("{% url 'simsoexp.views.scheduler_validation_action' %}", {
+                                'action' : 'delete',
+                                'id' : schedId,
+                                'reason' : reason
+                        }, function(data) {
+                            if(data == "success")
+                                $("#panel" + schedId).fadeOut(100);
+                        });
+                    });
+                </script>
+    		</div>
+    	</div>
+    </div>
+
     
     <script>
         $(document).ready(function() {

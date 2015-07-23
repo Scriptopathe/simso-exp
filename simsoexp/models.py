@@ -9,6 +9,8 @@ class Notification(models.Model):
 	content = models.TextField()
 	# The destination user of the notification.
 	user = models.ForeignKey(User)
+	# Indicates if this notification has been read.
+	read = models.BooleanField(default=False)
 
 class ConfigurationFile(models.Model):
 	# Name of the configuration file.
