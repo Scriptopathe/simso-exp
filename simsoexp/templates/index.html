@@ -5,9 +5,11 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
 	<link rel="stylesheet" type="text/css" href="{% static 'fileinput.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-switch.min.css' %}">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script> 
 	<script src="{% static 'fileinput.min.js' %}"></script>
+	<script src="{% static 'bootstrap-switch.min.js' %}"></script>
 </head>
 <body>
 	<div class="navbar navbar-inverse">
@@ -36,7 +38,11 @@
 							<li><a href="{% url 'admin:index' %}">Administration</a></li>
 						
 						{% endif %}
-						<li><a href="{% url 'simsoexp.views.notifications' %}"></span> Notifications</a></li>
+						<li>
+							<a href="{% url 'simsoexp.views.notifications' %}">
+							<span class="glyphicon glyphicon-bell"></span> Notifications 
+							<span class="badge badge-custom" id="notifications_badge"></span></a>
+						</li>
 						<li><a href="{% url 'simsoexp.views.logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 					</ul>
 				</li>
@@ -50,5 +56,14 @@
 		{% block content %}
 		{% endblock %}
 	</div>
+	<script>
+		$.get("{% url 'simsoexp.views.unread_notifications_count' %}", function(data) {
+			var value = parseInt(data);
+			if(value > 0) {
+				$("#notifications_badge").css("display", "inline");
+				$("#notifications_badge").text(value);
+			}
+		});
+	</script>
 	{% include 'about.html' %}
 </body>

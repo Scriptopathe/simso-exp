@@ -132,6 +132,7 @@ def notifications(request):
 	
 	template = loader.get_template('notifications.html')
 	context = RequestContext(request, {
+		'display': display,
 		'count' : count,
 		'page' : page,
 		'start' : start,
@@ -144,6 +145,20 @@ def notifications(request):
 	
 	return HttpResponse(template.render(context))
 
+@login_required
+def user_read_notification(request):
+	"""
+	Marks a notification as read
+	"""
+	identifier = request.GET['id']
+	notifs = Notification.objects.filter(pk=identifier, user=request.user)
+	if len(notifs) > 0:
+		notifs[0].read = True
+		notifs[0].save()
+		return HttpResponse("success")
+	
+	return HttpResponse("error")
+	
 @login_required
 def unread_notifications_count(request):
 	return HttpResponse(str(Notification.objects.filter(user=request.user, read=False).count()))

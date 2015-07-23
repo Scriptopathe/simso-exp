@@ -11,20 +11,74 @@
 </div>
 
 <div class="well">
-    <h4>Notifications <span class="badge">{{unread_count}}</h4>
+    <h4><span class="glyphicon glyphicon-bell"></span> 
     
-    {% for notif in notifs %}
-        <h4>{{notif.title}}</h4>
-        <p>{{notif.content}}</h4>
+        Notifications <span class="badge" id="badgeCount">{{unread_count}}</span>
+        <span class="pull-right">
+        Show all
+        {% if display == "unread" %}
+        <input id="displayCb" data-size="mini" type="checkbox" unchecked >
+        <script>
+            $("#displayCb").bootstrapSwitch();
+            $("#displayCb").on('switchChange.bootstrapSwitch', function() {
+                window.location.href = "{% url 'simsoexp.views.notifications' %}?page=0&display=all";
+            })
+        </script>
+        {% else %}
         
+        <input id="displayCb" data-size="mini" type="checkbox" checked>
+        <script>
+            $("#displayCb").bootstrapSwitch();
+            $("#displayCb").on('switchChange.bootstrapSwitch', function() {
+                window.location.href = "{% url 'simsoexp.views.notifications' %}?page=0&display=unread";
+            })
+        </script>
+        </span>
+        {% endif %}
+
+    </h4>
+    <script>var read = {};</script>
+    <div class="list-group">
+    {% for notif in notifs %}
+      <a href="#" class="list-group-item" id="notif{{notif.id}}">
+        <h4 class="list-group-item-heading">
+             {% if not notif.read %}
+             <span id="notifsign{{notif.id}}" class="glyphicon glyphicon-exclamation-sign"></span>
+             {% endif %}
+             {{notif.title}}
+        </h4>
+        <p class="list-group-item-text"><b>Reason :</b> {{notif.content}}</p>
+        <script>
+            read["{{notif.id}}"] = "{{notif.read}}" == "True" ? true : false;
+            $("#notif{{notif.id}}").click(function(e) {
+                e.preventDefault();
+                if(!read["{{notif.id}}"]) {
+                    // Marks the notification as 'read'
+                    $.get("{% url 'simsoexp.views.user_read_notification' %}", {
+                       'id' : '{{notif.id}}'
+                    }, function(data) {
+                        if(data == "success") {
+                            $("#notifsign{{notif.id}}").css('display', 'none');
+                            var badge = $("#badgeCount");
+                            badge.text(parseInt(badge.text()) - 1);
+                            read["{{notif.id}}"] = true;
+                        }
+                    });
+                    
+
+                }
+            });
+        </script>
+      </a>
     {% empty %}
         <p>No item to display.</p>
     {% endfor %}
+    </div>
 
 
     <ul class="pagination">
         <li>
-          <a href="{% url 'simsoexp.views.notifications' %}?page=0" aria-label="First">
+          <a href="{% url 'simsoexp.views.notifications' %}?page=0&display={{display}}" aria-label="First">
             <span aria-hidden="true">&laquo; First</span>
           </a>
         </li>
@@ -34,12 +88,12 @@
         <li class="active"><a><b>{{pageId}}</b></a></li>
         
         {% else %}
-        <li><a href="{% url 'simsoexp.views.notifications' %}?page={{pageId}}">{{pageId}}</a></li>
+        <li><a href="{% url 'simsoexp.views.notifications' %}?page={{pageId}}&display={{display}}">{{pageId}}</a></li>
         
         {% endif %}
         {% endfor %}
         <li>
-          <a href="{% url 'simsoexp.views.notifications' %}?page={{pagesCount}}" aria-label="Last">
+          <a href="{% url 'simsoexp.views.notifications' %}?page={{pagesCount}}&display={{display}}" aria-label="Last">
             <span aria-hidden="true">Last &raquo;</span>
           </a>
         </li>

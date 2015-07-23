@@ -8,6 +8,14 @@ body {
 	padding-top: 5px;
 	margin: 0px;
 }
+
+.badge-custom {
+	margin-top: 5px;
+	margin-left: 50px;
+	margin-bottom: 5px;
+	border-radius: 4em;
+}
+
 .glyphicon-refresh-animate {
 	-animation: spin .7s infinite linear;
 	-ms-animation: spin .7s infinite linear;
