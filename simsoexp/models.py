@@ -17,8 +17,6 @@ class Notification(models.Model):
 class ConfigurationFile(models.Model):
 	# XML conf file
 	conf = models.TextField()
-	# True if approved by the admin
-	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return "Conf " + str(self.id)
@@ -26,8 +24,6 @@ class ConfigurationFile(models.Model):
 class TestCategory(models.Model):
 	# Name of the test category
 	name = models.CharField(max_length=255)
-	# Description of the test category
-	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return self.name
@@ -39,8 +35,6 @@ class TestSet(models.Model):
 	files = models.ManyToManyField(ConfigurationFile)
 	# All the categories labels of this test set.
 	categories = models.ManyToManyField(TestCategory)
-	# True if approved by the admin
-	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return self.name
