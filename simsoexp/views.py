@@ -22,6 +22,12 @@ def decode_base64(data):
         data += b'='* missing_padding
     return base64.decodestring(data)
 
+def save(data_array):
+	"""call save on each value in data_array then return data_array. Used for convenience"""
+	for data in data_array:
+		data.save()
+	return data_array
+	
 def b64(data):
 	return base64.b64encode(data)
 	
@@ -205,7 +211,7 @@ def upload_scheduler(request):
 	else:
 		sched = SchedulingPolicy()
 		ret_code = "new"
-		
+	
 	sched.name = name
 	sched.contributor = request.user
 	sched.class_name = class_name
@@ -231,19 +237,17 @@ def get_test_category(name):
 @csrf_exempt
 def api_upload_experiment(request):
 	# Metrics
-	preemptions = request.POST["preemptions"]
-	sys_preempt = request.POST["sys_preempt"]
-	migrations = request.POST["migrations"]
-	task_migrations = request.POST["task_migrations"]
-	norm_laxity = request.POST["norm_laxity"]
-	on_schedule = request.POST["on_schedule"]
-	timers = request.POST["timers"]
-	aborted_jobs = request.POST["aborted_jobs"]
-	jobs = request.POST["jobs"]
-	test_name = request.POST['test_name']
-	
+	metrics = request.POST.getlist('metrics')
+	metrics_db = []
+	for metric in metrics:
+		m = Metric()
+		values = metric.rsplit(',')
+		m.name, m.count, m.avg, m.std, m.median = values
+		metrics_db.append(m)
+		
 	# Conf file or testset id
 	testset_id = request.POST["testset_id"]
+	test_name = request.POST["test_name"]
 	conf_files = request.POST.getlist('conf_files')
 	
 	# Categories
@@ -264,7 +268,6 @@ def api_upload_experiment(request):
 	for i in range(0, len(conf_files)):
 		f = ConfigurationFile()
 		f.conf = conf_files[i]
-		f.save()
 		files.append(f)
 	
 	# If testset_id is provided, takes an existing one
@@ -276,28 +279,22 @@ def api_upload_experiment(request):
 		testset.save() # necessary to use many to many relationships
 		testset.name = test_name
 		testset.categories = [get_test_category(cat) for cat in test_categories]
-		testset.files = files
+		testset.files = save(files)
 		testset.save()
 	else:
 		# Takes an existing one
 		testsets = TestSet.objects.filter(pk=testset_id)
 		if len(testsets) == 0:
-			return "error:bad testset"
+			return "error: no such testset"
 		testset = testsets[0]
 	
 	# Creates the result object
 	result = Results()
+	result.contributor = request.user
 	result.test_set = testset
 	result.scheduling_policy = scheduler
-	result.preemptions = int(preemptions)
-	result.sys_preempt = int(sys_preempt)
-	result.migrations = int(migrations)
-	result.task_migrations = int(task_migrations)
-	result.norm_laxity = int(norm_laxity)
-	result.on_schedule = int(on_schedule)
-	result.timers = int(timers)
-	result.aborted_jobs = int(aborted_jobs)
-	result.jobs = int(jobs)
+	result.save()
+	result.metrics = save(metrics_db)
 	result.save()
 	
 	return HttpResponse("success")
@@ -344,9 +341,9 @@ def api_get_scheduler_data(request, scheduler_id):
 	return HttpResponse(s)
 	
 @login_required
-def api_get_metrics(request, testset_id, scheduler_id):
+def api_get_results(request, testset_id, scheduler_id):
 	"""
-	Gets the metrics ids corresponding to the given testset and scheduler.
+	Gets the result ids corresponding to the given testset and scheduler.
 	"""
 	reponse = None
 	s = ""
@@ -362,15 +359,16 @@ def api_get_metrics(request, testset_id, scheduler_id):
 
 
 @login_required
-def api_get_metric(request, metric_id):
+def api_get_result(request, result_id):
 	"""
-	Gets all the metrics associated to the given metric_id.
+	Gets the result associated to the given result_id.
 	Gives testset_id and scheduler_id first, then key values in the following format :
 		base64(key),base64(value)
 	"""
+	raise Exception("not supported")
 	response = None
 	s = ""
-	response = Results.objects.filter(pk=metric_id)
+	response = Results.objects.filter(pk=result_id)
 	
 	all_metrics = ['preemptions', 'sys_preempt', 
 		'migrations', 'task_migrations', 'norm_laxity',

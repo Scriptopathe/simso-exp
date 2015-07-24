@@ -61,25 +61,36 @@ class SchedulingPolicy(models.Model):
 	
 	def __str__(self):
 		return self.name
+
+class Metric(models.Model):
+	# Name of the metric
+	name = models.TextField()
+	# Element count user to build the metric
+	count = models.IntegerField()
+	# Average value of the metric
+	avg = models.FloatField()
+	# Standard deviation of the metric
+	std = models.FloatField()
+	# Median of the metric
+	median = models.FloatField()
 	
+	def __str__(self):
+		return "{} : count={}, avg={}, std={}, median={}".format(self.name, 
+			self.count, self.avg, self.std, self.median)
+		
+	
+
 class Results(models.Model):
 	# The scheduling policy used to get those results.
 	scheduling_policy = models.ForeignKey(SchedulingPolicy)
 	# The test set used to get those results.
 	test_set = models.ForeignKey(TestSet)
+	# User that submitted the results
+	contributor = models.ForeignKey(User)
 	# True if approved by the admin
 	approved = models.BooleanField(default=False)
-	
 	# Metrics
-	preemptions = models.IntegerField()
-	sys_preempt = models.IntegerField()
-	migrations = models.IntegerField()
-	task_migrations = models.IntegerField()
-	norm_laxity = models.IntegerField()
-	on_schedule = models.IntegerField()
-	timers = models.IntegerField()
-	aborted_jobs = models.IntegerField()
-	jobs = models.IntegerField()
+	metrics = models.ManyToManyField(Metric)
 
 	def __str__(self):
 		return "Result of testset '" + self.test_set.name + \

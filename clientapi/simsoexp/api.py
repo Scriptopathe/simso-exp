@@ -37,7 +37,7 @@ class Api:
 		self.cache = {
 			'testsets': {},
 			'testsets_id': {},
-			'metrics' : {},
+			'results' : {},
 			'conf_files': {},
 			'schedulers' : {}
 		}
@@ -154,9 +154,9 @@ class Api:
 			return tuples
 		else: self.handle_error(r)
 			
-	def get_metrics(self, testset_id, scheduler_id):
-		"""Returns a list of metrics ids corresponding to the given test set and scheduler id"""
-		r = self.urlopen(self.base_addr + "/api/metrics/" + str(testset_id) + "/" + str(scheduler_id))
+	def get_results(self, testset_id, scheduler_id):
+		"""Returns a list of result ids corresponding to the given test set and scheduler id"""
+		r = self.urlopen(self.base_addr + "/api/results" + str(testset_id) + "/" + str(scheduler_id))
 		if self.urlok(r):
 			val = self.urlread(r)
 			
@@ -237,15 +237,15 @@ class Api:
 			
 		else: self.handle_error(r)
 	
-	@cached('metrics')
-	def get_metric(self, identifier):
+	@cached('results')
+	def get_result(self, identifier):
 		"""
-		Gets all the metrics associated to the given metric_id.
+		Gets all the results associated to the given identifier.
 		Gives testset_id and scheduler_id first, then a 
 		dictionary with a key value pair for each metric.
 			Ex : [1, 2, {'metric' : 'value'}]
 		"""
-		r = self.urlopen(self.base_addr + "/api/metrics/id/" + str(identifier))
+		r = self.urlopen(self.base_addr + "/api/results/id/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
 			print(val)

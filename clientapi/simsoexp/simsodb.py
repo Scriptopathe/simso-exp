@@ -5,9 +5,10 @@ from .metrics_collector import MetricsCollector
 from simso.core import Model
 from simso.configuration import Configuration
 from simso.configuration.GenerateConfiguration import generate
+import numpy
 import os
 
-class DBMetrics:
+class DBResults:
 	def __init__(self, db, identifier):
 		self.db = db
 		self.identifier = identifier
@@ -63,7 +64,7 @@ class DBMetrics:
 		return self.__metrics
 	
 	def __repr__(self):
-		return "<DBMetrics id={} testset={} scheduler={}>".format(
+		return "<DBResults id={} testset={} scheduler={}>".format(
 			self.identifier, self.testset_id, self.scheduler_id
 		)
 		
@@ -272,18 +273,15 @@ class Experiment:
 			all_results.append(MetricsCollector(model.results))
 		
 		# TODO : do some magic
-		
-		# Check metrics
-		self.metrics = {}
-		self.metrics["preemptions"] = 0
-		self.metrics["sys_preempt"] = 0
-		self.metrics["migrations"] = 0
-		self.metrics["task_migrations"] = 0
-		self.metrics["norm_laxity"] = 0
-		self.metrics["on_schedule"] = 0
-		self.metrics["timers"] = 0
-		self.metrics["aborted_jobs"] = 0
-		self.metrics["jobs"] = 0
+		self.metrics = {} # count, avg, std, med
+		metric_keys = [key for key in all_results[0].metrics]
+		for key in metric_keys:
+			self.metrics[key] = [
+				len(all_results),
+				numpy.average([res.metrics[key] for res in all_results]),
+				numpy.std([res.metrics[key] for res in all_results]),
+				numpy.median([res.metrics[key] for res in all_results]),
+			]
 		
 	
 	
@@ -291,11 +289,13 @@ class Experiment:
 		"""
 		Uploads the experiment to Simso Experiment Database.
 		"""
+		data = {}
 		
 		# Metrics
-		data = {}
+		data["metrics"] = []
 		for metric in self.metrics:
-			data[metric] = str(self.metrics[metric])
+			data["metrics"].append(','.join([metric] + [str(m) for m in self.metrics[metric]]))
+		
 		
 		# Configuration files / testset
 		if(self.testset == None):
@@ -315,7 +315,7 @@ class Experiment:
 		data["scheduler"] = self.scheduler.identifier
 		print("-------------------")
 		
-		print(repr(data["conf_files"]))
+		print(repr(data["metrics"]))
 		
 		self.db.api.upload_experiment(data)
 		
@@ -350,7 +350,7 @@ class SimsoDatabase:
 	
 	def metrics(self, testset_id, scheduler_id):
 		m = self.api.get_metrics(testset_id, scheduler_id)
-		return [DBMetrics(self, identifier) for identifier in m]
+		return [DBResults(self, identifier) for identifier in m]
 		
 	def testsets(self, category=""):
 		"""Gets a list of testset given a category"""
