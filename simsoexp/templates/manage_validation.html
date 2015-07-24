@@ -10,10 +10,10 @@
     Here you can validate the submissions of the users.<br />
 </div>
 <ul class="nav nav-pills nav-justified">
-      <li role="presentation" {% if type == 'schedulers' %} class="active" {% endif %}>
+      <li role="presentation" {% if type == 'scheduler' %} class="active" {% endif %}>
           <a href="{% url 'simsoexp.views.manage_validation' %}?type=scheduler">Schedulers</a>
       </li>
-      <li role="presentation" {% if type != 'schedulers' %} class="active" {% endif %}>
+      <li role="presentation" {% if type != 'scheduler' %} class="active" {% endif %}>
           <a href="{% url 'simsoexp.views.manage_validation' %}?type=results">Experiment Results</a>
       </li>
 </ul>
