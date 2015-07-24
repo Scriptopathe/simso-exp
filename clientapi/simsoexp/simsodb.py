@@ -19,7 +19,7 @@ class DBResults:
 			self.__load_metrics()
 	
 	def __load_metrics(self):
-		m = self.db.api.get_metric(self.identifier)
+		m = self.db.api.get_result(self.identifier)
 		self.__testset_id = m[0]
 		self.__scheduler_id = m[1]
 		self.__metrics = m[2]
@@ -43,16 +43,6 @@ class DBResults:
 	def __getitem__(self, index):
 		"""
 		Gets the metric with the given name.
-		Available metrics are : 
-			preemptions
-			sys_preempt
-			migrations
-			task_migrations
-			norm_laxity
-			on_schedule
-			timers
-			aborted_jobs
-			jobs
 		"""
 		if self.__metrics == None:
 			self.__load_metrics()
@@ -61,6 +51,9 @@ class DBResults:
 	
 	def all(self):
 		"""Returns all the set of metrics"""
+		if self.__metrics == None:
+			self.__load_metrics()
+			
 		return self.__metrics
 	
 	def __repr__(self):
@@ -272,7 +265,6 @@ class Experiment:
 			model.run_model()
 			all_results.append(MetricsCollector(model.results))
 		
-		# TODO : do some magic
 		self.metrics = {} # count, avg, std, med
 		metric_keys = [key for key in all_results[0].metrics]
 		for key in metric_keys:
@@ -345,10 +337,13 @@ class SimsoDatabase:
 	def scheduler(self, identifier):
 		return DBScheduler(self, identifier)
 	
-	def metrics(self, testset_id, scheduler_id):
+	def results(self, testset_id, scheduler_id):
 		m = self.api.get_metrics(testset_id, scheduler_id)
 		return [DBResults(self, identifier) for identifier in m]
-		
+	
+	def result(self, identifier):
+		return DBResults(self, identifier)
+	
 	def testsets(self, category=""):
 		"""Gets a list of testset given a category"""
 		sets = self.api.get_testsets_by_category(category)

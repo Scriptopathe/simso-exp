@@ -43,6 +43,7 @@ if False:
 	print(HEADER + "------ SUCCESSFULLY RUN MODEL" + ENDC)
 
 db = SimsoDatabase("http://localhost:8000")
+print(repr(db.result(30).all()))
 e = Experiment(db, db.testset(1), db.schedulers("simso.schedulers.EDF")[0])
 e.run()
 e.upload()

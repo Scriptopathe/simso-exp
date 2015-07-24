@@ -243,20 +243,22 @@ class Api:
 		Gets all the results associated to the given identifier.
 		Gives testset_id and scheduler_id first, then a 
 		dictionary with a key value pair for each metric.
-			Ex : [1, 2, {'metric' : 'value'}]
+			Ex : [1, 2, [{'name':name, 'count':count, 'avg':avg, 'std':std, 'median':median]
 		"""
 		r = self.urlopen(self.base_addr + "/api/results/id/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
 			print(val)
 			values = val.rsplit(',')
-			dic = {}
-			array = [int(values[0]), int(values[1]), dic]
-			for i in range(1, len(values)//2):
-				key = b64str(values[i*2])
-				value = b64str(values[i*2+1])
-				print(key + " -" + value)
-				dic[key] = value
+			attrs = ['name', 'count', 'avg', 'std', 'median']
+			metrics = []
+			array = [int(values[0]), int(values[1]), metrics]
+			for i in range(0, len(values)//len(attrs)):
+				baseIndex = 2 + i * len(attrs)
+				m = {}
+				for j, attr in enumerate(attrs):
+					m[attr] = b64str(values[baseIndex+j])
+				metrics.append(m)
 				
 			return array
 			

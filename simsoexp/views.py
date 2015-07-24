@@ -362,25 +362,22 @@ def api_get_results(request, testset_id, scheduler_id):
 def api_get_result(request, result_id):
 	"""
 	Gets the result associated to the given result_id.
-	Gives testset_id and scheduler_id first, then key values in the following format :
-		base64(key),base64(value)
+	Gives testset_id and scheduler_id first, then all metrics.
 	"""
-	raise Exception("not supported")
 	response = None
 	s = ""
 	response = Results.objects.filter(pk=result_id)
 	
-	all_metrics = ['preemptions', 'sys_preempt', 
-		'migrations', 'task_migrations', 'norm_laxity',
-		'on_schedule', 'timers', 'aborted_jobs', 'jobs']
-	
+	attrs = ['name', 'count', 'avg', 'std', 'median']
 	
 	if response.count() > 0:
 		res = response[0]
 		s += str(res.test_set.id) + ","
 		s += str(res.scheduling_policy.id) + ","
-		for metric in all_metrics:
-			s += b64(metric) + "," + b64(str(getattr(res, metric))) + ","
+		for metric in res.metrics.all():
+			for attr in attrs:
+				s += b64(str(getattr(metric, attr))) + ","
+			
 	
 	return HttpResponse(s.rstrip(','))
 
