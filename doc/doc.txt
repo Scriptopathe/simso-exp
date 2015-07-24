@@ -1,0 +1,16 @@
+Install Database :
+sudo apt-get install python-pip python-dev mysql-server libmysqlclient-dev
+sudo pip install mysqlclient
+
+sudo mysql_install_db
+sudo mysql_secure_installation
+
+mysql -u root -p
+CREATE DATABASE simsoexp CHARACTER SET UTF8;
+CREATE USER simsoexpuser@localhost IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON simsoexp.* TO simsoexpuser@localhost;
+FLUSH PRIVILEGES;
+
+
+=> Django
+python manage.py createsuperuser
