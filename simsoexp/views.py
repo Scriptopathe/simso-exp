@@ -132,12 +132,12 @@ def manage_validation(request):
 	View where the admins can validate database entries.
 	"""
 	template = loader.get_template('manage_validation.html')
-	itemType = request.GET.get('type', 'schedulers')
+	itemType = request.GET.get('type', 'scheduler')
 	page = int(request.GET.get('page', 0))
 	
 	# Creates the request
 	req = None
-	if(itemType == 'schedulers'):
+	if(itemType == 'scheduler'):
 		req = lambda: get_schedulers_by_name("", False)
 	else:
 		req = lambda: Results.objects.filter(approved=False)
