@@ -313,9 +313,6 @@ class Experiment:
 		
 		# Scheduler
 		data["scheduler"] = self.scheduler.identifier
-		print("-------------------")
-		
-		print(repr(data["metrics"]))
 		
 		self.db.api.upload_experiment(data)
 		
