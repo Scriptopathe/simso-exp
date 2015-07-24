@@ -42,20 +42,19 @@ if False:
 	model.run_model()
 	print(HEADER + "------ SUCCESSFULLY RUN MODEL" + ENDC)
 
+cfg = Configuration("test/test.xml")
+cfg2 = Configuration("test/configuration.xml")
 db = SimsoDatabase("http://localhost:8000")
-print(repr(db.result(30).all()))
-e = Experiment(db, db.testset(1), db.schedulers("simso.schedulers.EDF")[0])
-e.run()
-e.upload()
-
-for i in range(1, 10000):
+for i in range(1, 1000):
+	cfg = Configuration("test/test.xml")
+	cfg2 = Configuration("test/configuration.xml")
 	e = Experiment(db, 
 		(
 			"Custom test", 
 			["testcat1", "testcat2"],
-			[c.configuration for  c in db.testset(1).conf_files],
+			[cfg, cfg2],
 		),
-		db.schedulers("simso.schedulers.EDF")[0])
+		db.schedulers("superman.schedulers.EDF")[0])
 	e.run()
-	print("Uploading experiment {} / {}".format(i, 10000))
+	print("Uploading experiment {} / {}".format(i, 1000))	
 	e.upload()
