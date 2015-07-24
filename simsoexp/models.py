@@ -85,7 +85,11 @@ class Results(models.Model):
 	approved = models.BooleanField(default=False)
 	# Metrics
 	metrics = models.ManyToManyField(Metric)
-
+	
+	@property
+	def name(self):
+		return str(self)
+		
 	def __str__(self):
 		return "Result of testset '" + self.test_set.name + \
 			"' with scheduling policy '" + self.scheduling_policy.name + "'";

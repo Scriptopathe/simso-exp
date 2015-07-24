@@ -33,6 +33,7 @@
                     class="btn btn-danger" id="remove{{sched.id}}"><span class="glyphicon glyphicon-remove"></span></button>
                 
                 {% endif %}
+                
                 <b>{{sched.name}}</b>
             </div>
             
@@ -54,9 +55,11 @@
                         editor.getSession().setMode("ace/mode/python");
                         $("#remove{{sched.id}}").click(function(e) {
                             e.stopPropagation();
-                            $.get("{% url 'simsoexp.views.scheduler_validation_action' %}", {
+                            $.get("{% url 'simsoexp.views.validation_action' %}", {
                                     'action' : 'delete',
-                                    'id' : '{{sched.id}}'
+                                    'id' : '{{sched.id}}',
+                                    'reason' : '<user>',
+                                    'type' : 'scheduler'
                             }, function(data) {
                                 if(data == "success")
                                     $("#panel{{sched.id}}").fadeOut(100);

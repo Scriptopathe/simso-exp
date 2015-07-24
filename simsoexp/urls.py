@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
 	url('^$', views.index, name='index'),
-	url('^validation/action/$', views.scheduler_validation_action, name="scheduler_validation_action"),
+	url('^validation/action/$', views.validation_action, name="validation_action"),
 	url('^validation/$', views.manage_validation, name="manage_validation"),
 	url('^notifications/$', views.notifications, name="notifications"),
 	url('^notifications/read/$', views.user_read_notification, name="notifications_read"),

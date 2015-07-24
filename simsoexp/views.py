@@ -132,45 +132,79 @@ def manage_validation(request):
 	View where the admins can validate database entries.
 	"""
 	template = loader.get_template('manage_validation.html')
+	itemType = request.GET.get('type', 'schedulers')
+	page = int(request.GET.get('page', 0))
+	
+	# Creates the request
+	req = None
+	if(itemType == 'schedulers'):
+		req = lambda: get_schedulers_by_name("", False)
+	else:
+		req = lambda: Results.objects.filter(approved=False)
+	
+	# Call paginate
+	count, page, start, end, items, pagesDisp, pagesCount = paginate(req, page)
+	
 	context = RequestContext(request, {
-		'scheds' : get_schedulers_by_name("", False),
+		'count' : count,
+		'page' : page,
+		'start' : start,
+		'end' : end,
+		'items' : items,
+		'pagesDisp' : pagesDisp,
+		'pagesCount' : pagesCount,
+		'type' : itemType,
 	})
 	return HttpResponse(template.render(context))
 
 @user_passes_test(lambda u: u.is_staff)
-def scheduler_validation_action(request):
+def validation_action(request):
 	"""
 	View which only removes / validates schedulers.
 	"""
 	action = request.GET['action']
 	identifier = request.GET['id']
-	objs = SchedulingPolicy.objects.filter(pk=int(identifier))
-	if len(objs) == 0:
-		return HttpResponse("error:bad id")
-	sched = objs[0]
+	item_type = request.GET['type']
+	
+	objs = None
+	item = None
+	if item_type == 'scheduler':
+		objs = SchedulingPolicy.objects.filter(pk=int(identifier))
+		if len(objs) == 0:
+			return HttpResponse("error:bad id")
+		item = objs[0]
+	elif item_type == 'results':
+		objs = Results.objects.filter(pk=int(identifier))
+		if len(objs) == 0:
+			return HttpResponse("error:bad id")
+		item = objs[0]
+	else:
+		return HttpResponse("error: bad type")
 	
 	if action == "delete":
 		reason = request.GET['reason']
-		notif = Notification()
-		notif.title = "Submission of scheduler " + sched.name + " : refused."
-		notif.user = request.user
-		notif.content = reason
-		notif.ntype = "danger"
-		notif.save()
-		sched.delete()
+		if reason != "<user>":
+			notif = Notification()
+			notif.title = "Submission of {} '{}' : refused.".format(item_type, item.name)
+			notif.user = request.user
+			notif.content = reason
+			notif.ntype = "danger"
+			notif.save()
+		item.delete()
 		return HttpResponse("success")
 	elif action == "validate":
-		sched.approved = True
-		sched.save()
+		item.approved = True
+		item.save()
 		notif = Notification()
-		notif.title = "Submission of scheduler " + sched.name + " : approved."
+		notif.title = "Submission of {} '{}' : approved.".format(item_type, item.name)
 		notif.user = request.user
-		notif.content = "Congratulations ! Your scheduler has been added to the database."
+		notif.content = "Congratulations ! Your {} has been added to the database.".format(item_type)
 		notif.ntype = "success"
 		notif.save()
 		return HttpResponse("success")
 	else:
 		return HttpResponse("error:bad action")
+		
 
 @login_required
 def notifications(request):
@@ -315,8 +349,8 @@ def api_upload_experiment(request):
 	if(testset_id == "-1"):
 		# Creates the test set object
 		testset = TestSet()
-		testset.save() # necessary to use many to many relationships
 		testset.name = test_name
+		testset.save()
 		testset.categories = [get_test_category(cat) for cat in test_categories]
 		testset.files = save(files)
 		testset.save()
