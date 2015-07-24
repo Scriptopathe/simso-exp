@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<simulation duration="100000000" cycles_per_ms="1000000" etm="wcet" >
+	<sched overhead="0" overhead_activate="0" overhead_terminate="0" class="simso.schedulers.EDF" >
+
+	</sched>
+	<caches memory_access_time="100" >
+
+	</caches>
+	<processors >
+		<processor name="P0" id="0" cl_overhead="0" cs_overhead="0" speed="1" >
+
+		</processor>
+		<processor name="P1" id="1" cl_overhead="0" cs_overhead="0" speed="1" >
+
+		</processor>
+
+	</processors>
+	<tasks >
+		<task name="T1" id="1" task_type="Periodic" abort_on_miss="no" period="9" activationDate="0" list_activation_dates="" deadline="7.7" base_cpi="1.0" instructions="0" mix="0.5" WCET="5" ACET="0" preemption_cost="0" et_stddev="0" >
+
+		</task>
+		<task name="T2" id="2" task_type="Periodic" abort_on_miss="no" period="31.2" activationDate="5" list_activation_dates="" deadline="15" base_cpi="1.0" instructions="0" mix="0.5" WCET="7" ACET="0" preemption_cost="0" et_stddev="0" >
+
+		</task>
+		<task name="T3" id="3" task_type="Periodic" abort_on_miss="no" period="20" activationDate="0" list_activation_dates="" deadline="15" base_cpi="1.0" instructions="0" mix="0.5" WCET="8" ACET="0" preemption_cost="0" et_stddev="0" >
+
+		</task>
+		<task name="Task 4" id="4" task_type="Periodic" abort_on_miss="no" period="32.9" activationDate="0" list_activation_dates="" deadline="10" base_cpi="1.0" instructions="0" mix="0.5" WCET="5" ACET="0" preemption_cost="0" et_stddev="0" >
+
+		</task>
+
+	</tasks>
+
+</simulation>
