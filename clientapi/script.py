@@ -48,12 +48,14 @@ e = Experiment(db, db.testset(1), db.schedulers("simso.schedulers.EDF")[0])
 e.run()
 e.upload()
 
-e = Experiment(db, 
-	(
-		"Custom test", 
-		["testcat1", "testcat2"],
-		[c.configuration for  c in db.testset(1).conf_files],
-	),
-	db.schedulers("simso.schedulers.EDF")[0])
-e.run()
-e.upload()
+for i in range(1, 10000):
+	e = Experiment(db, 
+		(
+			"Custom test", 
+			["testcat1", "testcat2"],
+			[c.configuration for  c in db.testset(1).conf_files],
+		),
+		db.schedulers("simso.schedulers.EDF")[0])
+	e.run()
+	print("Uploading experiment {} / {}".format(i, 10000))
+	e.upload()
