@@ -6,15 +6,60 @@
 {% load staticfiles %}
 <script src="{% static 'ace.js' %}" type="text/javascript" charset="utf-8"></script>
 <div class="well">
-    <h4>Welcome to Simso Experiment Database.</h4>
-    Here you can validate the submissions of the users.<br />
+    <table class="table">
+        <tbody>
+        <tr style="width: 100%">
+            <td style="width: 50%;">
+                <h4>Welcome to Simso Experiment Database.</h4>
+                Here you can see the contributions of the users.<br />
+                
+            </td>
+            <td style="width: 50%;">
+                    <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="control-label col-sm-8">Users : </label>
+                        <div class="btn-group btn-group col-sm-4" role="group">
+                            <a 
+                                href="{% url 'simsoexp.views.contributions' %}?type={{type}}&display=all&approved={{approved}}" 
+                                class="btn btn-default btn-sm {% if display != 'my' %}active{% endif %}">Everyone</a>
+                            <a 
+                                href="{% url 'simsoexp.views.contributions' %}?type={{type}}&display=my&approved={{approved}}"
+                                class="btn btn-default btn-sm {% if display == 'my' %}active{% endif %}">Just me</a>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="control-label col-sm-8">Validation status : </label>
+                        <div class="btn-group col-sm-4" role="group">
+                            <a href="{% url 'simsoexp.views.contributions' %}?type={{type}}&display={{display}}&approved=yes" 
+                                class="btn btn-default btn-sm {% if approved == 'yes' %}active{% endif %}">Yes</a>
+                            <a href="{% url 'simsoexp.views.contributions' %}?type={{type}}&display={{display}}&approved=no"
+                                class="btn btn-default btn-sm {% if approved == 'no' %}active{% endif %}">No</a>
+                            <a href="{% url 'simsoexp.views.contributions' %}?type={{type}}&display={{display}}&approved=all"
+                                class="btn btn-default btn-sm {% if approved == 'all' %}active{% endif %}">All</a>
+                        </div>
+                    </div>
+                    </div>
+                    <script>
+                        $("#displayCb").bootstrapSwitch();
+                        $("#displayCb").on('switchChange.bootstrapSwitch', function() {
+                            window.location.href = "{% url 'simsoexp.views.notifications' %}?page=0&display=all";
+                        })
+                    </script>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
 </div>
+
+    
 <ul class="nav nav-pills nav-justified">
       <li role="presentation" {% if type == 'scheduler' %} class="active" {% endif %}>
-          <a href="{% url 'simsoexp.views.manage_validation' %}?type=scheduler">Schedulers</a>
+          <a href="{% url 'simsoexp.views.contributions' %}?type=scheduler&display={{display}}&approved={{approved}}">Schedulers</a>
       </li>
       <li role="presentation" {% if type != 'scheduler' %} class="active" {% endif %}>
-          <a href="{% url 'simsoexp.views.manage_validation' %}?type=results">Experiment Results</a>
+          <a href="{% url 'simsoexp.views.contributions' %}?type=results&display={{display}}&approved={{approved}}">Experiment Results</a>
       </li>
 </ul>
 <div class="well">
@@ -30,11 +75,28 @@
             <div class="row">
                 <div class="col-sm-2" style="border-right: 1px dashed #333; width: 110px;">
                     <button 
+                        {% if not user.is_staff %}
+                            {% if user != item.contributor or item.approved %}
+                                style="visibility: hidden;"
+                            {% endif %}
+                        {% endif %}
                         data-toggle="tooltip" data-placement="top" title="Deletes this {{type}} proposition."
                         class="btn btn-danger btn-sm" id="remove{{item.id}}"><span class="glyphicon glyphicon-remove"></span></button>
+
+                    {% if user.is_staff and not item.approved %}
                     <button 
-                        data-toggle="tooltip" data-placement="top" title="Validates this {{type}}."
+                        data-toggle="tooltip" data-placement="top" 
                         class="btn btn-success btn-sm" id="validate{{item.id}}"><span class="glyphicon glyphicon-ok"></span></button>
+                    {% endif %}
+                    
+                    <button 
+                        {% if not item.approved %}
+                        style="display: none"
+                        {% endif %}
+                        disabled
+                        data-toggle="tooltip" data-placement="top" title="This item has already been validated."
+                        class="btn btn-default btn-sm" id="validated{{item.id}}"><span class="glyphicon glyphicon-ok"></span></button>
+                    
                     
                 </div>
                 <div class="col-sm-1" style="padding-top: 3px">
@@ -64,9 +126,10 @@
                    'id' : '{{item.id}}',
                    'type' : '{{type}}'
                }, function(data) {
-                    if(data == "success")
-                        $("#panel{{item.id}}").fadeOut(100);
-                   
+                   if(data == "success") {
+                       $("#validate{{item.id}}").css('display', 'none');
+                       $("#validated{{item.id}}").css('display', 'inline');
+                   }
                });
             });
         </script>
@@ -76,7 +139,7 @@
             <div class="form-horizontal">
                 
                 <!-- Schedulers -->
-                {% if type == "schedulers" %}
+                {% if type == "scheduler" %}
                 <div class="form-group">
                     <label class="control-label col-sm-2">Class name :  </label>
                     <div class="col-sm-4">
@@ -164,7 +227,8 @@
     
     <center><ul class="pagination">
         <li>
-          <a href="{% url 'simsoexp.views.manage_validation' %}?page=0&type={{type}}" aria-label="First">
+          <a href="{% url 'simsoexp.views.contributions' %}?page=0&type={{type}}&display={{display}}&approved={{approved}}" 
+              aria-label="First">
             <span aria-hidden="true">&laquo; First</span>
           </a>
         </li>
@@ -174,12 +238,12 @@
         <li class="active"><a><b>{{pageId}}</b></a></li>
         
         {% else %}
-        <li><a href="{% url 'simsoexp.views.manage_validation' %}?page={{pageId}}&type={{type}}">{{pageId}}</a></li>
+        <li><a href="{% url 'simsoexp.views.contributions' %}?page={{pageId}}&type={{type}}&display={{display}}&approved={{approved}}">{{pageId}}</a></li>
         
         {% endif %}
         {% endfor %}
         <li>
-          <a href="{% url 'simsoexp.views.manage_validation' %}?page={{pagesCount}}&type={{type}}" aria-label="Last">
+          <a href="{% url 'simsoexp.views.contributions' %}?page={{pagesCount}}&type={{type}}&display={{display}}&approved={{approved}}" aria-label="Last">
             <span aria-hidden="true">Last &raquo;</span>
           </a>
         </li>

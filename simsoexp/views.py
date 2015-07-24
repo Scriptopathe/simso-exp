@@ -7,6 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import logout as user_logout
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponseForbidden
+
 import hashlib
 import base64
 from math import ceil
@@ -68,12 +70,12 @@ def save(data_array):
 	return data_array
 
 	
-def paginate(requestFunction, page, pageSize=5, dispPages=5):
+def paginate(request, page, pageSize=5, dispPages=15):
 	"""
 	Given a request function, a page number and a page size, 
 	returns a tuple (count, page, start, end, items, pagesDisp, pagesCount)
 	"""
-	itemCount = requestFunction().count()
+	itemCount = request.count()
 	if(itemCount == 0):
 		return (0, 0, 0, 0, [], [0], 0)
 	
@@ -95,7 +97,7 @@ def paginate(requestFunction, page, pageSize=5, dispPages=5):
 			if curPage > pagesCount:
 				break
 	
-	return (itemCount, page, start, end, requestFunction()[start:end], pagesDisp, pagesCount)
+	return (itemCount, page, start, end, request[start:end], pagesDisp, pagesCount)
 
 # -----------------------------------------------------------------------------
 # Views
@@ -114,36 +116,39 @@ def logout(request):
 	return redirect(auth_views.login)
 
 
+
 @login_required
 def contributions(request):
 	"""
-	View where an user can see his contributions (validated or not validated
-	"""
-	template = loader.get_template('contributions.html')
-	name = request.user.username + ".schedulers.";
-	context = RequestContext(request, {
-		'scheds' : SchedulingPolicy.objects.filter(contributor=request.user)
-	})
-	return HttpResponse(template.render(context))
-
-@user_passes_test(lambda u: u.is_staff)
-def manage_validation(request):
-	"""
-	View where the admins can validate database entries.
+	View where the users can view their contributions.
+	The admins can also edit them.
 	"""
 	template = loader.get_template('manage_validation.html')
 	itemType = request.GET.get('type', 'scheduler')
+	display = request.GET.get('display', 'all') # my, all
+	approved_str = request.GET.get('approved', 'all')
 	page = int(request.GET.get('page', 0))
+	
+	# Processes the approved value
+	approvedMap = {'all' : None, 'yes' : True, 'no' : False}
+	approved = approvedMap.get(approved_str, None)
 	
 	# Creates the request
 	req = None
 	if(itemType == 'scheduler'):
-		req = lambda: get_schedulers_by_name("", False)
+		req = get_schedulers_by_name("", approved)
 	else:
-		req = lambda: Results.objects.filter(approved=False)
+		if approved == None:
+			req = Results.objects.all()
+		else:
+			req = Results.objects.filter(approved=approved)
+	
+	# Filter by user
+	if display == "my":
+		req = req.filter(contributor=request.user)
 	
 	# Call paginate
-	count, page, start, end, items, pagesDisp, pagesCount = paginate(req, page)
+	count, page, start, end, items, pagesDisp, pagesCount = paginate(req, page, 10)
 	
 	context = RequestContext(request, {
 		'count' : count,
@@ -154,10 +159,12 @@ def manage_validation(request):
 		'pagesDisp' : pagesDisp,
 		'pagesCount' : pagesCount,
 		'type' : itemType,
+		'display' : display,
+		'approved' : approved_str
 	})
 	return HttpResponse(template.render(context))
 
-@user_passes_test(lambda u: u.is_staff)
+@login_required
 def validation_action(request):
 	"""
 	View which only removes / validates schedulers.
@@ -181,12 +188,18 @@ def validation_action(request):
 	else:
 		return HttpResponse("error: bad type")
 	
+	# Checks permission
+	if not request.user.is_staff:
+		allowed = item.contributor == request.user and action == "delete" and item.approved == False
+		if not allowed:
+			return HttpResponseForbidden()
+	
 	if action == "delete":
 		reason = request.GET['reason']
 		if reason != "<user>":
 			notif = Notification()
 			notif.title = "Submission of {} '{}' : refused.".format(item_type, item.name)
-			notif.user = request.user
+			notif.user = item.contributor
 			notif.content = reason
 			notif.ntype = "danger"
 			notif.save()
@@ -197,7 +210,7 @@ def validation_action(request):
 		item.save()
 		notif = Notification()
 		notif.title = "Submission of {} '{}' : approved.".format(item_type, item.name)
-		notif.user = request.user
+		notif.user = item.contributor
 		notif.content = "Congratulations ! Your {} has been added to the database.".format(item_type)
 		notif.ntype = "success"
 		notif.save()
@@ -221,9 +234,9 @@ def notifications(request):
 	
 	req = None
 	if display == "unread":	
-		req = lambda: Notification.objects.filter(user=request.user, read=False)
+		req = Notification.objects.filter(user=request.user, read=False)
 	else:
-		req = lambda: Notification.objects.filter(user=request.user)
+		req = Notification.objects.filter(user=request.user)
 		
 	count, page, start, end, items, pagesDisp, pagesCount = paginate(req, page)
 	

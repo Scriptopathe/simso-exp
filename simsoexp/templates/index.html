@@ -34,7 +34,7 @@
 					<ul class="dropdown-menu">
 						<li>
 							<a href="{% url 'simsoexp.views.contributions' %}">
-								 <span class="glyphicon glyphicon-briefcase"></span> My Contributions
+								 <span class="glyphicon glyphicon-briefcase"></span> Contributions
 							</a>
 						</li>
 						<li>
@@ -43,14 +43,7 @@
 							<span class="badge badge-custom" id="notifications_badge"></span></a>
 						</li>
 						  
-						{% if user.is_staff %}
-							<li>
-								<a href="{% url 'simsoexp.views.manage_validation' %}">
-									<span class="glyphicon glyphicon-ok"></span> Request validations
-								</a>
-							</li>
-						{% endif %}
-						
+
   						<li role="separator" class="divider"></li>
 						
 						{% if user.is_superuser %}
