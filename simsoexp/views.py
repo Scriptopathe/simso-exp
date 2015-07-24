@@ -12,6 +12,45 @@ import base64
 from math import ceil
 from models import *
 
+# -----------------------------------------------------------------------------
+# Utils
+# -----------------------------------------------------------------------------
+def get_test_category(name):
+	"""
+	Gets the test category with the given name
+	"""
+	cats = TestCategory.objects.filter(name=name)
+	if len(cats) > 0:
+		return cats[0]
+	
+	cat = TestCategory()
+	cat.name = name
+	cat.save()
+	return cat
+	
+def get_schedulers_by_name(name="", need_validation=None):
+	"""
+	Gets the scheduler(s) corresponding to the given name.
+	
+	:param need_validation: if true : return only the validated 
+	schedulers. If false : return only the non validated schedulers.
+	If None : returns all schedulers.
+	:param name: name of the scheduler.
+	"""
+	response = None
+	if(name == ""):
+		response = SchedulingPolicy.objects.all()
+	else:
+		response = SchedulingPolicy.objects.filter(name__exact=name)
+	
+	if need_validation != None:
+		response = response.filter(approved=need_validation)
+	
+	return response
+		
+def b64(data):
+	return base64.b64encode(data)
+	
 def decode_base64(data):
     """Decode base64, padding being optional.
 
@@ -27,13 +66,11 @@ def save(data_array):
 	for data in data_array:
 		data.save()
 	return data_array
-	
-def b64(data):
-	return base64.b64encode(data)
+
 	
 def paginate(requestFunction, page, pageSize=5, dispPages=5):
 	"""
-	Given a requesr function, a page number and a page size, 
+	Given a request function, a page number and a page size, 
 	returns a tuple (count, page, start, end, items, pagesDisp, pagesCount)
 	"""
 	itemCount = requestFunction().count()
@@ -59,7 +96,18 @@ def paginate(requestFunction, page, pageSize=5, dispPages=5):
 				break
 	
 	return (itemCount, page, start, end, requestFunction()[start:end], pagesDisp, pagesCount)
-	
+
+# -----------------------------------------------------------------------------
+# Views
+# -----------------------------------------------------------------------------
+@login_required
+def index(request):
+	template = loader.get_template('app.html')
+	context = RequestContext(request, {
+	})
+	return HttpResponse(template.render(context))
+
+@login_required
 def logout(request):
 	"""Logs out the user"""
 	user_logout(request)
@@ -124,8 +172,6 @@ def scheduler_validation_action(request):
 	else:
 		return HttpResponse("error:bad action")
 
-
-
 @login_required
 def notifications(request):
 	"""
@@ -162,6 +208,9 @@ def notifications(request):
 	
 	return HttpResponse(template.render(context))
 
+# -----------------------------------------------------------------------------
+# Ajax
+# -----------------------------------------------------------------------------
 @login_required
 def user_read_notification(request):
 	"""
@@ -180,7 +229,9 @@ def user_read_notification(request):
 def unread_notifications_count(request):
 	return HttpResponse(str(Notification.objects.filter(user=request.user, read=False).count()))
 		
-
+# -----------------------------------------------------------------------------
+# Upload
+# -----------------------------------------------------------------------------
 @login_required
 def upload_scheduler(request):
 	"""
@@ -220,18 +271,6 @@ def upload_scheduler(request):
 	sched.save()
 	return HttpResponse(ret_code)
 
-def get_test_category(name):
-	"""
-	Gets the test category with the given name
-	"""
-	cats = TestCategory.objects.filter(name=name)
-	if len(cats) > 0:
-		return cats[0]
-	
-	cat = TestCategory()
-	cat.name = name
-	cat.save()
-	return cat
 
 @login_required
 @csrf_exempt
@@ -299,15 +338,9 @@ def api_upload_experiment(request):
 	
 	return HttpResponse("success")
 
-@login_required
-def index(request):
-	template = loader.get_template('app.html')
-	context = RequestContext(request, {
-	})
-	return HttpResponse(template.render(context))
-
-
-
+# -----------------------------------------------------------------------------
+# API
+# -----------------------------------------------------------------------------
 
 @login_required
 def api_get_schedulers_by_sha(request, sha):
@@ -318,7 +351,7 @@ def api_get_schedulers_by_sha(request, sha):
 	if(sha == ""):
 		response = SchedulingPolicy.objects.all()
 	else:
-		response = SchedulingPolicy.objects.filter(sha1__exact=sha)
+		response = SchedulingPolicy.objects.filter(sha1__exact=sha, approved=True)
 	
 	s = ""
 	for sched in response:
@@ -334,7 +367,7 @@ def api_get_scheduler_data(request, scheduler_id):
 	response = None
 	s = ""
 	
-	response = SchedulingPolicy.objects.filter(id__exact=scheduler_id);
+	response = SchedulingPolicy.objects.filter(id__exact=scheduler_id, approved=True);
 	if(len(response) > 0):
 		s += b64(response[0].name) + "," + b64(response[0].class_name) + "," + b64(response[0].code)
 	
@@ -350,7 +383,8 @@ def api_get_results(request, testset_id, scheduler_id):
 	
 	response = Results.objects.filter(
 		test_set__id__exact=testset_id, 
-		scheduling_policy__id__exact=scheduler_id)
+		scheduling_policy__id__exact=scheduler_id, 
+		approved=True)
 		
 	for res in response:
 		s += str(res.id) + ","
@@ -366,7 +400,7 @@ def api_get_result(request, result_id):
 	"""
 	response = None
 	s = ""
-	response = Results.objects.filter(pk=result_id)
+	response = Results.objects.filter(pk=result_id, approved=True)
 	
 	attrs = ['name', 'count', 'avg', 'std', 'median']
 	
@@ -381,25 +415,7 @@ def api_get_result(request, result_id):
 	
 	return HttpResponse(s.rstrip(','))
 
-def get_schedulers_by_name(name="", need_validation=None):
-	"""
-	Gets the scheduler(s) corresponding to the given name.
-	
-	:param need_validation: if true : return only the validated 
-	schedulers. If false : return only the non validated schedulers.
-	If None : returns all schedulers.
-	:param name: name of the scheduler.
-	"""
-	response = None
-	if(name == ""):
-		response = SchedulingPolicy.objects.all()
-	else:
-		response = SchedulingPolicy.objects.filter(name__exact=name)
-	
-	if need_validation != None:
-		response = response.filter(approved=need_validation)
-	
-	return response
+
 	
 @login_required
 def api_get_schedulers_by_name(request, name):
