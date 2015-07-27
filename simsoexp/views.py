@@ -540,7 +540,7 @@ def api_get_result(request, result_id):
 	s = ""
 	response = Results.objects.filter(pk=result_id, approved=True)
 	
-	attrs = ['name', 'count', 'avg', 'std', 'median']
+	attrs = ['name', 'sum', 'avg', 'std', 'median']
 	
 	if response.count() > 0:
 		res = response[0]
