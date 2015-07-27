@@ -215,13 +215,17 @@ class DBScheduler:
 class Experiment:
 	"""
 	Represent an experiment, which contains :
-		- a set of configuration files 
-		  (either DBTestSet or a 
-		  tuple (name, categories, list of Configuration objects))
+		- a set of configuration files
 		- a scheduler
-		- a set of metrics
+		- after run() : a set of metrics and results
 	"""
 	def __init__(self, db, conf_files, scheduler):
+		"""
+		Creates a new experiment
+		
+		:param db: The database instance bound to the experiment.
+		:conf_files: Either a DBTestSet object or a tuple (name, categories, list of Configuration objects)
+		"""
 		self.db = db
 		self.results = []
 		# Checks conf_files
@@ -256,7 +260,7 @@ class Experiment:
 	
 	def run(self):
 		"""
-		Runs the experiment and computes the metrics
+		Runs the experiment and computes the metrics.
 		"""
 		
 		self.results = []
@@ -279,8 +283,6 @@ class Experiment:
 				numpy.median(values),
 			]
 		
-	
-	
 	def upload(self):
 		"""
 		Uploads the experiment to Simso Experiment Database.
@@ -312,9 +314,6 @@ class Experiment:
 		
 		self.db.api.upload_experiment(data)
 		
-		
-		
-		
 class SimsoDatabase:
 	def __init__(self, address):
 		"""
@@ -335,39 +334,56 @@ class SimsoDatabase:
 			os.makedirs(self.local_conf_dir)
 		
 	def testset(self, identifier):
-		"""Gets a testset given its id."""
+		"""Gets a testset given its id in the database."""
 		return DBTestSet(self, identifier)
 	
-	def scheduler(self, identifier):
-		return DBScheduler(self, identifier)
-	
 	def results(self, testset_id, scheduler_id):
+		"""
+		Gets the results associated to the given testset_id and scheduler_id.
+		These results have been obtained by running simso with the corresponding
+		scheduler and testsets.
+		"""
 		m = self.api.get_metrics(testset_id, scheduler_id)
 		return [DBResults(self, identifier) for identifier in m]
 	
 	def result(self, identifier):
+		"""
+		Gets a result set given its identifier in the database.
+		"""
 		return DBResults(self, identifier)
-	
-	def testsets(self, category=""):
-		"""Gets a list of testset given a category"""
-		sets = self.api.get_testsets_by_category(category)
-		tests = [DBTestSet(self, identifier) for identifier, name in sets]
-		return tests
-	
+		
 	def categories(self):
-		"""Gets a list of all the test categories"""
+		"""
+		Gets a list of all the test categories
+		"""
 		return self.api.get_categories()
+	
+	def scheduler(self, identifier):
+		"""Gets a scheduler given its id in the database."""
+		return DBScheduler(self, identifier)
 		
 	def schedulers(self, name=""):
 		"""
 		Gets a list of DBScheduler objects matching the given name
 		Usually there is only one matching result.
+		
+		:param name: The exact name of the schedulers to find.
 		"""
 		scheds = self.api.get_schedulers_by_name(name)
 		scheds = [DBScheduler(self, sched_id) for sched_id in scheds]
 		return scheds
 	
-
+	def testsets(self, category=""):
+		"""
+		Gets a list of testsets given a category
+		If no category is specified, all the testsets are displayed.
+		
+		:param category: the category of testsets to display.
+		"""
+		sets = self.api.get_testsets_by_category(category)
+		tests = [DBTestSet(self, identifier) for identifier, name in sets]
+		return tests
+		
 	def upload_testset(self, name, categories, conf_files):
 		"""
 		Uploads a test set with the given name, categories

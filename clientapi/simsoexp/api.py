@@ -248,7 +248,6 @@ class Api:
 		r = self.urlopen(self.base_addr + "/api/results/id/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
-			print(val)
 			values = val.rsplit(',')
 			attrs = ['name', 'sum', 'avg', 'std', 'median']
 			metrics = []
