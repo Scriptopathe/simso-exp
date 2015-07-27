@@ -67,14 +67,16 @@ class DBTestSet:
 		self.identifier = identifier
 		self.__conf_files = None
 		self.__name = None
+		self.__description = None
 		self.__categories = None
 		if db.preload:
 			self.__load_conf_files()
 	
 	def __load_data(self):
-		name, categories, fileIds = self.db.api.get_testset(self.identifier)
+		name, description, categories, fileIds = self.db.api.get_testset(self.identifier)
 		self.__categories = categories
 		self.__name = name
+		self.__description = description
 		
 	def __load_conf_files(self):
 		files = self.db.api.get_testset_files(self.identifier);
@@ -88,6 +90,15 @@ class DBTestSet:
 		if self.__name == None:
 			self.__load_data()
 		return self.__name
+	
+	@property
+	def description(self):
+		"""
+		Gets the description of the test set.
+		"""
+		if self.__description == None:
+			self.__load_data()
+		return self.__description
 	
 	@property
 	def categories(self):
@@ -225,7 +236,7 @@ class Experiment:
 		
 		:param db: The database instance bound to the experiment.
 		:conf_files: Either a DBTestSet object or a a custom test set given as a 
-		tuple (name, categories, list of Configuration objects)
+		tuple (name, description, categories, list of Configuration objects)
 		
 		Take care : you won't be able to upload your results if you used a custom test set,
 		unless you are a Simso Experiment Database administrator.
@@ -236,25 +247,30 @@ class Experiment:
 		if isinstance(conf_files, DBTestSet):
 			self.testset = conf_files
 			self.testname = self.testset.name
+			self.testdesc = self.testset.description
 			self.conf_files = [f.configuration for f in conf_files.conf_files]
 			self.categories = self.testset.categories
 		else:
 			assert(isinstance(conf_files, tuple))
 			assert(isinstance(conf_files[0], str))
-			assert(isinstance(conf_files[1], list))
+			assert(isinstance(conf_files[1], str))
+			assert(isinstance(conf_files[2], list))
+			assert(isinstance(conf_files[3], list))
 			
 			# Check categories
-			for c in conf_files[1]:
+			for c in conf_files[2]:
 				assert(isinstance(c, str))
 			
 			# Check files	
-			assert(isinstance(conf_files[2], list))
-			for f in conf_files[2]:
+			for f in conf_files[3]:
 				assert(isinstance(f, Configuration))
+			
 			self.testset = None
 			self.testname = conf_files[0]
-			self.categories = conf_files[1]
-			self.conf_files = conf_files[2]
+			self.testdesc = conf_files[1]
+			self.categories = conf_files[2]
+			self.conf_files = conf_files[3]
+			
 		# Check scheduler
 		assert(isinstance(scheduler, DBScheduler))
 		self.scheduler = scheduler
@@ -303,7 +319,6 @@ class Experiment:
 		for metric in self.metrics:
 			data["metrics"].append(','.join([metric] + [str(m) for m in self.metrics[metric]]))
 		
-		
 		# Configuration files / testset
 		if(self.testset == None):
 			data["testset_id"] = "-1"
@@ -312,8 +327,9 @@ class Experiment:
 			data["testset_id"] = str(self.testset.identifier)
 			data["conf_files"] = []
 		
-		# Test name
+		# Test name and description
 		data["test_name"] = self.testname
+		data["test_description"] = self.testdesc
 		
 		# Categories
 		data["categories"] = self.categories
@@ -365,8 +381,14 @@ class SimsoDatabase:
 		"""
 		Gets a list of all the test categories
 		"""
-		return self.api.get_categories()
+		return [cat[0] for cat in self.api.get_categories()]
 	
+	def categories_and_description(self):
+		"""
+		Gets a list of tuples (category_name, description) for each test category.
+		"""
+		return self.api.get_categories()
+		
 	def scheduler(self, identifier):
 		"""Gets a scheduler given its id in the database."""
 		return DBScheduler(self, identifier)
@@ -393,7 +415,7 @@ class SimsoDatabase:
 		tests = [DBTestSet(self, identifier) for identifier, name in sets]
 		return tests
 		
-	def upload_testset(self, name, categories, conf_files):
+	def upload_testset(self, name, description, categories, conf_files):
 		"""
 		Uploads a test set with the given name, categories
 		and configuration files (list of Configuration objects).
@@ -402,5 +424,5 @@ class SimsoDatabase:
 			assert(isinstance(conf_file, Configuration))
 		assert(isinstance(categories, list))
 		
-		self.api.upload_testset(name, categories, [generate(f) for f in conf_files])
+		self.api.upload_testset(name, description, categories, [generate(f) for f in conf_files])
 		

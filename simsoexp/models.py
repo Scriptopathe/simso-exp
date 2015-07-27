@@ -24,6 +24,8 @@ class ConfigurationFile(models.Model):
 class TestCategory(models.Model):
 	# Name of the test category
 	name = models.CharField(max_length=255)
+	# Description of the category
+	description = models.TextField()
 	
 	def __str__(self):
 		return self.name
@@ -39,7 +41,8 @@ class TestSet(models.Model):
 	approved = models.BooleanField(default=False)
 	# Contributor
 	contributor = models.ForeignKey(User)
-	
+	# Description of the category
+	description = models.TextField()
 	def categories_str(self):
 		return ','.join([cat.name for cat in self.categories.all()])
 	

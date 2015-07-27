@@ -412,6 +412,7 @@ def upload_scheduler(request):
 def api_upload_testset(request):
 	# Conf file or testset id
 	test_name = request.POST["test_name"]
+	test_description = request.POST["test_description"]
 	conf_files = request.POST.getlist('conf_files')
 	test_categories = request.POST.getlist('categories')
 	
@@ -435,6 +436,7 @@ def api_upload_testset(request):
 	# Creates the test set object
 	testset = TestSet()
 	testset.name = test_name
+	testset.description = test_description
 	testset.contributor = request.user
 	testset.save()
 	testset.categories = [get_test_category(cat) for cat in test_categories]
@@ -458,6 +460,7 @@ def api_upload_experiment(request):
 	# Conf file or testset id
 	testset_id = request.POST["testset_id"]
 	test_name = request.POST["test_name"]
+	test_description = request.POST["test_description"]
 	conf_files = request.POST.getlist('conf_files')
 	
 	# Categories
@@ -502,6 +505,7 @@ def api_upload_experiment(request):
 		# Creates the test set object
 		testset = TestSet()
 		testset.name = test_name
+		testset.description = test_description
 		testset.contributor = request.user
 		testset.save()
 		testset.categories = [get_test_category(cat) for cat in test_categories]
@@ -647,7 +651,7 @@ def api_get_testsets(request, category):
 @login_required
 def api_get_testsets_by_id(request, identifier):
 	"""
-	Gets a tuple (name, categoryCount, category1, category2, fileCount, file1, ...)
+	Gets a tuple (name, description, categoryCount, category1, category2, fileCount, file1, ...)
 	for the testset with the given id.
 	"""
 	response = TestSet.objects.filter(pk=identifier)
@@ -655,7 +659,7 @@ def api_get_testsets_by_id(request, identifier):
 		return HttpResponse("")
 	
 	testset = response[0]
-	s = b64(testset.name) + ",";
+	s = b64(testset.name) + "," + b64(testset.description) + ","
 	s += str(testset.categories.count()) + ","
 	for cat in testset.categories.all():
 		s += b64(cat.name) + ","
@@ -707,6 +711,6 @@ def api_get_categories(self):
 	response = TestCategory.objects.all()
 	s = ""
 	for cat in response:
-		s += cat.name +","
+		s += b64(cat.name) + "," + b64(cat.description) + ","
 	
 	return HttpResponse(s.rstrip(','))

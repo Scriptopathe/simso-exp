@@ -145,7 +145,7 @@
                 <div class="form-group">
                     <label class="control-label col-sm-2">Class name :  </label>
                     <div class="col-sm-4">
-                        <input disabled class="form-control" type="text" value="{{item.class_name}}"></input>
+                        <input readonly class="form-control" type="text" value="{{item.class_name}}"></input>
                     </div>
                 </div>
                 <div class="editor" id="editor{{ item.id }}" style="height: 400px">{% autoescape on %}{{ item.code }}{% endautoescape %}</div>
@@ -161,7 +161,7 @@
                         <label class="control-label col-sm-4">Testset name : </label>
                         <div class="col-sm-4">
                             <div class="input-group">
-                                <input disabled class="form-control" type="text"  value="{{item.name}}"></input>
+                                <input readonly class="form-control" type="text"  value="{{item.name}}"></input>
                             </div>
                         </div>            
                     </div>
@@ -169,10 +169,17 @@
                     <div class="form-group">
                         <label class="control-label col-sm-4">Testset categories : </label>
                         <div class="col-sm-4">
-                            <input disabled class="form-control" type="text" value="{{item.categories_str}}"></input>
+                            <input readonly class="form-control" type="text" value="{{item.categories_str}}"></input>
                         </div>
                     </div>
-                    
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Testset description : </label>
+                        <div class="col-sm-4" style="padding-top: 6px">
+                            {% autoescape on %}
+                            {{ item.description|linebreaksbr }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="control-label col-sm-4"></label>
                         <div class="col-sm-4">

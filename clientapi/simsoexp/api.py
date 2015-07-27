@@ -90,7 +90,6 @@ class Api:
 		return r.ok
 	
 	def handle_error(self, r):
-		
 		if not r.ok:
 			f = open("f.html", "w+")
 			f.write(r.text)
@@ -125,7 +124,6 @@ class Api:
 		Returns the scheduler id that corresponds to the scheduler with
 		the given code. -1 if no scheduler matches.
 		"""
-		md5 = hashlib.md5(code).hexdigest();
 		sha = hashlib.sha1(code).hexdigest();
 		r = self.urlopen(self.base_addr + "/api/schedulers/sha/" + sha);
 		if self.urlok(r):
@@ -209,19 +207,24 @@ class Api:
 	@cached('testsets_id')
 	def get_testset(self, identifier):
 		"""
-		Gets a tuple (name, categories[], files[]) for the testset with the given id.
+		Gets a tuple (name, description, categories[], files[]) for the testset with the given id.
 		"""
 		r = self.urlopen(self.base_addr + "/api/testsets/id/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
 			values = val.rsplit(',')
-			tuples = (b64str(values[0]), [], [])
-			n = int(values[1])+1
-			for i in range(2, n+1):
-				tuples[1].append(b64str(values[i]))
+			tuples = (b64str(values[0]), b64str(values[1]), [], [])
+			
+			# Categories
+			n = int(values[2])+2
+			for i in range(3, n+1):
+				tuples[2].append(b64str(values[i]))
+			
+			# Files
 			n2 = int(values[n+1])
 			for i in range(n+1, n+n2+2):
-				tuples[2].append(values[i])
+				tuples[3].append(values[i])
+			
 			return tuples
 		else: self.handle_error(r)
 	
@@ -266,12 +269,20 @@ class Api:
 	
 	def get_categories(self):
 		"""
-		Gets all the test categories in the database
+		Gets all the test categories in the database and their descriptions as tuples
+			(name, description)
 		"""
 		r = self.urlopen(self.base_addr + "/api/categories/")
 		if self.urlok(r):
 			val = self.urlread(r)
-			return val.rsplit(',')
+			values = val.rsplit(',')
+			tuples = []
+			for i in range(0, int(len(values)//2)):
+				tuples.append(
+					(b64str(values[i*2]),
+					 b64str(values[i*2+1]))
+				)
+			return tuples
 			
 		else: self.handle_error(r)
 		
@@ -288,7 +299,7 @@ class Api:
 		
 		else: self.handle_error(r)
 	
-	def upload_testset(self, name, categories, conf_files):
+	def upload_testset(self, name, description, categories, conf_files):
 		"""
 		Uploads a test set with the given name, categories and list of
 		configuration file (string containing XML configuration)
@@ -296,6 +307,7 @@ class Api:
 		data = {
 			'conf_files' : conf_files,
 			'test_name' : name,
+			'test_description' : description,
 			'categories' : categories
 		}
 		response = self.post(self.base_addr + "/api/testsets/upload", data)
