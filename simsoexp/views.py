@@ -209,8 +209,13 @@ def contributions(request):
 	
 	# Creates the request
 	req = None
-	if(itemType == 'scheduler'):
+	if itemType == 'scheduler':
 		req = get_schedulers_by_name("", approved)
+	elif itemType == 'testset':
+		if approved == None:
+			req = TestSet.objects.all()
+		else:
+			req = TestSet.objects.filter(approved=approved)
 	else:
 		if approved == None:
 			req = Results.objects.all()
@@ -258,6 +263,11 @@ def validation_action(request):
 		objs = Results.objects.filter(pk=int(identifier))
 		if len(objs) == 0:
 			return HttpResponse("error:bad id")
+		item = objs[0]
+	elif item_type == "testset":
+		objs = TestSet.objects.filter(pk=int(identifier))
+		if len(objs) == 0:
+			return HttpResponse("error: bad id")
 		item = objs[0]
 	else:
 		return HttpResponse("error: bad type")
@@ -425,6 +435,7 @@ def api_upload_testset(request):
 	# Creates the test set object
 	testset = TestSet()
 	testset.name = test_name
+	testset.contributor = request.user
 	testset.save()
 	testset.categories = [get_test_category(cat) for cat in test_categories]
 	testset.files = save(files)
@@ -491,6 +502,7 @@ def api_upload_experiment(request):
 		# Creates the test set object
 		testset = TestSet()
 		testset.name = test_name
+		testset.contributor = request.user
 		testset.save()
 		testset.categories = [get_test_category(cat) for cat in test_categories]
 		testset.files = save(files)

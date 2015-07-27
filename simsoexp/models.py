@@ -35,6 +35,13 @@ class TestSet(models.Model):
 	files = models.ManyToManyField(ConfigurationFile)
 	# All the categories labels of this test set.
 	categories = models.ManyToManyField(TestCategory)
+	# True if approved by the admin
+	approved = models.BooleanField(default=False)
+	# Contributor
+	contributor = models.ForeignKey(User)
+	
+	def categories_str(self):
+		return ','.join([cat.name for cat in self.categories.all()])
 	
 	def __str__(self):
 		return self.name

@@ -27,7 +27,7 @@ def cached(name):
 	return f
 	
 class Api:
-	def __init__(self, address, use_cache=True, username=None, password=None):
+	def __init__(self, address, username=None, password=None, use_cache=True):
 		"""
 		Initializes a connection to the Simso Experiment server
 		at the given address (includes port number)

@@ -12,7 +12,6 @@
             <td style="width: 50%;">
                 <h4>Welcome to Simso Experiment Database.</h4>
                 Here you can see the contributions of the users.<br />
-                
             </td>
             <td style="width: 50%;">
                     <div class="form-horizontal">
@@ -58,8 +57,11 @@
       <li role="presentation" {% if type == 'scheduler' %} class="active" {% endif %}>
           <a href="{% url 'simsoexp.views.contributions' %}?type=scheduler&display={{display}}&approved={{approved}}">Schedulers</a>
       </li>
-      <li role="presentation" {% if type != 'scheduler' %} class="active" {% endif %}>
+      <li role="presentation" {% if type == 'results' %} class="active" {% endif %}>
           <a href="{% url 'simsoexp.views.contributions' %}?type=results&display={{display}}&approved={{approved}}">Experiment Results</a>
+      </li>
+      <li role="presentation" {% if type == 'testset' %} class="active" {% endif %}>
+          <a href="{% url 'simsoexp.views.contributions' %}?type=testset&display={{display}}&approved={{approved}}">Test sets</a>
       </li>
 </ul>
 <div class="well">
@@ -152,6 +154,38 @@
                     editor.setTheme("ace/theme/chrome");
                     editor.getSession().setMode("ace/mode/python");
                 </script>
+                
+                {% elif type == "testset" %}
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Testset name : </label>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <input disabled class="form-control" type="text"  value="{{item.name}}"></input>
+                            </div>
+                        </div>            
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Testset categories : </label>
+                        <div class="col-sm-4">
+                            <input disabled class="form-control" type="text" value="{{item.categories_str}}"></input>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="control-label col-sm-4"></label>
+                        <div class="col-sm-4">
+                            <a  
+                                href="{% url 'simsoexp.views.download_testset' item.id %}"
+                                class="form-control btn btn-default">
+                                <span class="glyphicon glyphicon-download"></span> 
+                                Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Results -->
                 {% else %}
                 <div class="form-group">

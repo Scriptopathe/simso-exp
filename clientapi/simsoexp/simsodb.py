@@ -324,14 +324,14 @@ class Experiment:
 		self.db.api.upload_experiment(data)
 		
 class SimsoDatabase:
-	def __init__(self, address):
+	def __init__(self, address, username=None, password=None):
 		"""
 		Initializes a connection to the Simso Experiment server
 		at the given address (includes port number)
 		Ex: http://example.com:8000/
 		"""
 		self.base_addr = address.rstrip('/');
-		self.api = Api(address)
+		self.api = Api(address, username, password)
 		self.preload = False
 		self.__init_cache()
 		
