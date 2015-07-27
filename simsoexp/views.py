@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseForbidden
 from django.http import Http404
+from django.db.models import Q
 import re
 import urllib
 import hashlib
@@ -225,6 +226,11 @@ def contributions(request):
 	# Filter by user
 	if display == "my":
 		req = req.filter(contributor=request.user)
+	else:
+		# Don't show the non-approved entries to lambda users.
+		if not request.user.is_staff:
+			req = req.filter(Q(contributor=request.user) | Q(approved=True))
+	
 	
 	# Call paginate
 	count, page, start, end, items, pagesDisp, pagesCount = paginate(req, page, 10)
