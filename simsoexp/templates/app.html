@@ -23,8 +23,8 @@
                 </div>
                 
             </div>            
-            <div id="name_error" class="alert alert-danger alert-sm col-sm-4" style="display: none">
-                    This scheduler name is already in use.
+            <div id="name_error" class="alert alert-danger alert-sm col-sm-4 info" style="display: none">
+                    
             </div>
         </div>
         <div class="form-group">
@@ -32,12 +32,14 @@
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="sched_class_name"></input>
             </div>
-
+            <div id="class_name_error" class="alert alert-danger alert-sm col-sm-4 info" style="display: none">
+                    
+            </div>
         </div>
         <div class="form-group">
             <label class="control-label col-sm-4">Scheduler code : </label>
             <div class="col-sm-8">
-                <input data-show-upload="false" class="file input-sm" type="file" name="sched_file"></input>
+                <input data-show-upload="false" class="file input-sm " type="file" name="sched_file"></input>
             </div>
         </div>
         
@@ -52,7 +54,7 @@
             </div>
         </div>
         
-        <div class="form-group" id="upload_success" style="display: none">
+        <div class="form-group info" id="upload_success" style="display: none">
             <label class="control-label col-sm-4"></label>
             <div class="col-sm-8">
                 <div id="upload_success_text" class="alert alert-success">
@@ -60,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" id="upload_error" style="display: none">
+        <div class="form-group info" id="upload_error" style="display: none">
             <label class="control-label col-sm-4"></label>
             <div class="col-sm-8">
                 <div  class="alert alert-danger">
@@ -68,7 +70,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" id="form_error" style="display: none">
+        <div class="form-group info" id="form_error" style="display: none">
             <label class="control-label col-sm-4"></label>
             <div class="col-sm-8">
                 <div  class="alert alert-danger">
@@ -111,18 +113,22 @@
                 sched_class_name: class_name,
                 sched_content: selected_content
             });
-            
+            $('.info').css('display', 'none');
             $('#upload_animation').css('display', 'inline');
             posting.done(function(data) {
-                $('#upload_error').css('display', 'none');
                 $('#upload_animation').css('display', 'none');
                 if(data.indexOf("error") > -1) {
                     // There is an error
-                    $('#upload_success').css('display', 'none');
                     $('#form_error').css('display', 'block');
-                    var errorKind = data.split(':')[1];
-                    if(errorKind == "name") {
+                    var msgCode = data.split(':');
+                    var errorMessage = msgCode[2];
+                    var errorTarget = msgCode[1];
+                    if(errorTarget == "name") {
                         $('#name_error').css('display', 'block');
+                        $('#name_error').text(errorMessage);
+                    } else if (errorTarget == "class_name") {
+                        $('#class_name_error').css('display', 'block');
+                        $('#class_name_error').text(errorMessage);
                     }
                 } else {
                     // Everything went fine.
@@ -136,18 +142,12 @@
                     else {
                         $('#upload_success_text').text("Unkown answer from the server...");
                     }
-                    $('#name_error').css('display', 'none');
-                    $('#form_error').css('display', 'none');
                 }
             });
             
             // Shows an error message when the posting fails.
             posting.fail(function(data) {
                 $('#upload_error').css('display', 'block');
-                $('#name_error').css('display', 'none');
-                $('#form_error').css('display', 'none');
-                $('#upload_success').css('display', 'none');
-                $('#upload_animation').css('display', 'none');
             });
         });
     </script>
