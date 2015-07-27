@@ -21,7 +21,7 @@ def menu(options):
 # Choose the samples to run
 RUN = [int(s) for s in input("Test to run: ").split(',')]
 
-table = {"test" : "test", "superman": "$uper$trongp@$$w0rd"}
+table = {"test" : "test", "superman": "$uper$trongp@$$w0rd", "simso" : "simso"}
 user = input("Username: ")
 
 
