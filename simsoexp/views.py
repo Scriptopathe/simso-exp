@@ -12,6 +12,9 @@ from django.http import Http404
 import urllib
 import hashlib
 import base64
+import os
+import zipfile
+import StringIO
 from math import ceil
 from models import *
 
@@ -140,9 +143,42 @@ def view_scheduler(request, identifier):
 	sched = scheds[0]
 	context = RequestContext(request, {
 		'sched' : sched,
-		'download' : urllib.quote_plus(sched.code)
 	})
 	return HttpResponse(template.render(context))
+
+@login_required
+def view_testset(request, identifier):
+	"""View where the user can see a test set"""
+	testsets = TestSet.objects.filter(pk=identifier)
+	if len(testsets) == 0:
+		raise Http404()
+	
+	template = loader.get_template('testset.html')
+	context = RequestContext(request, {
+		'testset' : testsets[0],
+		'categories' : ','.join([cat.name for cat in testsets[0].categories.all()])
+	})
+	
+	return HttpResponse(template.render(context))
+
+@login_required
+def download_testset(request, identifier):
+	testsets = TestSet.objects.filter(pk=identifier)
+	if len(testsets) == 0:
+		raise Http404()
+	testset = testsets[0]
+	# Writes all the testset files to a zip archive
+	zip_subdir = "testset " + str(identifier) + "/"
+	s = StringIO.StringIO("")
+	with zipfile.ZipFile(s, 'w') as zf:
+		for f in testset.files.all():
+			filename = zip_subdir + "test_" + str(f.id) + ".xml"
+			zf.writestr(filename.encode('ascii'), f.conf.encode('ascii'))
+	
+	zip_content = s.getvalue()
+	response = HttpResponse(zip_content, content_type="application/x-zip-compressed")
+	response['Content-Disposition'] = 'attachment; filename=testset' + identifier + ".zip"
+	return response
 	
 @login_required
 def contributions(request):
