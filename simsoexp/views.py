@@ -648,3 +648,15 @@ def api_get_conf_file(self, file_id):
 		s = response[0].conf
 	
 	return HttpResponse(s)
+
+@login_required
+def api_get_categories(self):
+	"""
+	Gets a list of all the categories.
+	"""
+	response = TestCategory.objects.all()
+	s = ""
+	for cat in response:
+		s += cat.name +","
+	
+	return HttpResponse(s.rstrip(','))

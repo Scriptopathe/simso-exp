@@ -12,6 +12,7 @@ urlpatterns = [
 	url('^notifications/read/$', views.user_read_notification, name="notifications_read"),
 	url('^notifications/unread_count$', views.unread_notifications_count, name="notifications_count"),
 	url('^contributions/$', views.contributions, name="contributions"),
+	url('^api/categories/$', views.api_get_categories, name='categories'),
 	url('^api/testsets/category/(.*)$', views.api_get_testsets, name='testsets'),
 	url('^api/testsets/id/([0-9]*)$', views.api_get_testsets_by_id, name='testsets_id'),
 	url('^api/testfiles/([0-9]*)$', views.api_get_test_files, name='testfiles'),

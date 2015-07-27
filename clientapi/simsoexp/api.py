@@ -263,8 +263,18 @@ class Api:
 			return array
 			
 		else: self.handle_error(r)
-
 	
+	def get_categories(self):
+		"""
+		Gets all the test categories in the database
+		"""
+		r = self.urlopen(self.base_addr + "/api/categories/")
+		if self.urlok(r):
+			val = self.urlread(r)
+			return val.rsplit(',')
+			
+		else: self.handle_error(r)
+		
 	def upload_experiment(self, postdata):
 		"""
 		Uploads an experiment (with the given post data)

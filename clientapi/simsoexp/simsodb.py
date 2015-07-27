@@ -107,7 +107,7 @@ class DBTestSet:
 		return self.__conf_files
 	
 	def __repr__(self):
-		return "<DBTestSet id={}>".format(self.identifier)
+		return "<DBTestSet id={}, name={}>".format(self.identifier, self.name)
 
 class DBConfFile:
 	def __init__(self, db, testset, identifier):
@@ -354,6 +354,10 @@ class SimsoDatabase:
 		tests = [DBTestSet(self, identifier) for identifier, name in sets]
 		return tests
 	
+	def categories(self):
+		"""Gets a list of all the test categories"""
+		return self.api.get_categories()
+		
 	def schedulers(self, name=""):
 		"""
 		Gets a list of DBScheduler objects matching the given name
