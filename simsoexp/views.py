@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseForbidden
 from django.http import Http404
+import re
 import urllib
 import hashlib
 import base64
@@ -21,6 +22,16 @@ from models import *
 # -----------------------------------------------------------------------------
 # Utils
 # -----------------------------------------------------------------------------
+name_reg = r'^(\w*)$'
+def is_valid_name(name):
+	"""
+	Gets a value indicating if a ressource name is correct,
+	e.g :
+		- It contains only letters, numbers and underscores
+	"""
+	match = re.match(name_reg, name)
+	return True if match else False
+	
 def get_test_category(name):
 	"""
 	Gets the test category with the given name
@@ -353,12 +364,17 @@ def upload_scheduler(request):
 	class_name = request.POST['sched_class_name']
 	code = request.POST['sched_content']
 	
+	if not is_valid_name(request.POST['sched_name']):
+		return HttpResponse("error:name:Only alphanumerical characters are allowed.")
+	if not is_valid_name(class_name):
+		return HttpResponse("error:class_name:Only alphanumerical characters are allowed.")
+		
 	validated = get_schedulers_by_name(name, True)
 	
 	# If a validated scheduler with the same name exists,
 	# throws an error.
 	if(len(validated) > 0):
-		return HttpResponse("error:name")
+		return HttpResponse("error:name:A scheduler with the same name already exists.")
 	
 	sched = None
 	
