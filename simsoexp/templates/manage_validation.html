@@ -171,6 +171,8 @@
                                 <th>Average</th>
                                 <th>Std. Dev.</th>
                                 <th>Median</th>
+                                <th>Min</th>
+                                <th>Max</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -181,7 +183,9 @@
                                 <td>{{metric.avg}}</td>
                                 <td>{{metric.std}}</td>
                                 <td>{{metric.median}}</td>
-                            </tr>                        
+                                <td>{{metric.minimum}}</td>
+                                <td>{{metric.maximum}}</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>

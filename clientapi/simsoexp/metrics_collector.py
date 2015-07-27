@@ -19,7 +19,7 @@ class MetricsCollector(object):
             self.metrics["preemptions_inter"] += sum(job.preemption_inter_count
                                           for job in task.jobs)
 
-        self.metrics["exceeded_count"] = sum(task.exceeded_count for task in
+        self.metrics["deadline_misses"] = sum(task.exceeded_count for task in
                                   result.tasks.values())
 
         self.metrics["response_time"] = 0

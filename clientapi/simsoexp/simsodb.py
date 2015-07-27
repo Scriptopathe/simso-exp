@@ -272,7 +272,7 @@ class Experiment:
 			all_results.append(MetricsCollector(model.results))
 		
 		
-		self.metrics = {} # sum, avg, std, med
+		self.metrics = {} # sum, avg, std, med, min, max
 		metric_keys = [key for key in all_results[0].metrics]
 		for key in metric_keys:
 			values = [res.metrics[key] for res in all_results]
@@ -281,6 +281,8 @@ class Experiment:
 				numpy.average(values),
 				numpy.std(values),
 				numpy.median(values),
+				min(values),
+				max(values)
 			]
 		
 	def upload(self):

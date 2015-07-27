@@ -441,7 +441,7 @@ def api_upload_experiment(request):
 	for metric in metrics:
 		m = Metric()
 		values = metric.rsplit(',')
-		m.name, m.count, m.avg, m.std, m.median = values
+		m.name, m.count, m.avg, m.std, m.median, m.minimum, m.maximum = values
 		metrics_db.append(m)
 		
 	# Conf file or testset id
@@ -574,7 +574,7 @@ def api_get_result(request, result_id):
 	s = ""
 	response = Results.objects.filter(pk=result_id, approved=True)
 	
-	attrs = ['name', 'sum', 'avg', 'std', 'median']
+	attrs = ['name', 'sum', 'avg', 'std', 'median', 'minimum', 'maximum']
 	
 	if response.count() > 0:
 		res = response[0]

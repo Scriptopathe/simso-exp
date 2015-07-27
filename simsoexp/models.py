@@ -67,10 +67,14 @@ class Metric(models.Model):
 	std = models.FloatField()
 	# Median of the metric
 	median = models.FloatField()
+	# Minimum value of the metric
+	minimum = models.FloatField()
+	# Maximum value of the metric
+	maximum = models.FloatField()
 	
 	def __str__(self):
-		return "{} : sum={}, avg={}, std={}, median={}".format(self.name, 
-			self.count, self.avg, self.std, self.median)
+		return "{} : sum={}, avg={}, std={}, median={}, min={}, max={}".format(self.name, 
+			self.count, self.avg, self.std, self.median, self.minimum, self.maximum)
 		
 	
 
