@@ -158,28 +158,30 @@
                     <label class="control-label col-sm-2">Scheduler : </label>
                     <a class="btn btn-link" target="_blank" href="{% url 'simsoexp.views.view_scheduler' item.id %}">{{item.scheduling_policy.name}}</a>
                 </div>
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Count</th>
-                            <th>Average</th>
-                            <th>Std. Dev.</th>
-                            <th>Median</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for metric in item.metrics.all %}
-                        <tr>
-                            <td>{{metric.name}}</td>
-                            <td>{{metric.count}}</td>
-                            <td>{{metric.avg}}</td>
-                            <td>{{metric.std}}</td>
-                            <td>{{metric.median}}</td>
-                        </tr>                        
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="container">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Count</th>
+                                <th>Average</th>
+                                <th>Std. Dev.</th>
+                                <th>Median</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for metric in item.metrics.all %}
+                            <tr>
+                                <td>{{metric.name}}</td>
+                                <td>{{metric.count}}</td>
+                                <td>{{metric.avg}}</td>
+                                <td>{{metric.std}}</td>
+                                <td>{{metric.median}}</td>
+                            </tr>                        
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 
                 {% endif %}
 
