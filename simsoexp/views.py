@@ -462,7 +462,10 @@ def api_upload_experiment(request):
 		return HttpResponse("error: invalid test name '{}'." + 
 			" Should only contains alphanumerical characters.".format(test_name))
 		
-	
+	# Permission checking
+	if testset_id == "-1" and not request.user.is_staff:
+		return HttpResponse("error: it is not allowed to upload custom test sets if you " + 
+				"are not a Simso Experiment Database administrator")
 	
 	# Scheduler
 	scheduling_policy_id = request.POST['scheduler']
@@ -491,6 +494,7 @@ def api_upload_experiment(request):
 		testset.save()
 		testset.categories = [get_test_category(cat) for cat in test_categories]
 		testset.files = save(files)
+		testset.approved = True
 		testset.save()
 	else:
 		# Takes an existing one

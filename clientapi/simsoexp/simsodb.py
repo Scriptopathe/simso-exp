@@ -224,7 +224,11 @@ class Experiment:
 		Creates a new experiment
 		
 		:param db: The database instance bound to the experiment.
-		:conf_files: Either a DBTestSet object or a tuple (name, categories, list of Configuration objects)
+		:conf_files: Either a DBTestSet object or a a custom test set given as a 
+		tuple (name, categories, list of Configuration objects)
+		
+		Take care : you won't be able to upload your results if you used a custom test set,
+		unless you are a Simso Experiment Database administrator.
 		"""
 		self.db = db
 		self.results = []
@@ -288,6 +292,9 @@ class Experiment:
 	def upload(self):
 		"""
 		Uploads the experiment to Simso Experiment Database.
+		
+		Take care : you won't be able to upload your results if you used a custom test set,
+		unless you are a Simso Experiment Database administrator.
 		"""
 		data = {}
 		

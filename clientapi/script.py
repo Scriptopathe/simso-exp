@@ -27,6 +27,8 @@ db = SimsoDatabase("http://localhost:8000")
 
 # ----
 # Running an experiment with local configuration files
+# You can only do that if you are one of the 
+# Simso Experiment Database administrators.
 # ----
 if 0 in RUN:
 	# Configure the experiment.
@@ -46,10 +48,10 @@ if 0 in RUN:
 	e.upload()
 	
 	# Get the metrics 
-	e.metrics
+	print(repr(e.metrics))
 	
 	# Get the simulation results
-	e.results
+	print(repr(e.results))
 	
 # ----
 # Running an experiment with a remote test set
@@ -61,10 +63,10 @@ if 1 in RUN:
 	categories = db.categories()
 	
 	# Gets all the testset for the choosen category
-	testsets = db.testsets(menu(categories))
+	testsets = db.testsets(menu(categories)) # categories[0]
 	
 	# Selects a testset
-	testset = menu(testsets)
+	testset = menu(testsets) # testsets[0]
 	
 	# Create the experiment
 	e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
