@@ -418,9 +418,21 @@ def api_upload_experiment(request):
 	# Categories
 	test_categories = request.POST.getlist('categories')
 	
+	# Name checking
+	for cat in test_categories:
+		if not is_valid_name(cat):
+			return HttpResponse("error: invalid category name '{}'." + 
+				" Should only contains alphanumerical characters.".format(cat))
+	
+	if not is_valid_name(test_name):
+		return HttpResponse("error: invalid test name '{}'." + 
+			" Should only contains alphanumerical characters.".format(test_name))
+		
+	
+	
 	# Scheduler
 	scheduling_policy_id = request.POST['scheduler']
-		
+	
 	# Gets the scheduler
 	schedulers = SchedulingPolicy.objects.filter(pk=scheduling_policy_id)
 	if len(schedulers) == 0:
@@ -450,7 +462,7 @@ def api_upload_experiment(request):
 		# Takes an existing one
 		testsets = TestSet.objects.filter(pk=testset_id)
 		if len(testsets) == 0:
-			return "error: no such testset"
+			return HttpResponse("error: no such testset")
 		testset = testsets[0]
 	
 	# Creates the result object
