@@ -156,9 +156,13 @@
                 {% else %}
                 <div class="form-group">
                     <label class="control-label col-sm-2">Scheduler : </label>
-                    <a class="btn btn-link" target="_blank" href="{% url 'simsoexp.views.view_scheduler' item.id %}">{{item.scheduling_policy.name}}</a>
+                    <a class="btn btn-link" target="_blank" href="{% url 'simsoexp.views.view_scheduler' item.scheduling_policy.id %}">{{item.scheduling_policy.name}}</a>
                 </div>
-                <div class="container">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Testset : </label>
+                    <a class="btn btn-link" target="_blank" href="{% url 'simsoexp.views.view_testset' item.test_set.id %}">{{item.test_set.name}}</a>
+                </div>
+                <div style="margin: 1em">
                     <table class="table table-bordered table-striped table-hover">
                         <thead>
                             <tr>
