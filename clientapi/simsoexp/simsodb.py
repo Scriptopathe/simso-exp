@@ -223,7 +223,7 @@ class Experiment:
 	"""
 	def __init__(self, db, conf_files, scheduler):
 		self.db = db
-		
+		self.results = []
 		# Checks conf_files
 		if isinstance(conf_files, DBTestSet):
 			self.testset = conf_files
@@ -259,20 +259,24 @@ class Experiment:
 		Runs the experiment and computes the metrics
 		"""
 		
+		self.results = []
 		all_results = []
 		for configuration in self.conf_files:
 			model = Model(configuration)
 			model.run_model()
+			self.results.append(model.results)
 			all_results.append(MetricsCollector(model.results))
 		
-		self.metrics = {} # count, avg, std, med
+		
+		self.metrics = {} # sum, avg, std, med
 		metric_keys = [key for key in all_results[0].metrics]
 		for key in metric_keys:
+			values = [res.metrics[key] for res in all_results]
 			self.metrics[key] = [
-				len(all_results),
-				numpy.average([res.metrics[key] for res in all_results]),
-				numpy.std([res.metrics[key] for res in all_results]),
-				numpy.median([res.metrics[key] for res in all_results]),
+				sum(values),
+				numpy.average(values),
+				numpy.std(values),
+				numpy.median(values),
 			]
 		
 	

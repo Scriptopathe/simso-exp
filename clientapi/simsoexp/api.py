@@ -250,7 +250,7 @@ class Api:
 			val = self.urlread(r)
 			print(val)
 			values = val.rsplit(',')
-			attrs = ['name', 'count', 'avg', 'std', 'median']
+			attrs = ['name', 'sum', 'avg', 'std', 'median']
 			metrics = []
 			array = [int(values[0]), int(values[1]), metrics]
 			for i in range(0, len(values)//len(attrs)):

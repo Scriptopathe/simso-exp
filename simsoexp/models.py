@@ -59,7 +59,7 @@ class SchedulingPolicy(models.Model):
 class Metric(models.Model):
 	# Name of the metric
 	name = models.TextField()
-	# Element count user to build the metric
+	# Sum of the values of the metric
 	count = models.IntegerField()
 	# Average value of the metric
 	avg = models.FloatField()
@@ -69,7 +69,7 @@ class Metric(models.Model):
 	median = models.FloatField()
 	
 	def __str__(self):
-		return "{} : count={}, avg={}, std={}, median={}".format(self.name, 
+		return "{} : sum={}, avg={}, std={}, median={}".format(self.name, 
 			self.count, self.avg, self.std, self.median)
 		
 	
