@@ -60,7 +60,7 @@ class Metric(models.Model):
 	# Name of the metric
 	name = models.TextField()
 	# Sum of the values of the metric
-	count = models.IntegerField()
+	count = models.FloatField()
 	# Average value of the metric
 	avg = models.FloatField()
 	# Standard deviation of the metric
