@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+{% load staticfiles %}
+<script src="{% static 'ace.js' %}" type="text/javascript" charset="utf-8"></script>
+
+<div class="well">
+    <h4>Displaying scheduler {{sched.name}}</h4>
+    <br />
+</div>
+
+<div class="well">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Scheduler name : </label>
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <input disabled class="form-control" type="text"  value="{{sched.name}}"></input>
+                </div>
+            </div>            
+        </div>
+        
+        <div class="form-group">
+            <label class="control-label col-sm-4">Scheduler class name : </label>
+            <div class="col-sm-4">
+                <input disabled class="form-control" type="text"  value="{{sched.class_name}}"></input>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-4"></label>
+            <div class="col-sm-4">
+                <a  
+                    href="{% url 'simsoexp.views.download_scheduler' sched.id %}"
+                    class="form-control btn btn-default">
+                    <span class="glyphicon glyphicon-download"></span> 
+                    Download
+                </a>
+            </div>
+        </div>
+        <div disabled class="editor" id="editor" style="height: 400px">{% autoescape on %}{{ sched.code }}{% endautoescape %}</div>
+        <script>
+            var editor = ace.edit("editor");
+            editor.setTheme("ace/theme/chrome");
+            editor.getSession().setMode("ace/mode/python");
+        </script>
+        
+
+    </div>
+    <script>
+
+    </script>
+</div>
+
+{% endblock %}

@@ -8,7 +8,8 @@ from django.contrib.auth import logout as user_logout
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseForbidden
-
+from django.http import Http404
+import urllib
 import hashlib
 import base64
 from math import ceil
@@ -116,7 +117,33 @@ def logout(request):
 	return redirect(auth_views.login)
 
 
+@login_required
+def download_scheduler(request, identifier):
+	scheds = SchedulingPolicy.objects.filter(pk=identifier)
+	if len(scheds) == 0:
+		raise Http404()
+		
+	filename = scheds[0].name + ".py"
+	mimetype = "text/python"
+	response = HttpResponse(scheds[0].code, content_type=mimetype)
+	response["Content-Disposition"] = "attachment; filename={}".format(filename)
+	return response
 
+@login_required
+def view_scheduler(request, identifier):
+	"""View where the user can see and download the scheduler"""
+	scheds = SchedulingPolicy.objects.filter(pk=identifier)
+	if len(scheds) == 0:
+		raise Http404()
+	
+	template = loader.get_template('scheduler.html')
+	sched = scheds[0]
+	context = RequestContext(request, {
+		'sched' : sched,
+		'download' : urllib.quote_plus(sched.code)
+	})
+	return HttpResponse(template.render(context))
+	
 @login_required
 def contributions(request):
 	"""

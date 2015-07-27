@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
 	url('^$', views.index, name='index'),
 	url('^validation/action/$', views.validation_action, name="validation_action"),
+	url('^view/scheduler/([0-9]*)$', views.view_scheduler, name="view_scheduler"),
+	url('^download/scheduler/([0-9]*)$', views.download_scheduler, name="view_scheduler"),
 	url('^notifications/$', views.notifications, name="notifications"),
 	url('^notifications/read/$', views.user_read_notification, name="notifications_read"),
 	url('^notifications/unread_count$', views.unread_notifications_count, name="notifications_count"),
