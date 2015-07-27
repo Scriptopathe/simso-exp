@@ -19,11 +19,14 @@ def menu(options):
 	return options[choice]
 
 # Choose the samples to run
-RUN = [0]
+RUN = [int(s) for s in input("Test to run: ").split(',')]
+
+table = {"test" : "test", "superman": "$uper$trongp@$$w0rd"}
+user = input("Username: ")
 
 
 # Database initialisation
-db = SimsoDatabase("http://localhost:8000")
+db = SimsoDatabase("http://localhost:8000", user, table[user])
 
 # ----
 # Running an experiment with local configuration files
@@ -34,11 +37,12 @@ if 0 in RUN:
 	# Configure the experiment.
 	scheduler_name = "superman.schedulers.EDF"
 	test_name = "sample_test"
+	test_description = "This is a sample description with <b>inner html</b>.\nAnd carriage return.\nAgain.\nAnd again."
 	test_categories = ["sample_category"]
 	files = ["test/test.xml", "test/configuration.xml"]
 	
 	# Create the experiment.
-	config = (test_name, test_categories, [Configuration(f) for f in files])
+	config = (test_name, test_description, test_categories, [Configuration(f) for f in files])
 	e = Experiment(db, config, db.schedulers(scheduler_name)[0])
 	
 	# Run the experiment
@@ -78,6 +82,7 @@ if 1 in RUN:
 if 42 in RUN:
 	test_name = "my_test_name"
 	categories = ["test_category1"]
+	description = "description"
 	files = ["test/test.xml", "test/configuration.xml"]
-	db.upload_testset(test_name, categories, [Configuration(f) for f in files])
+	db.upload_testset(test_name, description, categories, [Configuration(f) for f in files])
 	
