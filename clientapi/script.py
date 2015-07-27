@@ -2,7 +2,7 @@ from simsoexp.simsodb import SimsoDatabase, Experiment
 from simsoexp.api import Api
 from simso.configuration import Configuration
 from simso.core import Model
-
+from simso.configuration.GenerateConfiguration import generate
 OKBLUE = '\033[94m'
 OKGREEN = '\033[92m'
 WARNING = '\033[93m'
@@ -19,7 +19,7 @@ def menu(options):
 	return options[choice]
 
 # Choose the samples to run
-RUN = [1]
+RUN = [0]
 
 
 # Database initialisation
@@ -43,18 +43,18 @@ if 0 in RUN:
 	e.run()
 	
 	# Optional : Upload the experiment
-	# e.upload()
+	e.upload()
 	
 	# Get the metrics 
 	e.metrics
 	
 	# Get the simulation results
 	e.results
-
+	
+# ----
+# Running an experiment with a remote test set
+# ----
 if 1 in RUN:
-	# ----
-	# Running an experiment with a remote test set
-	# ----
 	scheduler_name = "superman.schedulers.EDF"
 	
 	# Gets all the categories
@@ -69,3 +69,13 @@ if 1 in RUN:
 	# Create the experiment
 	e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
 	e.run()
+
+# ----
+# Uploading a test set
+# ----
+if 42 in RUN:
+	test_name = "my_test_name"
+	categories = ["test_category1"]
+	files = ["test/test.xml", "test/configuration.xml"]
+	db.upload_testset(test_name, categories, [Configuration(f) for f in files])
+	
