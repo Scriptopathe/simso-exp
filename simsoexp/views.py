@@ -397,7 +397,41 @@ def upload_scheduler(request):
 	sched.save()
 	return HttpResponse(ret_code)
 
-
+@login_required
+@csrf_exempt
+def api_upload_testset(request):
+	# Conf file or testset id
+	test_name = request.POST["test_name"]
+	conf_files = request.POST.getlist('conf_files')
+	test_categories = request.POST.getlist('categories')
+	
+	# Name checking
+	for cat in test_categories:
+		if not is_valid_name(cat):
+			return HttpResponse("error: invalid category name '{}'." + 
+				" Should only contains alphanumerical characters.".format(cat))
+	
+	if not is_valid_name(test_name):
+		return HttpResponse("error: invalid test name '{}'." + 
+			" Should only contains alphanumerical characters.".format(test_name))
+	
+	# Creates all the conf files
+	files = []
+	for i in range(0, len(conf_files)):
+		f = ConfigurationFile()
+		f.conf = conf_files[i]
+		files.append(f)
+		
+	# Creates the test set object
+	testset = TestSet()
+	testset.name = test_name
+	testset.save()
+	testset.categories = [get_test_category(cat) for cat in test_categories]
+	testset.files = save(files)
+	testset.save()
+	
+	return HttpResponse("success")
+	
 @login_required
 @csrf_exempt
 def api_upload_experiment(request):

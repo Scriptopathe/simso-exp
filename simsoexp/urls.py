@@ -24,6 +24,7 @@ urlpatterns = [
 	url('^api/results/([0-9]*)/([0-9]*)$', views.api_get_results, name='metrics'),
 	url('^api/schedulers/data/([0-9]*)$', views.api_get_scheduler_data, name="schedulers_code"),
 	url('^api/experiment/upload$', views.api_upload_experiment, name="api_upload_experiment"),
+	url('^api/testsets/upload$', views.api_upload_testset, name="api_upload_testset"),
 	
 	url('^logout$', views.logout, name="logout")
 ]

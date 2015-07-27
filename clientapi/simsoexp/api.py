@@ -280,8 +280,30 @@ class Api:
 		Uploads an experiment (with the given post data)
 		"""
 		response = self.post(self.base_addr + "/api/experiment/upload", postdata)
-		value = self.urlread(response)
-		if "error" in value:
-			raise Exception("upload_experiment: The server returned the following status : " + value)
 		
+		if self.urlok(response):
+			value = self.urlread(response)
+			if "error" in value:
+				raise Exception("upload_experiment: The server returned the following status : " + value)
+		
+		else: self.handle_error(r)
+	
+	def upload_testset(self, name, categories, conf_files):
+		"""
+		Uploads a test set with the given name, categories and list of
+		configuration file (string containing XML configuration)
+		"""
+		data = {
+			'conf_files' : conf_files,
+			'test_name' : name,
+			'categories' : categories
+		}
+		response = self.post(self.base_addr + "/api/testsets/upload", data)
+		
+		if self.urlok(response):
+			value = self.urlread(response)
+			if "error" in value:
+				raise Exception("upload_testset: The server returned the following status : " + value)
+				
+		else: self.handle_error(r)
 		

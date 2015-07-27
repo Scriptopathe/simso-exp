@@ -60,7 +60,7 @@ class DBResults:
 		return "<DBResults id={} testset={} scheduler={}>".format(
 			self.identifier, self.testset_id, self.scheduler_id
 		)
-		
+	
 class DBTestSet:
 	def __init__(self, db, identifier):
 		self.db = db
@@ -366,3 +366,16 @@ class SimsoDatabase:
 		scheds = self.api.get_schedulers_by_name(name)
 		scheds = [DBScheduler(self, sched_id) for sched_id in scheds]
 		return scheds
+	
+
+	def upload_testset(self, name, categories, conf_files):
+		"""
+		Uploads a test set with the given name, categories
+		and configuration files (list of Configuration objects).
+		"""
+		for conf_file in conf_files:
+			assert(isinstance(conf_file, Configuration))
+		assert(isinstance(categories, list))
+		
+		self.api.upload_testset(name, categories, [generate(f) for f in conf_files])
+		
