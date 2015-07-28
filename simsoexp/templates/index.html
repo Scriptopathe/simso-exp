@@ -42,6 +42,15 @@
 							<span class="glyphicon glyphicon-bell"></span> Notifications 
 							<span class="badge badge-custom" id="notifications_badge"></span></a>
 						</li>
+						
+						{% if user.is_staff %}
+						<li>
+							<a href="{% url 'simsoexp.views.categories' %}">
+								<span class="glyphicon glyphicon-folder-open"></span>  Manage categories
+							</a>
+						</li>
+						
+						{% endif %}
 						  
 
   						<li role="separator" class="divider"></li>

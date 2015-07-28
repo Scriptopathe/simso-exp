@@ -345,6 +345,56 @@ def notifications(request):
 	
 	return HttpResponse(template.render(context))
 
+@login_required
+def categories(request):
+	"""
+	View where the users can review the test categories.
+	"""
+	categories = TestCategory.objects.all();
+	template = loader.get_template('categories.html')
+	context = RequestContext(request, {
+		'categories' : categories
+	})
+	return HttpResponse(template.render(context))
+
+@csrf_exempt
+@user_passes_test(lambda u : u.is_staff)
+def post_category_description(request, identifier):
+	"""
+	View where the admin can save a category description.
+	"""
+	categories = TestCategory.objects.filter(pk=identifier)
+	if categories.count() == 0:
+		return HttpResponse("error: bad id");
+		
+	if not "description" in request.POST:
+		return HttpResponse("error: missing description in post request.")
+	
+	category = categories[0]
+	category.description = request.POST["description"]
+	category.save()
+	
+	return HttpResponse("success")
+
+@csrf_exempt
+@user_passes_test(lambda u : u.is_staff)
+def add_category(request):
+	"""
+	View where the admin can add a new category
+	"""
+	if not "description" in request.POST:
+		return HttpResponse("error: missing description in post request.")
+	if not "name" in request.POST:
+		return HttpResponse("error: missing name in post request")
+	
+	category = TestCategory()
+	category.name = request.POST["name"]
+	category.description = request.POST["description"]
+	category.save()
+	return HttpResponse("success")
+	
+	
+	
 # -----------------------------------------------------------------------------
 # Ajax
 # -----------------------------------------------------------------------------
