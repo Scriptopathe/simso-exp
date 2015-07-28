@@ -9,7 +9,17 @@ import numpy
 import os
 
 class DBResults:
+	"""
+	Represents a results set from a remote Simso Experiment Database.
+	These results contains :
+	- the scheduler and testset identifiers in the database used to build the experiment.
+	- the resulting metrics
+	"""
 	def __init__(self, db, identifier):
+		"""
+		Creates a new instance of DBResults its database identifier.
+		This should not be called directly, the methods from :class:'SimsoDatabase' instead.
+		"""
 		self.db = db
 		self.identifier = identifier
 		self.__testset_id = None
@@ -22,11 +32,20 @@ class DBResults:
 		m = self.db.api.get_result(self.identifier)
 		self.__testset_id = m[0]
 		self.__scheduler_id = m[1]
-		self.__metrics = m[2]
+		self.__metrics = dict()
+		for metric in m[2]:
+			self.__metrics[metric["name"]] = dict()
+			for key in metric:
+				if key == "name":
+					continue
+				self.__metrics[metric["name"]][key] = float(metric[key])
+		
 	
 	@property	
 	def testset_id(self):
-		"""Gets the id of the test set associated with these metrics"""
+		"""
+		:returns: int -- The id of the testset used to build these results.
+		"""
 		if self.__testset_id == None:
 			self.__load_metrics()
 		return self.__testset_id
@@ -34,23 +53,30 @@ class DBResults:
 	@property
 	def scheduler_id(self):
 		"""
-		Gets the id of the scheduler associated with these metrics
+		:returns: int -- The id of the scheduler used to build these results.
 		"""
 		if self.__scheduler_id == None:
 			self.__load_metrics()
 		return self.__scheduler_id
 	
-	def __getitem__(self, index):
+	def __getitem__(self, name):
 		"""
-		Gets the metric with the given name.
+		This is a shortcut to *metrics[name]*.
+		:param name: The name of the metric to retrieve.
+		
+		:returns: dict -- A dictionnary of key-values pairs containing as keys
+		the measure name (avg, minimum, median, maximum, sum, std).
 		"""
 		if self.__metrics == None:
 			self.__load_metrics()
 		
-		return self.__metrics[index]
+		return self.__metrics[name]
 	
-	def all(self):
-		"""Returns all the set of metrics"""
+	@property
+	def metrics(self):
+		"""
+		:returns: dict of dict -- A dictionnary containing a set of metrics indexed by their name.
+		"""
 		if self.__metrics == None:
 			self.__load_metrics()
 			
@@ -62,6 +88,9 @@ class DBResults:
 		)
 	
 class DBTestSet:
+	"""
+	Represents a test set taken from a remote Simso Experiment Database.
+	"""
 	def __init__(self, db, identifier):
 		self.db = db
 		self.identifier = identifier
@@ -85,7 +114,7 @@ class DBTestSet:
 	@property
 	def name(self):
 		"""
-		Gets the name of the test set
+		:returns: The name of the test set
 		"""
 		if self.__name == None:
 			self.__load_data()
@@ -94,7 +123,7 @@ class DBTestSet:
 	@property
 	def description(self):
 		"""
-		Gets the description of the test set.
+		:returns: The description of the test set.
 		"""
 		if self.__description == None:
 			self.__load_data()
@@ -103,7 +132,7 @@ class DBTestSet:
 	@property
 	def categories(self):
 		"""
-		Gets this test set's categories
+		:returns: list -- This test set's categories as a list.
 		"""
 		if self.__categories == None:
 			self.__load_data()
@@ -111,8 +140,9 @@ class DBTestSet:
 	
 	@property
 	def conf_files(self):
-		"""Gets a list of tuples DBConfFile object for each
-		configuration file in this test set"""
+		"""
+		:returns: list -- a list of DBConfFile object for each configuration file in this test set.
+		"""
 		if self.__conf_files == None:
 			self.__load_conf_files()
 		return self.__conf_files
@@ -121,6 +151,9 @@ class DBTestSet:
 		return "<DBTestSet id={}, name={}>".format(self.identifier, self.name)
 
 class DBConfFile:
+	"""
+	Represents a configuration file taken from a remote Simso Experiment Database.
+	"""
 	def __init__(self, db, testset, identifier):
 		self.db = db
 		self.identifier = identifier
@@ -149,7 +182,7 @@ class DBConfFile:
 	@property
 	def content(self):
 		"""
-		Gets this configuration file's content as a string.
+		:returns: string -- this configuration file's XML content.
 		"""
 		if self.__content == None:
 			self.__load_data()
@@ -158,7 +191,7 @@ class DBConfFile:
 	@property
 	def configuration(self):
 		"""
-		Gets the Simso configuration object represented by this configuration file
+		:returns: simso.configuration.Configuration -- the Simso configuration object represented by this configuration file.
 		"""
 		if self.__configuration == None:
 			self.__load_configuration()
@@ -168,6 +201,9 @@ class DBConfFile:
 		return "<DBConfFile id={}>".format(self.identifier)
 		
 class DBScheduler:
+	"""
+	Represents a scheduler taken from a remote Simso Experiment Database.
+	"""
 	def __init__(self, db, identifier):
 		self.db = db
 		self.identifier = identifier
@@ -191,7 +227,7 @@ class DBScheduler:
 	@property
 	def cls(self):
 		"""
-		Gets the scheduler's class object.
+		:returns: type -- the scheduler's class object.
 		"""
 		if(self.__cls == None):
 			self.__load_cls()
@@ -199,21 +235,27 @@ class DBScheduler:
 		
 	@property
 	def code(self):
-		"""Gets this scheduler's code"""
+		"""
+		:returns: string -- this scheduler's python code
+		"""
 		if self.__code == None:
 			self.__load_data()
 		return self.__code
 	
 	@property
 	def name(self):
-		"""Gets this scheduler visible name"""
+		"""
+		:returns: string -- this scheduler visible name
+		"""
 		if self.__name == None:
 			self.__load_data()
 		return self.__name
 	
 	@property
 	def class_name(self):
-		"""Gets the scheduler's main class in the scheduler's code"""
+		"""
+		:returns: string -- the scheduler's main class in the scheduler's code
+		"""
 		if self.__class_name == None:
 			self.__load_data()
 		return self.__class_name
@@ -317,6 +359,9 @@ class Experiment:
 		self.db.api.upload_experiment(data)
 		
 class SimsoDatabase:
+	"""
+	A remote
+	"""
 	def __init__(self, address, username=None, password=None):
 		"""
 		Initializes a connection to the Simso Experiment server
@@ -336,17 +381,23 @@ class SimsoDatabase:
 			os.makedirs(self.local_conf_dir)
 		
 	def testset(self, identifier):
-		"""Gets a testset given its id in the database."""
+		"""
+		:param identifier: The identifier of the testset to retrieve.
+		:type identifier: int
+		:returns: DBTestset -- DBTestset instance whose id is *identifier*
+		"""
 		return DBTestSet(self, identifier)
 	
 	def testset_by_name(self, name):
-		"""Gets a testset given its name in the database"""
+		"""
+		:returns: DBTestset -- DBTestset instance whose name is *name*
+		"""
 		identifier = self.api.get_testset_by_name(name)
 		return DBTestSet(self, identifier)
 	
 	def results(self, testset, scheduler):
 		"""
-		Gets the results associated to the given testset and scheduler_.
+		Gets the results associated to the given testset and scheduler.
 		These results have been obtained by running simso with the corresponding
 		scheduler and testsets.
 		
