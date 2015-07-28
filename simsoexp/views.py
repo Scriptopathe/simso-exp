@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseForbidden
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 import re
 import urllib
@@ -33,19 +34,25 @@ def is_valid_name(name):
 	match = re.match(name_reg, name)
 	return True if match else False
 	
-def get_test_category(name):
+def get_test_category(request, name):
 	"""
-	Gets the test category with the given name
+	Gets the test category with the given name.
+	Creating a new test category is only allowed if the
+	user is staff.
 	"""
 	cats = TestCategory.objects.filter(name=name)
 	if len(cats) > 0:
 		return cats[0]
 	
-	cat = TestCategory()
-	cat.name = name
-	cat.save()
-	return cat
-	
+	if request.user.is_staff:
+		cat = TestCategory()
+		cat.name = name
+		cat.description = ""
+		cat.save()
+		return cat
+	else:
+		raise PermissionDenied("You are not allowed to create new categories. You must use existing ones.")
+		
 def get_schedulers_by_name(name="", need_validation=None):
 	"""
 	Gets the scheduler(s) corresponding to the given name.
@@ -482,6 +489,11 @@ def api_upload_testset(request):
 		return HttpResponse("error: invalid test name '{}'." + 
 			" Should only contains alphanumerical characters.".format(test_name))
 	
+	try:
+		categories = [get_test_category(request, cat) for cat in test_categories]
+	except PermissionDenied as e:
+		return HttpResponse("error: " + e.message)
+		
 	# Creates all the conf files
 	files = []
 	for i in range(0, len(conf_files)):
@@ -495,7 +507,7 @@ def api_upload_testset(request):
 	testset.description = test_description
 	testset.contributor = request.user
 	testset.save()
-	testset.categories = [get_test_category(cat) for cat in test_categories]
+	testset.categories = categories
 	testset.files = save(files)
 	testset.save()
 	
