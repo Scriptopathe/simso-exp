@@ -11,6 +11,8 @@ from django.http import HttpResponseForbidden
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.contrib.sites.models import Site
+
 import re
 import urllib
 import hashlib
@@ -21,10 +23,12 @@ import StringIO
 from math import ceil
 from models import *
 
+
 # -----------------------------------------------------------------------------
 # Utils
 # -----------------------------------------------------------------------------
-name_reg = r'^(\w*)$'
+name_reg = r'^([\w|\.]*)$'
+
 def is_valid_name(name):
 	"""
 	Gets a value indicating if a ressource name is correct,
@@ -128,6 +132,14 @@ def paginate(request, page, pageSize=5, dispPages=15):
 @login_required
 def index(request):
 	template = loader.get_template('app.html')
+	context = RequestContext(request, {
+		'domain' : request.build_absolute_uri()
+	})
+	return HttpResponse(template.render(context))
+
+@login_required
+def scheduler_upload_form(request):
+	template = loader.get_template('upload_scheduler.html')
 	context = RequestContext(request, {
 	})
 	return HttpResponse(template.render(context))
@@ -437,7 +449,7 @@ def upload_scheduler(request):
 	class_name = request.POST['sched_class_name']
 	code = request.POST['sched_content']
 	
-	if not is_valid_name(request.POST['sched_name']):
+	if not is_valid_name(name):
 		return HttpResponse("error:name:Only alphanumerical characters are allowed.")
 	if not is_valid_name(class_name):
 		return HttpResponse("error:class_name:Only alphanumerical characters are allowed.")
@@ -474,21 +486,34 @@ def upload_scheduler(request):
 @csrf_exempt
 def api_upload_testset(request):
 	# Conf file or testset id
-	test_name = request.POST["test_name"]
+	test_name = request.user.username + ".testsets." + request.POST["test_name"]
 	test_description = request.POST["test_description"]
 	conf_files = request.POST.getlist('conf_files')
 	test_categories = request.POST.getlist('categories')
+	testset = None
 	
 	# Name checking
 	for cat in test_categories:
 		if not is_valid_name(cat):
 			return HttpResponse("error: invalid category name '{}'." + 
-				" Should only contains alphanumerical characters.".format(cat))
+				" Should only contain alphanumerical characters.".format(cat))
 	
 	if not is_valid_name(test_name):
-		return HttpResponse("error: invalid test name '{}'." + 
-			" Should only contains alphanumerical characters.".format(test_name))
+		return HttpResponse("error: invalid test name '{}'.".format(test_name) + 
+			" Should only contain alphanumerical characters.")
 	
+	# Tests with the same name
+	tests = TestSet.objects.filter(name=test_name)
+	if tests.count() > 0:
+		# If the testset is not approved yet, we can override it.
+		if request.user == tests[0].contributor and not tests[0].approved:
+			testset = tests[0]
+		else:
+			# Else : we throw an error.
+			return HttpResponse("error: the test name " + test_name + " is already taken.")
+	
+	# Gets the categories
+	categories = None
 	try:
 		categories = [get_test_category(request, cat) for cat in test_categories]
 	except PermissionDenied as e:
@@ -501,8 +526,10 @@ def api_upload_testset(request):
 		f.conf = conf_files[i]
 		files.append(f)
 		
-	# Creates the test set object
-	testset = TestSet()
+	# Creates the test set object if it doesn't exist yet.
+	if testset == None:	
+		testset = TestSet()
+	
 	testset.name = test_name
 	testset.description = test_description
 	testset.contributor = request.user
@@ -613,6 +640,8 @@ def api_get_schedulers_by_sha(request, sha):
 	else:
 		response = SchedulingPolicy.objects.filter(sha1__exact=sha, approved=True)
 	
+	response = response.filter(approved=True)
+	
 	s = ""
 	for sched in response:
 		s += str(sched.id) + ","
@@ -662,7 +691,7 @@ def api_get_result(request, result_id):
 	s = ""
 	response = Results.objects.filter(pk=result_id, approved=True)
 	
-	attrs = ['name', 'sum', 'avg', 'std', 'median', 'minimum', 'maximum']
+	attrs = ['name', 'count', 'avg', 'std', 'median', 'minimum', 'maximum']
 	
 	if response.count() > 0:
 		res = response[0]
@@ -682,9 +711,8 @@ def api_get_schedulers_by_name(request, name):
 	"""
 	Gets the scheduler(s) corresponding to the given name.
 	
-	:param name: Base 64 encoded scheduler name.
+	:param name: scheduler name.
 	"""
-	name = str(decode_base64(name))
 	
 	response = get_schedulers_by_name(name, True)
 	
@@ -710,23 +738,16 @@ def api_get_testsets(request, category):
 	else:
 		response = TestSet.objects.filter(categories__name__contains=category)
 	
+	response = response.filter(approved=True)
+	
 	s = "";
 	for testset in response:
 		s += b64(str(testset.id)) + "," + b64(testset.name) + ","
 	
 	return HttpResponse(s.rstrip(','))
 
-@login_required
-def api_get_testsets_by_id(request, identifier):
-	"""
-	Gets a tuple (name, description, categoryCount, category1, category2, fileCount, file1, ...)
-	for the testset with the given id.
-	"""
-	response = TestSet.objects.filter(pk=identifier)
-	if response.count() == 0:
-		return HttpResponse("")
-	
-	testset = response[0]
+
+def testset2str(testset):
 	s = b64(testset.name) + "," + b64(testset.description) + ","
 	s += str(testset.categories.count()) + ","
 	for cat in testset.categories.all():
@@ -734,10 +755,36 @@ def api_get_testsets_by_id(request, identifier):
 	s += str(testset.files.count()) + ","
 	for f in testset.files.all():
 		s += str(f.id) + ","
+	return s
+	
+@login_required
+def api_get_testset_by_id(request, identifier):
+	"""
+	Gets a tuple (name, description, categoryCount, category1, category2, fileCount, file1, ...)
+	for the testset with the given id.
+	"""
+	response = TestSet.objects.filter(pk=identifier, approved=True)
+	if response.count() == 0:
+		return HttpResponse("")
+	
+	testset = response[0]
+	s = testset2str(testset)
+	return HttpResponse(s)
+	
+@login_required
+def api_get_testset_by_name(request, name):
+	"""
+	Gets the id of the testset with the given name if it exists.
+	for the testset with the given name
+	"""
+	response = TestSet.objects.filter(name=name, approved=True)
+	if response.count() == 0:
+		return HttpResponse("")
+	
+	s = str(response[0].id)
 	
 	return HttpResponse(s)
 	
-
 @login_required
 def api_get_test_files(self, testset_id):
 	"""

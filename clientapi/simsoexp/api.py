@@ -139,7 +139,6 @@ class Api:
 	
 	def get_schedulers_by_name(self, name):
 		"""Returns the scheduler ids corresponding to the scheduler name"""
-		name = b64(name);
 		r = self.urlopen(self.base_addr + "/api/schedulers/name/" + name);
 		if self.urlok(r):
 			val = self.urlread(r)
@@ -154,7 +153,7 @@ class Api:
 			
 	def get_results(self, testset_id, scheduler_id):
 		"""Returns a list of result ids corresponding to the given test set and scheduler id"""
-		r = self.urlopen(self.base_addr + "/api/results" + str(testset_id) + "/" + str(scheduler_id))
+		r = self.urlopen(self.base_addr + "/api/results/" + str(testset_id) + "/" + str(scheduler_id))
 		if self.urlok(r):
 			val = self.urlread(r)
 			
@@ -203,7 +202,19 @@ class Api:
 			return tuples
 			
 		else: self.handle_error(r)
-	
+		
+	def get_testset_by_name(self, name):
+		"""
+		Gets the id of the test set whose name is given as argument
+		"""
+		r = self.urlopen(self.base_addr + "/api/testsets/name/" + str(name))
+		if self.urlok(r):
+			val = self.urlread(r)
+			if val == '':
+				raise Exception("Testset {} not found".format(name))
+			return int(val)
+		else: self.handle_error(r)
+		
 	@cached('testsets_id')
 	def get_testset(self, identifier):
 		"""

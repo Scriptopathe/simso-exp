@@ -30,7 +30,7 @@ db = SimsoDatabase("http://localhost:8000", user, table[user])
 
 # ----
 # Running an experiment with local configuration files
-# You can only do that if you are one of the 
+# You can only upload that if you are one of the 
 # Simso Experiment Database administrators.
 # ----
 if 0 in RUN:
@@ -49,6 +49,8 @@ if 0 in RUN:
 	e.run()
 	
 	# Optional : Upload the experiment
+	# In this case, it is not allowed unless you are part
+	# of the database admins.
 	e.upload()
 	
 	# Get the metrics 
@@ -57,6 +59,7 @@ if 0 in RUN:
 	# Get the simulation results
 	print(repr(e.results))
 	
+
 # ----
 # Running an experiment with a remote test set
 # ----
@@ -75,7 +78,62 @@ if 1 in RUN:
 	# Create the experiment
 	e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
 	e.run()
+	e.upload()
 
+# ----
+# Running an experiment with a remote test set
+# ----
+if 4 in RUN:
+	scheduler_name = "superman.schedulers.EDF"
+	
+	# Gets all the categories
+	categories = db.categories()
+	
+	# Gets all the testset for the choosen category
+	testsets = db.testsets(categories[2])
+	
+	# Selects a testset
+	testset = testsets[0]
+	
+	# Gets the results
+	res = db.results(testset, db.schedulers(scheduler_name)[0])
+	
+	print(repr(res))
+	
+if 2 in RUN:
+	# Configure the experiment.
+	scheduler_name = "superman.schedulers.EDF"
+	files = ["test/test.xml", "test/configuration.xml"]
+	
+	# Create the experiment.
+	config = [Configuration(f) for f in files]
+	e = Experiment(db, config, db.schedulers(scheduler_name)[0])
+	
+	# Run the experiment
+	e.run()
+	
+	# In this case : you cannot upload the experiment.
+	# e.upload()
+	
+	# Get the metrics 
+	print(repr(e.metrics))
+	
+	# Get the simulation results
+	print(repr(e.results))
+
+# ----
+# Running an experiment with a remote test set
+# ----
+if 3 in RUN:
+	scheduler_name = "superman.schedulers.EDF"
+	
+	# Selects a testset
+	testset = db.testset_by_name("test.testsets.my_test_name")
+	
+	# Create the experiment
+	e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
+	e.run()
+	
 # ----
 # Uploading a test set
 # ----
@@ -85,4 +143,3 @@ if 42 in RUN:
 	description = "description"
 	files = ["test/test.xml", "test/configuration.xml"]
 	db.upload_testset(test_name, description, categories, [Configuration(f) for f in files])
-	

@@ -236,7 +236,9 @@ class Experiment:
 		
 		:param db: The database instance bound to the experiment.
 		:conf_files: Either a DBTestSet object or a a custom test set given as a 
-		tuple (name, description, categories, list of Configuration objects)
+		tuple (name, description, categories, list of Configuration objects), or
+		a list of Configuration objects.
+		
 		
 		Take care : you won't be able to upload your results if you used a custom test set,
 		unless you are a Simso Experiment Database administrator.
@@ -250,6 +252,14 @@ class Experiment:
 			self.testdesc = self.testset.description
 			self.conf_files = [f.configuration for f in conf_files.conf_files]
 			self.categories = self.testset.categories
+		elif isinstance(conf_files, list):
+			for f in conf_files:
+				assert(isinstance(f, Configuration))
+			self.conf_files = conf_files
+			self.testset = None
+			self.testname = None
+			self.testdesc = None
+			self.categories = None
 		else:
 			assert(isinstance(conf_files, tuple))
 			assert(isinstance(conf_files[0], str))
@@ -327,6 +337,10 @@ class Experiment:
 			data["testset_id"] = str(self.testset.identifier)
 			data["conf_files"] = []
 		
+		# Check integrity
+		if self.testname == None or self.testdesc == None or self.categories == None:
+			raise Exception("Cannot upload a testset with no metadata.")
+		
 		# Test name and description
 		data["test_name"] = self.testname
 		data["test_description"] = self.testdesc
@@ -362,13 +376,24 @@ class SimsoDatabase:
 		"""Gets a testset given its id in the database."""
 		return DBTestSet(self, identifier)
 	
-	def results(self, testset_id, scheduler_id):
+	def testset_by_name(self, name):
+		"""Gets a testset given its name in the database"""
+		identifier = self.api.get_testset_by_name(name)
+		return DBTestSet(self, identifier)
+	
+	def results(self, testset, scheduler):
 		"""
-		Gets the results associated to the given testset_id and scheduler_id.
+		Gets the results associated to the given testset and scheduler_.
 		These results have been obtained by running simso with the corresponding
 		scheduler and testsets.
+		
+		:param testset: A DBTestSet instance.
+		:param scheduler: A DBScheduler instance.
 		"""
-		m = self.api.get_metrics(testset_id, scheduler_id)
+		assert(isinstance(testset, DBTestSet))
+		assert(isinstance(scheduler, DBScheduler))
+		
+		m = self.api.get_results(testset.identifier, scheduler.identifier)
 		return [DBResults(self, identifier) for identifier in m]
 	
 	def result(self, identifier):
