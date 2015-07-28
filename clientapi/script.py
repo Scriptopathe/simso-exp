@@ -33,7 +33,7 @@ db = SimsoDatabase("http://localhost:8000", user, table[user])
 # ----
 if 'local_run' in RUN:
 	# Configure the experiment.
-	scheduler_name = "superman.schedulers.EDF"
+	scheduler_name = "simso.schedulers.EDF"
 	files = ["test/test.xml", "test/configuration.xml"]
 	
 	# Create the experiment.
@@ -61,7 +61,7 @@ if 'local_run' in RUN:
 # Running an experiment with a remote test set
 # ----
 if 'remote_run' in RUN:
-	scheduler_name = "superman.schedulers.EDF"
+	scheduler_name = "simso.schedulers.EDF"
 	
 	# Selects a testset
 	testset = db.testset_by_name("simso.testsets.sample")
@@ -77,7 +77,7 @@ if 'remote_run' in RUN:
 # Getting the results of an experiment.
 # ----
 if 'get_results' in RUN:
-	scheduler_name = "superman.schedulers.EDF"
+	scheduler_name = "simso.schedulers.EDF"
 	
 	testset = db.testset_by_name("simso.testsets.sample")
 	
@@ -90,7 +90,7 @@ if 'get_results' in RUN:
 # Running an experiment with a remote test set (1)
 # ----
 if 'remote_run_menu' in RUN:
-	scheduler_name = "superman.schedulers.EDF"
+	scheduler_name = "simso.schedulers.EDF"
 	
 	# Gets all the categories
 	categories = db.categories()
