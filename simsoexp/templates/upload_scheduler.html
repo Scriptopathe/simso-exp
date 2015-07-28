@@ -1,0 +1,156 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+
+<div class="well">
+    <h4>Welcome to Simso Experiment Database.</h4>
+    Here you can ask to submit data to be included into the database.<br />
+    This data will be manually validated by Simso maintainers.<br />
+</div>
+<div class="well">
+    <form id="sched_upload_form" class="form-horizontal" method="post" 
+        action="{% url 'simsoexp.views.upload_scheduler' %}"> 
+        
+        {% csrf_token %}
+        <center><h4>Upload a scheduler</h4></center>
+        <div class="form-group">
+            <label class="control-label col-sm-4">Scheduler name : </label>
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <span class="input-group-addon">{{user.username}}.schedulers.</span>
+                    <input class="form-control" type="text" name="sched_name"></input>
+                </div>
+                
+            </div>            
+            <div id="name_error" class="alert alert-danger alert-sm col-sm-4 info" style="display: none">
+                    
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-4">Scheduler class name : </label>
+            <div class="col-sm-4">
+                <input class="form-control" type="text" name="sched_class_name"></input>
+            </div>
+            <div id="class_name_error" class="alert alert-danger alert-sm col-sm-4 info" style="display: none">
+                    
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-4">Scheduler code : </label>
+            <div class="col-sm-8">
+                <input data-show-upload="false" class="file input-sm " type="file" name="sched_file"></input>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="control-label col-sm-4"></label>
+            <div class="col-sm-4">
+                <input disabled class="btn btn-primary" type="submit" value="Upload" />
+                 <span id="upload_animation" style="display: none">
+                    <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate">
+                    </span> Uploading...
+                 </span>
+            </div>
+        </div>
+        
+        <div class="form-group info" id="upload_success" style="display: none">
+            <label class="control-label col-sm-4"></label>
+            <div class="col-sm-8">
+                <div id="upload_success_text" class="alert alert-success">
+                    File Successfully uploaded.
+                </div>
+            </div>
+        </div>
+        <div class="form-group info" id="upload_error" style="display: none">
+            <label class="control-label col-sm-4"></label>
+            <div class="col-sm-8">
+                <div  class="alert alert-danger">
+                    Error during file upload. The server may have experienced an internal error.
+                </div>
+            </div>
+        </div>
+        <div class="form-group info" id="form_error" style="display: none">
+            <label class="control-label col-sm-4"></label>
+            <div class="col-sm-8">
+                <div  class="alert alert-danger">
+                    Error during file upload. Check the that the data you submited is valid.
+                </div>
+            </div>
+        </div>
+    </form>
+    
+    <script>
+        var loading = false;
+        var selected_content = "";
+        $('input[name="sched_file"]').on('filecleared', function(evt) {
+            $('input[value="Upload"]').attr('disabled', true);
+            
+        });
+        $('input[name="sched_file"]').change(function(evt) {
+            var file = evt.target.files[0];
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                selected_content = e.target.result; 
+                loading = false;
+                $('input[value="Upload"]').attr('disabled', false);
+            };
+            
+            reader.readAsText(file);
+            loading = true;
+        });
+        $("#sched_upload_form").submit(function(event) {
+            // Prevent from submiting normally
+            event.preventDefault();
+            var form = $(this);
+            var name = form.find('input[name="sched_name"]').val();
+            var class_name = form.find('input[name="sched_class_name"]').val();
+            var url = form.attr('action'); 
+            var posting = $.post(url, {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                sched_name: name,
+                sched_class_name: class_name,
+                sched_content: selected_content
+            });
+            $('.info').css('display', 'none');
+            $('#upload_animation').css('display', 'inline');
+            posting.done(function(data) {
+                $('#upload_animation').css('display', 'none');
+                if(data.indexOf("error") > -1) {
+                    // There is an error
+                    $('#form_error').css('display', 'block');
+                    var msgCode = data.split(':');
+                    var errorMessage = msgCode[2];
+                    var errorTarget = msgCode[1];
+                    if(errorTarget == "name") {
+                        $('#name_error').css('display', 'block');
+                        $('#name_error').text(errorMessage);
+                    } else if (errorTarget == "class_name") {
+                        $('#class_name_error').css('display', 'block');
+                        $('#class_name_error').text(errorMessage);
+                    }
+                } else {
+                    // Everything went fine.
+                    $('#upload_success').css('display', 'block');
+                    if(data == "new") {
+                        $('#upload_success_text').text("New scheduler " + name +" successfully uploaded.");
+                    }
+                    else if(data == "override") {
+                        $('#upload_success_text').text("Scheduler " + name + " successfully updated.");
+                    }
+                    else {
+                        $('#upload_success_text').text("Unkown answer from the server...");
+                    }
+                }
+            });
+            
+            // Shows an error message when the posting fails.
+            posting.fail(function(data) {
+                $('#upload_error').css('display', 'block');
+            });
+        });
+    </script>
+</div>
+
+{% endblock %}

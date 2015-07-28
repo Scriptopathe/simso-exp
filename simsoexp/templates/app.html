@@ -2,155 +2,242 @@
 
 {% block content %}
 
+{% load staticfiles %}
+<script src="{% static 'ace.js' %}" type="text/javascript" charset="utf-8"></script>
 
 <div class="well">
     <h4>Welcome to Simso Experiment Database.</h4>
-    Here you can ask to submit data to be included into the database.<br />
-    This data will be manually validated by Simso maintainers.<br />
+    This page will help you to get started.
 </div>
-<div class="well">
-    <form id="sched_upload_form" class="form-horizontal" method="post" 
-        action="{% url 'simsoexp.views.upload_scheduler' %}"> 
+
+<div class="panel panel-primary">
+	<div class="well well-sm" 
+		data-toggle="collapse"
+		style="margin-bottom: 0px; cursor: pointer;"
+		data-target="#collapse1">
+        <h4>What is Simso Experiment Database ?</h4>
+    </div>
+
+    <div id="collapse1" class="panel-collapse collapse" style="margin: 1em;">
+
+        <div class="">
+            <h4 class="blue">
+                What is Simso Experiment Database ?
+            </h4>
+            <p align="justify">
+                Simso Experiment Database is an open source platform for sharing experiments made with Simso.
+                It provides a collection of Test Sets and Schedulers that can be used to make experiments with Simso.
+                A Test Set is a set of many Simso Configuration files which are used to analyse the behavior of a scheduler
+                a lot of different scenarios.
+                All these features are designed to help researchers working on Scheduling algorithms to be able to reproduce 
+                other people's experiments.
+            </p>
+            <h4 class="blue">
+                What can I do with Simso Experiment Database ?
+            </h4>
+            <p align="justify">
+                The platform is composed of 2 main services :
+                <div class="well well-sm">
+                    <h5 class="blue">A simple yet powerful python API that helps you :</h5>
+                    <ul>
+                        <li>
+                            Run simulations using schedulers and test sets in the Database.
+                        </li>
+                        <li>
+                            Upload your own test sets 
+                            <div class="alert alert-warning alert-sm">
+                                Note : Test Sets are validated manually by the Database maintainers.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="well well-sm">
+                    <h5 class="blue">A Web Service (this website) which helps you :</h5>
+                    <ul>
+                        <li>
+                            Upload your own scheduler.
+                            <div class="alert alert-warning alert-sm">
+                                Note : Schedulers are validated manually by the Database maintainers.
+                            </div>
+                        </li>
+                        <li>
+                            View the other users contributions : Schedulers, Test Sets, Experiment results...
+                        </li>
+                    </ul>
+                </div>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-primary">
+	<div class="well well-sm" 
+		data-toggle="collapse"
+		style="margin-bottom: 0px; cursor: pointer;"
+		data-target="#collapse2">
+        <h4>Getting started with the API</h4>
+    </div>
+    <div id="collapse2" class="panel-collapse collapse" style="margin: 1em;">
+        <!-- Requirements -->
+        <h4 class="blue">
+            System requirements
+        </h4>
+        <p>
+            The following components are required in order to run the API : 
+            <ul>
+                <li><a href="https://www.python.org/downloads/">Python 3.x</a></li>
+                <li><a href="http://projects.laas.fr/simso/doc/introduction.html">Simso</a></li>
+            </ul>
+        </p>
+        <h4 class="blue">
+            Installing the API.
+        </h4>
+        <p>
+            TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOo
+        </p>
+        <!-- Connecting to the database -->
+        <h4 class="blue">
+            Connecting to the database.
+        </h4>
+        <div readonly class="editor" id="editor1" style="height: 6em">from simsoexp.simsodb import SimsoDatabase, Experiment
+# First way : you'll be prompted credentials in command line.
+db = SimsoDatabase("{{ domain }}")
+# Second way : provide your credentials
+db = SimsoDatabase("{{ domain }}", "username", "password")</div>
+
+
+        <!-- Running an experiment with local configuration. -->
+        <h4 class="blue">
+            Running an experiment with a custom configuration.
+        </h4>
+        <p>
+            This example shows how to run an experiment using local Simso Configuration files.
+            Here, the files are read from disk, but you can create Simso Configuration files manually or
+            with a generator 
+            (see <a href="http://projects.laas.fr/simso/doc/text_mode.html#creating-a-configuration-from-scratch">Creating a configuration from scratch</a>).
+            
+            <div class="alert alert-warning">
+                <span class="glyphicon glyphicon-warning-sign"></span> 
+                You cannot upload an experiment to the Database when you used a custom test set.
+                You must upload the test set first, and wait for the Database maintainers to validate it.
+            </div>
+        </p>
+        <div readonly class="editor" id="editor2" style="height: 21em"># Configure the experiment.
+scheduler_name = "simso.schedulers.EDF"
+files = ["test/test.xml", "test/configuration.xml"]
+
+# Create the experiment.
+config = [Configuration(f) for f in files]
+e = Experiment(db, config, db.schedulers(scheduler_name)[0])
+
+# Run the experiment
+e.run()
+
+# In this case : you cannot upload the experiment.
+# e.upload()
+
+# Get the metrics 
+print(repr(e.metrics))
+
+# Get the simulation results
+print(repr(e.results))</div>
+
+        <!-- remote conf -->
+        <h4 class="blue">
+            Running an experiment with a remote configuration.
+        </h4>
+        <p>
+            This example shows how to run an experiment using remote Simso Configuration files.
+            After running the experiment, you can upload it to the Database.
+            
+            <div class="alert alert-warning">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                Only the most relevant metrics will be sent to the database. 
+                The full experiment results trace won't be uploaded.
+                However, the experiment can easily be reproduced to get the same results.
+            </div>
+        </p>
+        <div readonly class="editor" id="editor3" style="height: 22em">scheduler_name = "superman.schedulers.EDF"
+
+# Gets all the categories
+categories = db.categories()
+
+# Gets all the testset for the choosen category
+testsets = db.testsets(categories[0])
+
+# Selects a testset
+testset = testsets[0]
+
+# Create the experiment
+e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
+
+# Runs the experiment
+e.run()
+
+# [Optional] Uploads the experiment results to the database
+e.upload()
+</div>
+        <!-- remote conf -->
+        <h4 class="blue">
+            Uploading a Test Set.
+        </h4>
+        <p>
+            This example shows how to upload a Test Set.
+            
+            <div class="alert alert-warning">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                The categories you choose for the test set must already exist in the Database.
+                (unless you are an database Administrator)
+            </div>
+        </p>
         
-        {% csrf_token %}
-        <center><h4>Upload a scheduler</h4></center>
-        <div class="form-group">
-            <label class="control-label col-sm-4">Scheduler name : </label>
-            <div class="col-sm-4">
-                <div class="input-group">
-                    <span class="input-group-addon">{{user.username}}.schedulers.</span>
-                    <input class="form-control" type="text" name="sched_name"></input>
-                </div>
-                
-            </div>            
-            <div id="name_error" class="alert alert-danger alert-sm col-sm-4 info" style="display: none">
-                    
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="control-label col-sm-4">Scheduler class name : </label>
-            <div class="col-sm-4">
-                <input class="form-control" type="text" name="sched_class_name"></input>
-            </div>
-            <div id="class_name_error" class="alert alert-danger alert-sm col-sm-4 info" style="display: none">
-                    
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="control-label col-sm-4">Scheduler code : </label>
-            <div class="col-sm-8">
-                <input data-show-upload="false" class="file input-sm " type="file" name="sched_file"></input>
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label class="control-label col-sm-4"></label>
-            <div class="col-sm-4">
-                <input disabled class="btn btn-primary" type="submit" value="Upload" />
-                 <span id="upload_animation" style="display: none">
-                    <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate">
-                    </span> Uploading...
-                 </span>
-            </div>
-        </div>
-        
-        <div class="form-group info" id="upload_success" style="display: none">
-            <label class="control-label col-sm-4"></label>
-            <div class="col-sm-8">
-                <div id="upload_success_text" class="alert alert-success">
-                    File Successfully uploaded.
-                </div>
-            </div>
-        </div>
-        <div class="form-group info" id="upload_error" style="display: none">
-            <label class="control-label col-sm-4"></label>
-            <div class="col-sm-8">
-                <div  class="alert alert-danger">
-                    Error during file upload. The server may have experienced an internal error.
-                </div>
-            </div>
-        </div>
-        <div class="form-group info" id="form_error" style="display: none">
-            <label class="control-label col-sm-4"></label>
-            <div class="col-sm-8">
-                <div  class="alert alert-danger">
-                    Error during file upload. Check the that the data you submited is valid.
-                </div>
-            </div>
-        </div>
-    </form>
+        <div readonly class="editor" id="editor4" style="height: 12em"># Test meta data
+test_name = "my_test_name"
+categories = ["test_category1"]
+description = "description"
+
+# Configuration files.
+files = ["test/test.xml", "test/configuration.xml"]
+conf_files = [Configuration(f) for f in files]
+
+db.upload_testset(test_name, description, categories, conf_files)</div>
+
+    <!-- END -->
+        <h4 class="blue">
+            Getting experiment results.
+        </h4>
+        <p>
+            This example demonstrates how to retrieve experiment results from the database.
+            Of course, there are other ways to retrieve a test set from the database (you can 
+            go the one you want given its id / name).
+        </p>
+        <div readonly class="editor" id="editor5" style="height: 17em">scheduler_name = "superman.schedulers.EDF"
+            
+# Gets all the categories
+categories = db.categories()
+
+# Gets all the testset for the choosen category
+testsets = db.testsets(categories[0])
+
+# Selects a testset
+testset = testsets[0]
+
+# Gets the results
+res = db.results(testset, db.schedulers(scheduler_name)[0])
+
+print(repr(res))</div>
+    </div>
+</div>
+
+<script>
     
-    <script>
-        var loading = false;
-        var selected_content = "";
-        $('input[name="sched_file"]').on('filecleared', function(evt) {
-            $('input[value="Upload"]').attr('disabled', true);
-            
-        });
-        $('input[name="sched_file"]').change(function(evt) {
-            var file = evt.target.files[0];
-            var reader = new FileReader();
-            
-            reader.onload = function(e) {
-                selected_content = e.target.result; 
-                loading = false;
-                $('input[value="Upload"]').attr('disabled', false);
-            };
-            
-            reader.readAsText(file);
-            loading = true;
-        });
-        $("#sched_upload_form").submit(function(event) {
-            // Prevent from submiting normally
-            event.preventDefault();
-            var form = $(this);
-            var name = form.find('input[name="sched_name"]').val();
-            var class_name = form.find('input[name="sched_class_name"]').val();
-            var url = form.attr('action'); 
-            var posting = $.post(url, {
-                csrfmiddlewaretoken: "{{ csrf_token }}",
-                sched_name: name,
-                sched_class_name: class_name,
-                sched_content: selected_content
-            });
-            $('.info').css('display', 'none');
-            $('#upload_animation').css('display', 'inline');
-            posting.done(function(data) {
-                $('#upload_animation').css('display', 'none');
-                if(data.indexOf("error") > -1) {
-                    // There is an error
-                    $('#form_error').css('display', 'block');
-                    var msgCode = data.split(':');
-                    var errorMessage = msgCode[2];
-                    var errorTarget = msgCode[1];
-                    if(errorTarget == "name") {
-                        $('#name_error').css('display', 'block');
-                        $('#name_error').text(errorMessage);
-                    } else if (errorTarget == "class_name") {
-                        $('#class_name_error').css('display', 'block');
-                        $('#class_name_error').text(errorMessage);
-                    }
-                } else {
-                    // Everything went fine.
-                    $('#upload_success').css('display', 'block');
-                    if(data == "new") {
-                        $('#upload_success_text').text("New scheduler " + name +" successfully uploaded.");
-                    }
-                    else if(data == "override") {
-                        $('#upload_success_text').text("Scheduler " + name + " successfully updated.");
-                    }
-                    else {
-                        $('#upload_success_text').text("Unkown answer from the server...");
-                    }
-                }
-            });
-            
-            // Shows an error message when the posting fails.
-            posting.fail(function(data) {
-                $('#upload_error').css('display', 'block');
-            });
-        });
-    </script>
-</div>
+for(var i = 1; i <= 5; i++) {
+    var editor = ace.edit("editor" + i);
+    editor.setReadOnly(true);
+    editor.setTheme("ace/theme/chrome");
+    editor.getSession().setMode("ace/mode/python");
+}
+
+</script>
 
 {% endblock %}

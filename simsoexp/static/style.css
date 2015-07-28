@@ -38,3 +38,7 @@ body {
     border-radius: 10px; border: 2px solid #A0A0FF;
 	margin: 1em;
 }
+
+.blue {
+	color: dodgerblue;
+}
