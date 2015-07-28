@@ -19,7 +19,7 @@ def menu(options):
 	return options[choice]
 
 # Choose the samples to run
-RUN = [int(s) for s in input("Test to run: ").split(',')]
+RUN = [s for s in input("Test to run: ").split(' ')]
 
 table = {"test" : "test", "superman": "$uper$trongp@$$w0rd", "simso" : "simso"}
 user = input("Username: ")
@@ -30,28 +30,23 @@ db = SimsoDatabase("http://localhost:8000", user, table[user])
 
 # ----
 # Running an experiment with local configuration files
-# You can only upload that if you are one of the 
-# Simso Experiment Database administrators.
 # ----
-if 0 in RUN:
+if 'local_run' in RUN:
 	# Configure the experiment.
 	scheduler_name = "superman.schedulers.EDF"
-	test_name = "sample_test"
-	test_description = "This is a sample description with <b>inner html</b>.\nAnd carriage return.\nAgain.\nAnd again."
-	test_categories = ["sample_category"]
 	files = ["test/test.xml", "test/configuration.xml"]
 	
 	# Create the experiment.
-	config = (test_name, test_description, test_categories, [Configuration(f) for f in files])
-	e = Experiment(db, config, db.schedulers(scheduler_name)[0])
+	config = [Configuration(f) for f in files]
+	scheduler = db.scheduler_by_name(scheduler_name)
+	e = Experiment(db, config, scheduler)
 	
 	# Run the experiment
 	e.run()
 	
-	# Optional : Upload the experiment
-	# In this case, it is not allowed unless you are part
-	# of the database admins.
-	e.upload()
+	# You cannot upload the experiment with local configuration files
+	if '-upload' in RUN:
+		e.upload() # => ERROR
 	
 	# Get the metrics 
 	print(repr(e.metrics))
@@ -60,10 +55,41 @@ if 0 in RUN:
 	print(repr(e.results))
 	
 
+
+
 # ----
 # Running an experiment with a remote test set
 # ----
-if 1 in RUN:
+if 'remote_run' in RUN:
+	scheduler_name = "superman.schedulers.EDF"
+	
+	# Selects a testset
+	testset = db.testset_by_name("simso.testsets.sample")
+	
+	# Create the experiment
+	e = Experiment(db, testset, db.scheduler_by_name(scheduler_name))
+	e.run()
+	
+	if '-upload' in RUN:
+		e.upload()
+	
+# ----
+# Getting the results of an experiment.
+# ----
+if 'get_results' in RUN:
+	scheduler_name = "superman.schedulers.EDF"
+	
+	testset = db.testset_by_name("simso.testsets.sample")
+	
+	# Gets the results
+	res = db.results(testset, db.scheduler_by_name(scheduler_name))
+	
+	print(repr(res))
+	
+# ----
+# Running an experiment with a remote test set (1)
+# ----
+if 'remote_run_menu' in RUN:
 	scheduler_name = "superman.schedulers.EDF"
 	
 	# Gets all the categories
@@ -76,70 +102,18 @@ if 1 in RUN:
 	testset = menu(testsets) # testsets[0]
 	
 	# Create the experiment
-	e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
-	e.run()
-	e.upload()
-
-# ----
-# Running an experiment with a remote test set
-# ----
-if 4 in RUN:
-	scheduler_name = "superman.schedulers.EDF"
-	
-	# Gets all the categories
-	categories = db.categories()
-	
-	# Gets all the testset for the choosen category
-	testsets = db.testsets(categories[2])
-	
-	# Selects a testset
-	testset = testsets[0]
-	
-	# Gets the results
-	res = db.results(testset, db.schedulers(scheduler_name)[0])
-	
-	print(repr(res))
-	
-if 2 in RUN:
-	# Configure the experiment.
-	scheduler_name = "superman.schedulers.EDF"
-	files = ["test/test.xml", "test/configuration.xml"]
-	
-	# Create the experiment.
-	config = [Configuration(f) for f in files]
-	e = Experiment(db, config, db.schedulers(scheduler_name)[0])
-	
-	# Run the experiment
+	e = Experiment(db, testset, db.scheduler_by_name(scheduler_name))
 	e.run()
 	
-	# In this case : you cannot upload the experiment.
-	# e.upload()
-	
-	# Get the metrics 
-	print(repr(e.metrics))
-	
-	# Get the simulation results
-	print(repr(e.results))
-
-# ----
-# Running an experiment with a remote test set
-# ----
-if 3 in RUN:
-	scheduler_name = "superman.schedulers.EDF"
-	
-	# Selects a testset
-	testset = db.testset_by_name("test.testsets.my_test_name")
-	
-	# Create the experiment
-	e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
-	e.run()
+	if '-upload' in RUN:
+		e.upload()
 	
 # ----
 # Uploading a test set
 # ----
-if 42 in RUN:
-	test_name = "my_test_name"
-	categories = ["test_category1"]
+if 'testset_upload' in RUN:
+	test_name = "sample"
+	categories = ["sample_category"]
 	description = "description"
 	files = ["test/test.xml", "test/configuration.xml"]
 	db.upload_testset(test_name, description, categories, [Configuration(f) for f in files])

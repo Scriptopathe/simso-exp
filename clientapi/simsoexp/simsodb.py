@@ -235,13 +235,10 @@ class Experiment:
 		Creates a new experiment
 		
 		:param db: The database instance bound to the experiment.
-		:conf_files: Either a DBTestSet object or a a custom test set given as a 
-		tuple (name, description, categories, list of Configuration objects), or
-		a list of Configuration objects.
+		:conf_files: Either a DBTestSet object or Custom Test Set (a list of Configuration objects).
 		
 		
-		Take care : you won't be able to upload your results if you used a custom test set,
-		unless you are a Simso Experiment Database administrator.
+		Take care : you won't be able to upload your results if you used a custom test set.
 		"""
 		self.db = db
 		self.results = []
@@ -260,26 +257,6 @@ class Experiment:
 			self.testname = None
 			self.testdesc = None
 			self.categories = None
-		else:
-			assert(isinstance(conf_files, tuple))
-			assert(isinstance(conf_files[0], str))
-			assert(isinstance(conf_files[1], str))
-			assert(isinstance(conf_files[2], list))
-			assert(isinstance(conf_files[3], list))
-			
-			# Check categories
-			for c in conf_files[2]:
-				assert(isinstance(c, str))
-			
-			# Check files	
-			for f in conf_files[3]:
-				assert(isinstance(f, Configuration))
-			
-			self.testset = None
-			self.testname = conf_files[0]
-			self.testdesc = conf_files[1]
-			self.categories = conf_files[2]
-			self.conf_files = conf_files[3]
 			
 		# Check scheduler
 		assert(isinstance(scheduler, DBScheduler))
@@ -319,9 +296,11 @@ class Experiment:
 		"""
 		Uploads the experiment to Simso Experiment Database.
 		
-		Take care : you won't be able to upload your results if you used a custom test set,
-		unless you are a Simso Experiment Database administrator.
+		Take care : you won't be able to upload your results if you used a custom test set.
 		"""
+		if self.testset == None:
+			raise Exception("You cannot upload an experiment with a custom testset.")
+		
 		data = {}
 		
 		# Metrics
@@ -330,24 +309,8 @@ class Experiment:
 			data["metrics"].append(','.join([metric] + [str(m) for m in self.metrics[metric]]))
 		
 		# Configuration files / testset
-		if(self.testset == None):
-			data["testset_id"] = "-1"
-			data["conf_files"] = [generate(f) for f in self.conf_files]
-		else:
-			data["testset_id"] = str(self.testset.identifier)
-			data["conf_files"] = []
-		
-		# Check integrity
-		if self.testname == None or self.testdesc == None or self.categories == None:
-			raise Exception("Cannot upload a testset with no metadata.")
-		
-		# Test name and description
-		data["test_name"] = self.testname
-		data["test_description"] = self.testdesc
-		
-		# Categories
-		data["categories"] = self.categories
-		
+		data["testset_id"] = str(self.testset.identifier)
+
 		# Scheduler
 		data["scheduler"] = self.scheduler.identifier
 		
@@ -361,7 +324,7 @@ class SimsoDatabase:
 		Ex: http://example.com:8000/
 		"""
 		self.base_addr = address.rstrip('/');
-		self.api = Api(address, username, password)
+		self.api = Api(self.base_addr, username, password)
 		self.preload = False
 		self.__init_cache()
 		
@@ -418,16 +381,14 @@ class SimsoDatabase:
 		"""Gets a scheduler given its id in the database."""
 		return DBScheduler(self, identifier)
 		
-	def schedulers(self, name=""):
+	def scheduler_by_name(self, name=""):
 		"""
 		Gets a list of DBScheduler objects matching the given name
 		Usually there is only one matching result.
 		
 		:param name: The exact name of the schedulers to find.
 		"""
-		scheds = self.api.get_schedulers_by_name(name)
-		scheds = [DBScheduler(self, sched_id) for sched_id in scheds]
-		return scheds
+		return DBScheduler(self, self.api.get_scheduler_by_name(name))
 	
 	def testsets(self, category=""):
 		"""

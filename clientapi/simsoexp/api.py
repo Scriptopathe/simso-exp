@@ -137,18 +137,14 @@ class Api:
 			return tuples
 		else: self.handle_error(r)
 	
-	def get_schedulers_by_name(self, name):
+	def get_scheduler_by_name(self, name):
 		"""Returns the scheduler ids corresponding to the scheduler name"""
 		r = self.urlopen(self.base_addr + "/api/schedulers/name/" + name);
 		if self.urlok(r):
 			val = self.urlread(r)
-			values = val.rsplit(',')
-			tuples = []
-			for i in range(0, len(values)):
-				tuples.append(
-					 int(values[i]),
-				)
-			return tuples
+			if val == '':
+				raise Exception("Scheduler {} not found.".format(name))
+			return int(val)
 		else: self.handle_error(r)
 			
 	def get_results(self, testset_id, scheduler_id):

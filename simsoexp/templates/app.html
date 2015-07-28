@@ -122,19 +122,21 @@ db = SimsoDatabase("{{ domain }}", "username", "password")</div>
                 You must upload the test set first, and wait for the Database maintainers to validate it.
             </div>
         </p>
-        <div readonly class="editor" id="editor2" style="height: 21em"># Configure the experiment.
-scheduler_name = "simso.schedulers.EDF"
+        <div readonly class="editor" id="editor2" style="height: 24em"># 1. Get a scheduler.
+scheduler = db.scheduler_by_name("simso.schedulers.EDF")
+
+# 2. Create configuration files
 files = ["test/test.xml", "test/configuration.xml"]
-
-# Create the experiment.
 config = [Configuration(f) for f in files]
-e = Experiment(db, config, db.schedulers(scheduler_name)[0])
 
-# Run the experiment
+# 3. Create an experiment.
+e = Experiment(db, config, scheduler)
+
+# 4. Run the experiment
 e.run()
 
 # In this case : you cannot upload the experiment.
-# e.upload()
+# e.upload() => error
 
 # Get the metrics 
 print(repr(e.metrics))
@@ -157,26 +159,22 @@ print(repr(e.results))</div>
                 However, the experiment can easily be reproduced to get the same results.
             </div>
         </p>
-        <div readonly class="editor" id="editor3" style="height: 22em">scheduler_name = "superman.schedulers.EDF"
+        <div readonly class="editor" id="editor3" style="height: 19em"># 1. Get a scheduler.
+scheduler = db.scheduler_by_name("superman.schedulers.EDF")
 
-# Gets all the categories
+# 2. Get a testset (here we browse testsets by category).
 categories = db.categories()
-
-# Gets all the testset for the choosen category
 testsets = db.testsets(categories[0])
-
-# Selects a testset
 testset = testsets[0]
 
-# Create the experiment
-e = Experiment(db, testset, db.schedulers(scheduler_name)[0])
+# 3. Create an experiment.
+e = Experiment(db, testset, scheduler)
 
-# Runs the experiment
+# 4. Run the experiment.
 e.run()
 
 # [Optional] Uploads the experiment results to the database
-e.upload()
-</div>
+e.upload()</div>
         <!-- remote conf -->
         <h4 class="blue">
             Uploading a Test Set.
@@ -191,16 +189,19 @@ e.upload()
             </div>
         </p>
         
-        <div readonly class="editor" id="editor4" style="height: 12em"># Test meta data
-test_name = "my_test_name"
-categories = ["test_category1"]
+        <div readonly class="editor" id="editor4" style="height: 13em"># 1. Define test meta data
+test_name = "sample"
+categories = ["sample_category"]
 description = "description"
 
-# Configuration files.
+# 2. Create test configuration files.
 files = ["test/test.xml", "test/configuration.xml"]
-conf_files = [Configuration(f) for f in files]
+confs = [Configuration(f) for f in files]
 
-db.upload_testset(test_name, description, categories, conf_files)</div>
+# 3. Upload the test set.
+db.upload_testset(test_name, description, categories, confs)</div>
+
+
 
     <!-- END -->
         <h4 class="blue">
@@ -208,22 +209,15 @@ db.upload_testset(test_name, description, categories, conf_files)</div>
         </h4>
         <p>
             This example demonstrates how to retrieve experiment results from the database.
-            Of course, there are other ways to retrieve a test set from the database (you can 
-            go the one you want given its id / name).
         </p>
-        <div readonly class="editor" id="editor5" style="height: 17em">scheduler_name = "superman.schedulers.EDF"
+        <div readonly class="editor" id="editor5" style="height: 12em"># 1. Get a scheduler
+scheduler = db.scheduler_by_name("superman.schedulers.EDF")
             
-# Gets all the categories
-categories = db.categories()
+# 2. Get a testset
+testset = db.testset_by_name("simso.testsets.sample_testset")
 
-# Gets all the testset for the choosen category
-testsets = db.testsets(categories[0])
-
-# Selects a testset
-testset = testsets[0]
-
-# Gets the results
-res = db.results(testset, db.schedulers(scheduler_name)[0])
+# 3. Get the results
+res = db.results(testset, scheduler)
 
 print(repr(res))</div>
     </div>

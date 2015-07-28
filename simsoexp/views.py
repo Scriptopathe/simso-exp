@@ -476,6 +476,7 @@ def upload_scheduler(request):
 	
 	sched.name = name
 	sched.contributor = request.user
+	sched.approved = request.user.is_staff
 	sched.class_name = class_name
 	sched.code = code
 	sched.sha1 = hashlib.sha1(code).hexdigest()
@@ -531,6 +532,7 @@ def api_upload_testset(request):
 		testset = TestSet()
 	
 	testset.name = test_name
+	testset.approved = request.user.is_staff
 	testset.description = test_description
 	testset.contributor = request.user
 	testset.save()
@@ -554,27 +556,6 @@ def api_upload_experiment(request):
 		
 	# Conf file or testset id
 	testset_id = request.POST["testset_id"]
-	test_name = request.POST["test_name"]
-	test_description = request.POST["test_description"]
-	conf_files = request.POST.getlist('conf_files')
-	
-	# Categories
-	test_categories = request.POST.getlist('categories')
-	
-	# Name checking
-	for cat in test_categories:
-		if not is_valid_name(cat):
-			return HttpResponse("error: invalid category name '{}'." + 
-				" Should only contains alphanumerical characters.".format(cat))
-	
-	if not is_valid_name(test_name):
-		return HttpResponse("error: invalid test name '{}'." + 
-			" Should only contains alphanumerical characters.".format(test_name))
-		
-	# Permission checking
-	if testset_id == "-1" and not request.user.is_staff:
-		return HttpResponse("error: it is not allowed to upload custom test sets if you " + 
-				"are not a Simso Experiment Database administrator")
 	
 	# Scheduler
 	scheduling_policy_id = request.POST['scheduler']
@@ -584,38 +565,16 @@ def api_upload_experiment(request):
 	if len(schedulers) == 0:
 		return HttpResponse("error: no such scheduler")
 	scheduler = schedulers[0]
-
 	
-	# Creates all the conf files
-	files = []
-	for i in range(0, len(conf_files)):
-		f = ConfigurationFile()
-		f.conf = conf_files[i]
-		files.append(f)
-	
-	# If testset_id is provided, takes an existing one
-	# if not, create a new one
-	testset = None
-	if(testset_id == "-1"):
-		# Creates the test set object
-		testset = TestSet()
-		testset.name = test_name
-		testset.description = test_description
-		testset.contributor = request.user
-		testset.save()
-		testset.categories = [get_test_category(cat) for cat in test_categories]
-		testset.files = save(files)
-		testset.approved = True
-		testset.save()
-	else:
-		# Takes an existing one
-		testsets = TestSet.objects.filter(pk=testset_id)
-		if len(testsets) == 0:
-			return HttpResponse("error: no such testset")
-		testset = testsets[0]
+	# Gets the testset
+	testsets = TestSet.objects.filter(pk=testset_id)
+	if len(testsets) == 0:
+		return HttpResponse("error: no such testset")
+	testset = testsets[0]
 	
 	# Creates the result object
 	result = Results()
+	result.approved = request.user.is_staff
 	result.contributor = request.user
 	result.test_set = testset
 	result.scheduling_policy = scheduler
@@ -707,20 +666,18 @@ def api_get_result(request, result_id):
 
 	
 @login_required
-def api_get_schedulers_by_name(request, name):
+def api_get_scheduler_by_name(request, name):
 	"""
 	Gets the scheduler(s) corresponding to the given name.
 	
 	:param name: scheduler name.
 	"""
-	
 	response = get_schedulers_by_name(name, True)
 	
-	s = ""
-	for sched in response:
-		s += unicode(sched.id) + ","
-	
-	return HttpResponse(s.rstrip(','));
+	if response.count() == 0:
+		return HttpResponse("")
+
+	return HttpResponse(str(response[0].id));
 
 @login_required
 def api_get_testsets(request, category):
