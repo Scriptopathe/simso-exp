@@ -572,6 +572,12 @@ def api_upload_experiment(request):
 		return HttpResponse("error: no such testset")
 	testset = testsets[0]
 	
+	# Get existing results with the same test set and scheduler
+	existing = Results.objects.filter(test_set=testset, scheduling_policy=scheduler)
+	if existing.count() != 0:
+		# This one is a duplicate
+		return HttpResponse("error: this experiment has already been uploaded !")
+	
 	# Creates the result object
 	result = Results()
 	result.approved = request.user.is_staff
