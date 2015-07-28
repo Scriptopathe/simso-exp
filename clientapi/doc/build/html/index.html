@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to simsoexp’s documentation! &mdash; simsoexp 0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="simsoexp 0 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">simsoexp 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-simsoexp-s-documentation">
+<h1>Welcome to simsoexp&#8217;s documentation!<a class="headerlink" href="#welcome-to-simsoexp-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-simsoexp"></span><span class="target" id="module-simsoexp.simsodb"></span><dl class="class">
+<dt id="simsoexp.simsodb.DBConfFile">
+<em class="property">class </em><tt class="descclassname">simsoexp.simsodb.</tt><tt class="descname">DBConfFile</tt><big>(</big><em>db</em>, <em>testset</em>, <em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.DBConfFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a configuration file taken from a remote Simso Experiment Database.</p>
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBConfFile.configuration">
+<tt class="descname">configuration</tt><a class="headerlink" href="#simsoexp.simsodb.DBConfFile.configuration" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">simso.configuration.Configuration &#8211; the Simso configuration object represented by this configuration file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBConfFile.content">
+<tt class="descname">content</tt><a class="headerlink" href="#simsoexp.simsodb.DBConfFile.content" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string &#8211; this configuration file&#8217;s XML content.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simsoexp.simsodb.DBResults">
+<em class="property">class </em><tt class="descclassname">simsoexp.simsodb.</tt><tt class="descname">DBResults</tt><big>(</big><em>db</em>, <em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.DBResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a results set from a remote Simso Experiment Database.
+These results contains :
+- the scheduler and testset identifiers in the database used to build the experiment.
+- the resulting metrics</p>
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBResults.metrics">
+<tt class="descname">metrics</tt><a class="headerlink" href="#simsoexp.simsodb.DBResults.metrics" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict of dict &#8211; A dictionnary containing a set of metrics indexed by their name.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBResults.scheduler_id">
+<tt class="descname">scheduler_id</tt><a class="headerlink" href="#simsoexp.simsodb.DBResults.scheduler_id" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int &#8211; The id of the scheduler used to build these results.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBResults.testset_id">
+<tt class="descname">testset_id</tt><a class="headerlink" href="#simsoexp.simsodb.DBResults.testset_id" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int &#8211; The id of the testset used to build these results.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simsoexp.simsodb.DBScheduler">
+<em class="property">class </em><tt class="descclassname">simsoexp.simsodb.</tt><tt class="descname">DBScheduler</tt><big>(</big><em>db</em>, <em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.DBScheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a scheduler taken from a remote Simso Experiment Database.</p>
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBScheduler.class_name">
+<tt class="descname">class_name</tt><a class="headerlink" href="#simsoexp.simsodb.DBScheduler.class_name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string &#8211; the scheduler&#8217;s main class in the scheduler&#8217;s code</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBScheduler.cls">
+<tt class="descname">cls</tt><a class="headerlink" href="#simsoexp.simsodb.DBScheduler.cls" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">type &#8211; the scheduler&#8217;s class object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBScheduler.code">
+<tt class="descname">code</tt><a class="headerlink" href="#simsoexp.simsodb.DBScheduler.code" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string &#8211; this scheduler&#8217;s python code</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBScheduler.name">
+<tt class="descname">name</tt><a class="headerlink" href="#simsoexp.simsodb.DBScheduler.name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string &#8211; this scheduler visible name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simsoexp.simsodb.DBTestSet">
+<em class="property">class </em><tt class="descclassname">simsoexp.simsodb.</tt><tt class="descname">DBTestSet</tt><big>(</big><em>db</em>, <em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.DBTestSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a test set taken from a remote Simso Experiment Database.</p>
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBTestSet.categories">
+<tt class="descname">categories</tt><a class="headerlink" href="#simsoexp.simsodb.DBTestSet.categories" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list &#8211; This test set&#8217;s categories as a list.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBTestSet.conf_files">
+<tt class="descname">conf_files</tt><a class="headerlink" href="#simsoexp.simsodb.DBTestSet.conf_files" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list &#8211; a list of DBConfFile object for each configuration file in this test set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBTestSet.description">
+<tt class="descname">description</tt><a class="headerlink" href="#simsoexp.simsodb.DBTestSet.description" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The description of the test set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simsoexp.simsodb.DBTestSet.name">
+<tt class="descname">name</tt><a class="headerlink" href="#simsoexp.simsodb.DBTestSet.name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The name of the test set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simsoexp.simsodb.Experiment">
+<em class="property">class </em><tt class="descclassname">simsoexp.simsodb.</tt><tt class="descname">Experiment</tt><big>(</big><em>db</em>, <em>conf_files</em>, <em>scheduler</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.Experiment" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Represent an experiment, which contains :</dt>
+<dd><ul class="first last simple">
+<li>a set of configuration files</li>
+<li>a scheduler</li>
+<li>after run() : a set of metrics and results</li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="simsoexp.simsodb.Experiment.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#simsoexp.simsodb.Experiment.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the experiment and computes the metrics.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.Experiment.upload">
+<tt class="descname">upload</tt><big>(</big><big>)</big><a class="headerlink" href="#simsoexp.simsodb.Experiment.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads the experiment to Simso Experiment Database.</p>
+<p>Take care : you won&#8217;t be able to upload your results if you used a custom test set.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simsoexp.simsodb.SimsoDatabase">
+<em class="property">class </em><tt class="descclassname">simsoexp.simsodb.</tt><tt class="descname">SimsoDatabase</tt><big>(</big><em>address</em>, <em>username=None</em>, <em>password=None</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase" title="Permalink to this definition">¶</a></dt>
+<dd><p>A remote</p>
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.categories">
+<tt class="descname">categories</tt><big>(</big><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a list of all the test categories</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.categories_and_description">
+<tt class="descname">categories_and_description</tt><big>(</big><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.categories_and_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a list of tuples (category_name, description) for each test category.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.result">
+<tt class="descname">result</tt><big>(</big><em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a result set given its identifier in the database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.results">
+<tt class="descname">results</tt><big>(</big><em>testset</em>, <em>scheduler</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the results associated to the given testset and scheduler.
+These results have been obtained by running simso with the corresponding
+scheduler and testsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>testset</strong> &#8211; A DBTestSet instance.</li>
+<li><strong>scheduler</strong> &#8211; A DBScheduler instance.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.scheduler">
+<tt class="descname">scheduler</tt><big>(</big><em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.scheduler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a scheduler given its id in the database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.scheduler_by_name">
+<tt class="descname">scheduler_by_name</tt><big>(</big><em>name=''</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.scheduler_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a list of DBScheduler objects matching the given name
+Usually there is only one matching result.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; The exact name of the schedulers to find.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.testset">
+<tt class="descname">testset</tt><big>(</big><em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.testset" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>identifier</strong> (<em>int</em>) &#8211; The identifier of the testset to retrieve.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">DBTestset &#8211; DBTestset instance whose id is <em>identifier</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.testset_by_name">
+<tt class="descname">testset_by_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.testset_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">DBTestset &#8211; DBTestset instance whose name is <em>name</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.testsets">
+<tt class="descname">testsets</tt><big>(</big><em>category=''</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.testsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a list of testsets given a category
+If no category is specified, all the testsets are displayed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>category</strong> &#8211; the category of testsets to display.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simsoexp.simsodb.SimsoDatabase.upload_testset">
+<tt class="descname">upload_testset</tt><big>(</big><em>name</em>, <em>description</em>, <em>categories</em>, <em>conf_files</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.upload_testset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads a test set with the given name, categories
+and configuration files (list of Configuration objects).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to simsoexp&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">simsoexp 0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Josué Alvarez.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
