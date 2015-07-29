@@ -8,6 +8,10 @@ from simso.configuration.GenerateConfiguration import generate
 import numpy
 import os
 
+def _check_type(var, varname, ttype):
+	if(not isinstance(var, ttype)):
+		raise TypeError("Expected parameter '{}' of type {}. Got {}".format(varname, ttype, var.__class__))
+	
 class DBResults:
 	"""
 	Represents a results set from a remote Simso Experiment Database.
@@ -293,15 +297,16 @@ class Experiment:
 			self.categories = self.testset.categories
 		elif isinstance(conf_files, list):
 			for f in conf_files:
-				assert(isinstance(f, Configuration))
+				_check_type(f, 'f', Configuration)
 			self.conf_files = conf_files
 			self.testset = None
 			self.testname = None
 			self.testdesc = None
 			self.categories = None
-			
+		else:
+			raise TypeError("Expecter conf_file to be 'list of Configuration' or 'DBTestSet'. Got {}".format(conf_files.__class__))
 		# Check scheduler
-		assert(isinstance(scheduler, DBScheduler))
+		_check_type(scheduler, 'scheduler', DBScheduler)
 		self.scheduler = scheduler
 		
 		self.metrics = {}
@@ -336,9 +341,9 @@ class Experiment:
 		
 	def upload(self):
 		"""
-		Uploads the experiment to Simso Experiment Database.
+		Uploads the experiment results to Simso Experiment Database.
 		
-		Take care : you won't be able to upload your results if you used a custom test set.
+		*Note you won't be able to upload your results if you used a custom test set.*
 		"""
 		if self.testset == None:
 			raise Exception("You cannot upload an experiment with a custom testset.")
@@ -360,7 +365,7 @@ class Experiment:
 		
 class SimsoDatabase:
 	"""
-	A remote
+	SimsoDatabase is the main component of the **Simso Experiment Platform API**.
 	"""
 	def __init__(self, address, username=None, password=None):
 		"""
@@ -368,6 +373,8 @@ class SimsoDatabase:
 		at the given address (includes port number)
 		Ex: http://example.com:8000/
 		"""
+		_check_type(address, 'address', str)
+		
 		self.base_addr = address.rstrip('/');
 		self.api = Api(self.base_addr, username, password)
 		self.preload = False
@@ -386,12 +393,16 @@ class SimsoDatabase:
 		:type identifier: int
 		:returns: DBTestset -- DBTestset instance whose id is *identifier*
 		"""
+		_check_type(identifier, 'identifier', int)
+		
 		return DBTestSet(self, identifier)
 	
 	def testset_by_name(self, name):
 		"""
 		:returns: DBTestset -- DBTestset instance whose name is *name*
 		"""
+		_check_type(name, 'name', str)
+		
 		identifier = self.api.get_testset_by_name(name)
 		return DBTestSet(self, identifier)
 	
@@ -402,52 +413,63 @@ class SimsoDatabase:
 		scheduler and testsets.
 		
 		:param testset: A DBTestSet instance.
+		:type testset: DBTestSet
 		:param scheduler: A DBScheduler instance.
+		:type scheduler: DBScheduler
+		:returns: DBResults -- The results corresponding to the given scheduler and testset.
 		"""
-		assert(isinstance(testset, DBTestSet))
-		assert(isinstance(scheduler, DBScheduler))
+		_check_type(testset, 'testset', DBTestSet)
+		_check_type(scheduler, 'scheduler', DBScheduler)
 		
 		m = self.api.get_results(testset.identifier, scheduler.identifier)
 		return [DBResults(self, identifier) for identifier in m]
 	
 	def result(self, identifier):
 		"""
-		Gets a result set given its identifier in the database.
+		:returns: DBResults -- a result set given its identifier in the database.
 		"""
+		_check_type(identifier, 'identifier', int)
 		return DBResults(self, identifier)
 		
 	def categories(self):
 		"""
-		Gets a list of all the test categories
+		:returns: list of str -- a list of all the test categories in the database.
 		"""
+		
 		return [cat[0] for cat in self.api.get_categories()]
 	
 	def categories_and_description(self):
 		"""
-		Gets a list of tuples (category_name, description) for each test category.
+		:returns: list of (str, str) -- a list of tuples (category_name, description) for each test category.
 		"""
 		return self.api.get_categories()
 		
 	def scheduler(self, identifier):
-		"""Gets a scheduler given its id in the database."""
+		"""
+		:returns: DBScheduler -- a scheduler given its id in the database.
+		"""
+		_check_type(identifier, 'identifier', int)
 		return DBScheduler(self, identifier)
 		
 	def scheduler_by_name(self, name=""):
-		"""
-		Gets a list of DBScheduler objects matching the given name
-		Usually there is only one matching result.
-		
+		"""		
 		:param name: The exact name of the schedulers to find.
+		:type name: str
+		:returns: DBScheduler -- a scheduler given its name in the database.
 		"""
+		_check_type(name, 'name', str)
 		return DBScheduler(self, self.api.get_scheduler_by_name(name))
 	
 	def testsets(self, category=""):
 		"""
-		Gets a list of testsets given a category
-		If no category is specified, all the testsets are displayed.
+		Gets a list of testsets given a category.
+		If no category is specified, all the testsets are returned.
 		
 		:param category: the category of testsets to display.
+		:type category: str
+		:returns: list of DBTestSet -- list of testsets given a category.
 		"""
+		_check_type(category, 'category', str)
 		sets = self.api.get_testsets_by_category(category)
 		tests = [DBTestSet(self, identifier) for identifier, name in sets]
 		return tests
@@ -456,10 +478,17 @@ class SimsoDatabase:
 		"""
 		Uploads a test set with the given name, categories
 		and configuration files (list of Configuration objects).
+		
+		:param name: name of the test set to upload
+		:type name: str
+		:param description: description of the test set to upload.
+		:type description: str
+		:param categories: categories linked to the test set. They must already exist in the DB.
+		:type categories: list of str
 		"""
 		for conf_file in conf_files:
-			assert(isinstance(conf_file, Configuration))
-		assert(isinstance(categories, list))
+			_check_type(conf_file, 'conf_file', Configuration)
+		_check_type(categories, 'categories', list)
 		
 		self.api.upload_testset(name, description, categories, [generate(f) for f in conf_files])
 		

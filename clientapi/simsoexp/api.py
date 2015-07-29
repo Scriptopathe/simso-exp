@@ -4,12 +4,35 @@ import hashlib
 import base64
 import getpass
 import os
+import re
 
+class ApiError(Exception):
+	"""
+	Type of errors raised by the API
+	"""
+	def __init__(self, value):
+		self.value = value
+	
+	def __str__(self):
+		return repr(self.value)
+		
+name_reg = r'^([\w|\.]*)$'
 def b64(string):
 	return str(base64.b64encode(string.encode()), 'utf8')
 def b64str(b64encoded_string):
 	return str(base64.b64decode(b64encoded_string), 'utf8')
 
+def check_valid(name):
+	"""
+	Gets a value indicating if a ressource name is correct,
+	e.g :
+		- It contains only letters, numbers and underscores
+	"""
+	match = re.match(name_reg, name)
+	if not match:
+		raise ApiError("The name {} is not a valid ressource name ".format(name) + 
+			"(should contain only letters, numbers, and underscores)")
+	
 def cached(name):
 	"""
 	Decorator used to apply a cacheing mechanism to 
@@ -69,7 +92,7 @@ class Api:
 		"""
 		response = self.session.get(url, allow_redirects=False)
 		if response.status_code == 302:
-			raise Exception("You cannot access the database beccause you have not logged in properly.")
+			raise ApiError("You cannot access the database beccause you have not logged in properly.")
 		return response
 	
 	def post(self, url, data):
@@ -139,11 +162,14 @@ class Api:
 	
 	def get_scheduler_by_name(self, name):
 		"""Returns the scheduler ids corresponding to the scheduler name"""
+		
+		check_valid(name)
+		
 		r = self.urlopen(self.base_addr + "/api/schedulers/name/" + name);
 		if self.urlok(r):
 			val = self.urlread(r)
 			if val == '':
-				raise Exception("Scheduler {} not found.".format(name))
+				raise ApiError("Scheduler {} not found.".format(name))
 			return int(val)
 		else: self.handle_error(r)
 			
@@ -187,7 +213,7 @@ class Api:
 			val = self.urlread(r)
 			
 			if val == '':
-				raise Exception("Testset " + str(identifier) + " doesn't exist.")
+				raise ApiError("Testset " + str(identifier) + " doesn't exist.")
 			
 			values = val.rsplit(',')
 			tuples = []
@@ -203,11 +229,14 @@ class Api:
 		"""
 		Gets the id of the test set whose name is given as argument
 		"""
+		
+		check_valid(name)
+		
 		r = self.urlopen(self.base_addr + "/api/testsets/name/" + str(name))
 		if self.urlok(r):
 			val = self.urlread(r)
 			if val == '':
-				raise Exception("Testset {} not found".format(name))
+				raise ApiError("Testset {} not found".format(name))
 			return int(val)
 		else: self.handle_error(r)
 		
@@ -219,6 +248,10 @@ class Api:
 		r = self.urlopen(self.base_addr + "/api/testsets/id/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
+			
+			if val == '':
+				raise ApiError("Testset {} not found.".format(identifier))
+				
 			values = val.rsplit(',')
 			tuples = (b64str(values[0]), b64str(values[1]), [], [])
 			
@@ -259,6 +292,11 @@ class Api:
 		r = self.urlopen(self.base_addr + "/api/results/id/" + str(identifier))
 		if self.urlok(r):
 			val = self.urlread(r)
+			
+			if val == '':
+				raise ApiError("Results {} not found.".format(identifier))
+				
+				
 			values = val.rsplit(',')
 			attrs = ['name', 'sum', 'avg', 'std', 'median', 'minimum', 'maximum']
 			metrics = []
@@ -302,7 +340,7 @@ class Api:
 		if self.urlok(response):
 			value = self.urlread(response)
 			if "error" in value:
-				raise Exception("upload_experiment: The server returned the following status : " + value)
+				raise ApiError("upload_experiment: The server returned the following status : " + value)
 		
 		else: self.handle_error(r)
 	
@@ -322,7 +360,7 @@ class Api:
 		if self.urlok(response):
 			value = self.urlread(response)
 			if "error" in value:
-				raise Exception("upload_testset: The server returned the following status : " + value)
+				raise ApiError("upload_testset: The server returned the following status : " + value)
 				
 		else: self.handle_error(r)
 		
