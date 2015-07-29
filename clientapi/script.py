@@ -45,7 +45,7 @@ def execute(func, funcname):
 		success += 1
 	except ApiError as e:
 		print(OKBLUE + "API Error executing test " + funcname + ENDC)
-		logs.append(OKBLUE + "Error executing test " + funcname + " :\n\t " + str(e) + ENDC)
+		logs.append(OKBLUE + "API Error executing test " + funcname + " :\n\t " + str(e) + ENDC)
 		success += 1
 	except Exception as e:
 		print(FAIL + "Error executing test " + funcname + ENDC)
