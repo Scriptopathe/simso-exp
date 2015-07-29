@@ -22,12 +22,26 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y$*!c^c0186+-cz&p(2lp-l9xtu1db086@+jhczzs=3u-xc%!='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = False
+ALLOWED_HOSTS = ["localhost"]
 LOGIN_REDIRECT_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
-# Application definition
 
+# # Mail
+# EMAIL_HOST_USER = "mail"
+# EMAIL_HOST_PASSWORD = "mail"
+# EMAIL_PORT = "port"
+# ADMINS = (
+#     ('PE Hladik', 'pehladik@laas.fr'),
+# )
+
+# SEND_BROKEN_LINK_EMAILS = True
+# MANAGERS = (
+#     ('PE Hladik', 'pehladik@laas.fr'),
+# )
+
+
+# Application definition
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
