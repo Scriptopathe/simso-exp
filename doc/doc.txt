@@ -1,3 +1,22 @@
+# ----- INSTALL REQUIREMENTS ---- #
+sudo apt-get install git
+git clone https://github.com/Scriptopathe/simso-exp
+cd simso-exp/setup
+chmod u+x setup.sh
+./setup.sh
+
+# Django create super user
+python manage.py createsuperuser
+
+
+# --------------------- SERVER ------------------#
+sudo apt-get install python-pip
+sudo pip install django
+sudo apt-get install git
+git clone https://github.com/Scriptopathe/simso-exp
+
+
+
 # Install Database :
 # ----- MANUAL WAY
 sudo apt-get install python-pip python-dev mysql-server libmysqlclient-dev
@@ -10,16 +29,3 @@ CREATE DATABASE simsoexp CHARACTER SET UTF8;
 CREATE USER simsoexpuser@localhost IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON simsoexp.* TO simsoexpuser@localhost;
 FLUSH PRIVILEGES;
-
-# ----- AUTOMATIC
-sudo python setup_db.py
-
-# Django create super user
-python manage.py createsuperuser
-
-
-# --------------------- SERVER ------------------#
-sudo apt-get install python-pip
-sudo pip install django
-sudo apt-get install git
-git clone https://github.com/Scriptopathe/simso-exp
