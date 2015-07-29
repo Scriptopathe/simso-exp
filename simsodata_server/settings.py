@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
+from dbsettings import DATABASES
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y$*!c^c0186+-cz&p(2lp-l9xtu1db086@+jhczzs=3u-xc%!='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["localhost"]
 LOGIN_REDIRECT_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
@@ -83,18 +85,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'simsodata_server.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME' : 'simsoexp',
-        'USER' : 'simsoexpuser',
-        'PASSWORD' : 'superpass'
-    }
-}
 
 
 # Internationalization
