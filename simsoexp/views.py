@@ -153,6 +153,9 @@ def logout(request):
 
 @login_required
 def download_scheduler(request, identifier):
+	"""
+	Scheduler download view.
+	"""
 	scheds = SchedulingPolicy.objects.filter(pk=identifier)
 	if len(scheds) == 0:
 		raise Http404()
@@ -194,6 +197,10 @@ def view_testset(request, identifier):
 
 @login_required
 def download_testset(request, identifier):
+	"""
+	View which lets the user download the given testset configuration
+	files in a zip file.
+	"""
 	testsets = TestSet.objects.filter(pk=identifier)
 	if len(testsets) == 0:
 		raise Http404()

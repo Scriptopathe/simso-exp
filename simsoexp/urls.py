@@ -3,19 +3,22 @@ from . import views
 
 urlpatterns = [
 	url('^$', views.index, name='index'),
-	url('^upload/scheduler$', views.scheduler_upload_form, name='scheduler_upload_form'),
-	url('^validation/action/$', views.validation_action, name="validation_action"),
 	url('^view/scheduler/([0-9]*)$', views.view_scheduler, name="view_scheduler"),
 	url('^view/testset/([0-9]*)$', views.view_testset, name="view_testset"),
-	url('^download/scheduler/([0-9]*)$', views.download_scheduler, name="view_scheduler"),
-	url('^download/testset/([0-9]*)$', views.download_testset, name="download_testset"),
 	url('^notifications/$', views.notifications, name="notifications"),
-	url('^notifications/read/$', views.user_read_notification, name="notifications_read"),
-	url('^notifications/unread_count$', views.unread_notifications_count, name="notifications_count"),
 	url('^contributions/$', views.contributions, name="contributions"),
 	url('^categories/$', views.categories, name="categories"),
-	url('^category/add/$', views.add_category, name="add_category"),
+	# 'Ajax' views
+	url('^upload/scheduler$', views.scheduler_upload_form, name='scheduler_upload_form'),
 	url('^categories/description/([0-9]*)$', views.post_category_description, name="post_category_description"),
+	url('^validation/action/$', views.validation_action, name="validation_action"),
+	url('^category/add/$', views.add_category, name="add_category"),
+	url('^notifications/read/$', views.user_read_notification, name="notifications_read"),
+	url('^notifications/unread_count$', views.unread_notifications_count, name="notifications_count"),
+	# Download views
+	url('^download/scheduler/([0-9]*)$', views.download_scheduler, name="view_scheduler"),
+	url('^download/testset/([0-9]*)$', views.download_testset, name="download_testset"),
+	# API views
 	url('^api/categories/$', views.api_get_categories, name='categories'),
 	url('^api/testsets/category/(.*)$', views.api_get_testsets, name='testsets'),
 	url('^api/testsets/name/([\w|\.]*)$', views.api_get_testset_by_name, name='testsets_name'),
