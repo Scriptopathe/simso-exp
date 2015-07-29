@@ -10,10 +10,9 @@ body {
 }
 
 .badge-custom {
-	margin-top: 5px;
-	margin-left: 50px;
-	margin-bottom: 5px;
+	margin-left: 10px;
 	border-radius: 4em;
+	font-size: 0.8em;
 }
 
 .glyphicon-refresh-animate {
