@@ -11,8 +11,23 @@ CREATE USER {0}@localhost IDENTIFIED BY '{1}';
 GRANT ALL PRIVILEGES ON simsoexp.* TO {0}@localhost;
 FLUSH PRIVILEGES;""".format(user, password)
 
+dbsettingscontent = """
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME' : 'simsoexp',
+        'USER' : '{0}',
+        'PASSWORD' : '{1}'
+    }
+}
+""".format(user, password)
+
 f = open("setup_db.sql", "w+")
 f.write(dbcontent)
+f.close()
+
+f = open("../simsodata_server/dbsettings.py", "w+")
+f.write(dbsettingscontent)
 f.close()
 
 import os
