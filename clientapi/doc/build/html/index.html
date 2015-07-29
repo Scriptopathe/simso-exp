@@ -268,8 +268,8 @@ These results contains :
 <dl class="method">
 <dt id="simsoexp.simsodb.Experiment.upload">
 <tt class="descname">upload</tt><big>(</big><big>)</big><a class="headerlink" href="#simsoexp.simsodb.Experiment.upload" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uploads the experiment to Simso Experiment Database.</p>
-<p>Take care : you won&#8217;t be able to upload your results if you used a custom test set.</p>
+<dd><p>Uploads the experiment results to Simso Experiment Database.</p>
+<p><em>Note you won&#8217;t be able to upload your results if you used a custom test set.</em></p>
 </dd></dl>
 
 </dd></dl>
@@ -277,23 +277,44 @@ These results contains :
 <dl class="class">
 <dt id="simsoexp.simsodb.SimsoDatabase">
 <em class="property">class </em><tt class="descclassname">simsoexp.simsodb.</tt><tt class="descname">SimsoDatabase</tt><big>(</big><em>address</em>, <em>username=None</em>, <em>password=None</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase" title="Permalink to this definition">¶</a></dt>
-<dd><p>A remote</p>
+<dd><p>SimsoDatabase is the main component of the <strong>Simso Experiment Platform API</strong>.</p>
 <dl class="method">
 <dt id="simsoexp.simsodb.SimsoDatabase.categories">
 <tt class="descname">categories</tt><big>(</big><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.categories" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets a list of all the test categories</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of str &#8211; a list of all the test categories in the database.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="simsoexp.simsodb.SimsoDatabase.categories_and_description">
 <tt class="descname">categories_and_description</tt><big>(</big><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.categories_and_description" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets a list of tuples (category_name, description) for each test category.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of (str, str) &#8211; a list of tuples (category_name, description) for each test category.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="simsoexp.simsodb.SimsoDatabase.result">
 <tt class="descname">result</tt><big>(</big><em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.result" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets a result set given its identifier in the database.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">DBResults &#8211; a result set given its identifier in the database.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -306,10 +327,13 @@ scheduler and testsets.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>testset</strong> &#8211; A DBTestSet instance.</li>
-<li><strong>scheduler</strong> &#8211; A DBScheduler instance.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>testset</strong> (<em>DBTestSet</em>) &#8211; A DBTestSet instance.</li>
+<li><strong>scheduler</strong> (<em>DBScheduler</em>) &#8211; A DBScheduler instance.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">DBResults &#8211; The results corresponding to the given scheduler and testset.</p>
 </td>
 </tr>
 </tbody>
@@ -319,19 +343,26 @@ scheduler and testsets.</p>
 <dl class="method">
 <dt id="simsoexp.simsodb.SimsoDatabase.scheduler">
 <tt class="descname">scheduler</tt><big>(</big><em>identifier</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.scheduler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets a scheduler given its id in the database.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">DBScheduler &#8211; a scheduler given its id in the database.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="simsoexp.simsodb.SimsoDatabase.scheduler_by_name">
 <tt class="descname">scheduler_by_name</tt><big>(</big><em>name=''</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.scheduler_by_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets a list of DBScheduler objects matching the given name
-Usually there is only one matching result.</p>
-<table class="docutils field-list" frame="void" rules="none">
+<dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; The exact name of the schedulers to find.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; The exact name of the schedulers to find.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">DBScheduler &#8211; a scheduler given its name in the database.</td>
 </tr>
 </tbody>
 </table>
@@ -368,13 +399,15 @@ Usually there is only one matching result.</p>
 <dl class="method">
 <dt id="simsoexp.simsodb.SimsoDatabase.testsets">
 <tt class="descname">testsets</tt><big>(</big><em>category=''</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.testsets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets a list of testsets given a category
-If no category is specified, all the testsets are displayed.</p>
+<dd><p>Gets a list of testsets given a category.
+If no category is specified, all the testsets are returned.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>category</strong> &#8211; the category of testsets to display.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>category</strong> (<em>str</em>) &#8211; the category of testsets to display.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of DBTestSet &#8211; list of testsets given a category.</td>
 </tr>
 </tbody>
 </table>
@@ -385,6 +418,19 @@ If no category is specified, all the testsets are displayed.</p>
 <tt class="descname">upload_testset</tt><big>(</big><em>name</em>, <em>description</em>, <em>categories</em>, <em>conf_files</em><big>)</big><a class="headerlink" href="#simsoexp.simsodb.SimsoDatabase.upload_testset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uploads a test set with the given name, categories
 and configuration files (list of Configuration objects).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; name of the test set to upload</li>
+<li><strong>description</strong> (<em>str</em>) &#8211; description of the test set to upload.</li>
+<li><strong>categories</strong> (<em>list of str</em>) &#8211; categories linked to the test set. They must already exist in the DB.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
