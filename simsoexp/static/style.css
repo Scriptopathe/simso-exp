@@ -41,3 +41,11 @@ body {
 .blue {
 	color: dodgerblue;
 }
+
+.footer {
+	text-align: center;
+	color: black;
+	background-color: #FFFFFF;
+	border-radius: 10px;
+	border: 2px #A0A0FF solid;
+}
