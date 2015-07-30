@@ -3,11 +3,11 @@
 <html>
 	<head>
 	<script src="{% static 'jquery.min.js' %}"></script>
-	<script src="{% static 'bootstrap.min.js' %}"></script> 
-	<link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">	
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script> 
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" src="{% static 'fileinput.min.css' %}"/>
+	<link rel="stylesheet" type="text/css" src="{% static 'bootstrap-switch.min.css' %}"/>
 	<link rel="stylesheet" type="text/css" src="{% static 'style.css' %}" />
-	<link rel="stylesheet" type="text/css" src="{% static 'fileinput.min.css' %}">
-	<link rel="stylesheet" type="text/css" src="{% static 'bootstrap-switch.min.css' %}">
 	<script src="{% static 'fileinput.min.js' %}"></script>
 	<script src="{% static 'bootstrap-switch.min.js' %}"></script>
 </head>
@@ -92,6 +92,7 @@
 		{% block content %}
 		{% endblock %}
 	</div>
+
 	<script>
 		$.get("{% url 'simsoexp.views.unread_notifications_count' %}", function(data) {
 			var value = parseInt(data);
