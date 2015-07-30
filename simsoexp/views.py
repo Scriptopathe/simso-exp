@@ -486,7 +486,7 @@ def upload_scheduler(request):
 	sched.approved = request.user.is_staff
 	sched.class_name = class_name
 	sched.code = code
-	sched.sha1 = hashlib.sha1(code).hexdigest()
+	sched.sha1 = hashlib.sha1(code.encode('utf-8')).hexdigest()
 	sched.save()
 	return HttpResponse(ret_code)
 
