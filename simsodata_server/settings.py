@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 from dbsettings import DATABASES
+from secretkey import SECRET_KEY
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
@@ -20,8 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'y$*!c^c0186+-cz&p(2lp-l9xtu1db086@+jhczzs=3u-xc%!='
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
