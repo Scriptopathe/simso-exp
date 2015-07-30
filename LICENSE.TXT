@@ -1,3 +1,5 @@
+This software is licensed under the terms of the BSD2 license as follows :
+
 Copyright (c) 2015, LAAS-CNRS
 All rights reserved.
 

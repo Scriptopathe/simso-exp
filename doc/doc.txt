@@ -58,3 +58,9 @@ sudo vim /etc/apache2/sites-availables/simsoexperiment.com
 
 	
 sudo service apache2 reload
+
+# ---------------------------------------------------------------------------------
+# Ce qu'il manque 
+# 		WSGI
+#		MySQL version ? 3.23 -> 5.5
+#		
