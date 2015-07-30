@@ -1,4 +1,9 @@
 # ----- INSTALL REQUIREMENTS ---- #
+# Django 1.8.3
+# Python 2.7.x
+# mysqlclient 1.3.6
+# MySQL-3.23 -> 5.5
+
 sudo apt-get install git
 sudo apt-get install python-pip python-dev mysql-server libmysqlclient-dev
 sudo pip install mysqlclient
