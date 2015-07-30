@@ -1,31 +1,55 @@
 # ----- INSTALL REQUIREMENTS ---- #
 sudo apt-get install git
-git clone https://github.com/Scriptopathe/simso-exp
-cd simso-exp/setup
-chmod u+x setup.sh
-sudo ./setup.sh
-
-# Django create super user
-python manage.py createsuperuser
-
-
-# --------------------- SERVER ------------------#
-sudo apt-get install python-pip
-sudo pip install django
-sudo apt-get install git
-git clone https://github.com/Scriptopathe/simso-exp
-
-
-
-# Install Database :
-# ----- MANUAL WAY
 sudo apt-get install python-pip python-dev mysql-server libmysqlclient-dev
 sudo pip install mysqlclient
 sudo mysql_install_db
 sudo mysql_secure_installation
 
+# Configure Mysql database access
 mysql -u root -p
-CREATE DATABASE simsoexp CHARACTER SET UTF8;
-CREATE USER simsoexpuser@localhost IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON simsoexp.* TO simsoexpuser@localhost;
-FLUSH PRIVILEGES;
+mysql> CREATE DATABASE simsoexp CHARACTER SET UTF8;
+mysql> CREATE USER simsoexpuser@localhost IDENTIFIED BY 'password';
+mysql> GRANT ALL PRIVILEGES ON simsoexp.* TO simsoexpuser@localhost;
+mysql> FLUSH PRIVILEGES;
+
+git clone https://github.com/Scriptopathe/simso-exp
+
+# Now go to simsodata_server/dbsettings.py
+# provide db user name and password
+
+# Now go to simsodata_server/secretkey.py
+# generate a new secret key 
+# http://www.miniwebtool.com/django-secret-key-generator/
+
+# Django create super user
+python manage.py migrate
+python manage.py createsuperuser
+
+# -----------------------------------------------------------------------------
+# Apache set up
+# https://docs.djangoproject.com/fr/1.8/howto/deployment/wsgi/modwsgi/ 
+# -----------------------------------------------------------------------------
+sudo apt-get install apache2 apache2-mpm-prefork apache2-utils libexpat1 ssl-cert
+sudo apt-get install libapache2-mod-wsgi
+
+cd ~
+mkdir public_html
+mv simso-exp public_html/simsoexperiment.com
+sudo vim /etc/apache2/sites-availables/simsoexperiment.com
+	WSGIScriptAlias / /home/simsoexp/public_html/simsoexperiment.com/simsodata_server/wsgi.py
+	WSGIPythonPath /home/simsoexp/public_html/simsoexperiment.com/
+	
+	Alias /static/ /home/simsoexp/public_html/simsoexperiment.com/simsoexp/static/
+	
+	<Directory "/home/simsoexp/public_html/simsoexperiment.com/simsoexp/static">
+		Require all granted
+	</Directory>
+	
+	<Directory "/home/simsoexp/public_html/simsoexperiment.com/simsodata_server">
+		<Files "wsgi.py">
+			Require all granted
+		</Files>
+	</Directory>
+
+	
+sudo service apache2 reload
