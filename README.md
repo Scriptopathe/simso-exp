@@ -15,7 +15,11 @@ Client API
 ----------
 The client API is a python package ([here](https://github.com/Scriptopathe/simso-exp/tree/master/clientapi/simsoexp)) 
 containing components that can interact with the Simso Experiment Platform's web API.
+
 See section Client API Documentation for further details.
+
+The client API requires SimSo to be installed on your computer.
+```pip install simso```
 
 Client API Documentation
 ========================
