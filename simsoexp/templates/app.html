@@ -236,12 +236,29 @@ testset = db.testset_by_name("simso.testsets.sample_testset")
 res = db.results(testset, scheduler)
 
 print(repr(res))</div>
+
+        <h4 class="blue">
+            Pushing testsets from a database to another.
+        </h4>
+        <p>
+            You may happen to use your <b>own Simso Experiment Database</b> in order to work faster.
+            In this case, you might want to upload your testsets to another database (say the Central database).<br />
+            The following example shows you how to proceed.
+        </p>
+        <div readonly class="editor" id="editor6" style="height: 10em">from simsoexp.simsodb import SimsoDatabase
+db_src = SimsoDatabase("http://myowndatabase.com/", "username", "password")
+db_dst = SimsoDatabase("{{ domain }}", "username", "password")
+
+# 1. Get a testset from the source database.
+testset = db_src.testset_by_name("simso.testsets.sample_testset")
+# 2. Push it to the destination database.
+testset.push(db_dst)</div>
     </div>
 </div>
 
 <script>
     
-for(var i = 1; i <= 5; i++) {
+for(var i = 1; i <= 6; i++) {
     var editor = ace.edit("editor" + i);
     editor.setReadOnly(true);
     editor.setTheme("ace/theme/chrome");
