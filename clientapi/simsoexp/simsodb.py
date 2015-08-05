@@ -1,6 +1,7 @@
 # This file contains high-level api designed to work with simso
 import sys
 from .api import Api
+from .api import ApiError
 from .metrics_collector import MetricsCollector
 from simso.core import Model
 from simso.configuration import Configuration
@@ -114,7 +115,18 @@ class DBTestSet:
 	def __load_conf_files(self):
 		files = self.db.api.get_testset_files(self.identifier);
 		self.__conf_files = [DBConfFile(self.db, self, f) for f in files]
-	
+		
+	def push(self, newdb):
+		"""
+		Pushes this DBTestset object to another database.
+		*Note : this testset might need to be validated by the maintainers of the destination database.*
+		
+		:param newdb: Destination database where the object will be pushed.
+		:type newdb: SimsoDatabase
+		"""
+		_check_type(newdb, 'newdb', SimsoDatabase)
+		newdb.upload_testset(self.name, self.description, self.categories, [c.configuration for c in self.conf_files])
+		
 	@property
 	def name(self):
 		"""
@@ -290,6 +302,12 @@ class Experiment:
 		self.results = []
 		# Checks conf_files
 		if isinstance(conf_files, DBTestSet):
+			if conf_files.db.base_addr != self.db.base_addr:
+				raise ApiError("The database of the 'conf_files' parameter is {}, expected {}".format(
+					conf_files.db.base_addr,
+					self.db.base_addr
+				));
+				
 			self.testset = conf_files
 			self.testname = self.testset.name
 			self.testdesc = self.testset.description
@@ -304,7 +322,7 @@ class Experiment:
 			self.testdesc = None
 			self.categories = None
 		else:
-			raise TypeError("Expecter conf_file to be 'list of Configuration' or 'DBTestSet'. Got {}".format(conf_files.__class__))
+			raise TypeError("Expected conf_file to be 'list of Configuration' or 'DBTestSet'. Got {}".format(conf_files.__class__))
 		# Check scheduler
 		_check_type(scheduler, 'scheduler', DBScheduler)
 		self.scheduler = scheduler
@@ -362,7 +380,7 @@ class Experiment:
 		data["scheduler"] = self.scheduler.identifier
 		
 		self.db.api.upload_experiment(data)
-		
+
 class SimsoDatabase:
 	"""
 	SimsoDatabase is the main component of the **Simso Experiment Platform API**.
@@ -492,3 +510,4 @@ class SimsoDatabase:
 		
 		self.api.upload_testset(name, description, categories, [generate(f) for f in conf_files])
 		
+

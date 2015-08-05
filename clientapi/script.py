@@ -60,10 +60,13 @@ def execute(func, funcname):
 # Users auto log in
 table = {"test" : "test", "superman": "$uper$trongp@$$w0rd", "simso" : "simso"}
 user = input("Username: ")
-
+if not user in table:
+	table[user] = input("Password: ")
 
 # Database initialisation
 db = SimsoDatabase("http://localhost:8000", user, table[user])
+baddb = SimsoDatabase("http://localhost:8000", user, table[user])
+baddb.base_addr = "http://dummy.com:8000"
 
 # ----
 # Running an experiment with local configuration files
@@ -203,6 +206,26 @@ def dbresults():
 	t.testset_id
 	t.scheduler_id
 	t.metrics
+
+@register("experiment_wrong_db")
+def experiment_wrong_db():
+	scheduler = db.scheduler_by_name("simso.schedulers.EDF")
+	testset = db.testset_by_name("simso.testsets.sample")
+	
+	# Simulates a testset from another db.
+	testset.db = baddb
+	
+	e = Experiment(db, testset, scheduler)
+	e.run()
+	
+	if '-upload' in RUN:
+		e.upload()
+	
+@register("push_testset")
+def push_testset():
+	testset = db.testset_by_name("simso.testsets.sample")
+	testset.db = baddb
+	testset.push(db)
 	
 # Choose the samples to run
 print("Available tests: ")
