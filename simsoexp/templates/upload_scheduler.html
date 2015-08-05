@@ -15,20 +15,31 @@
         {% csrf_token %}
         <center><h4>Upload a scheduler</h4></center>
         <div class="form-group">
-            <label class="control-label col-sm-4">Scheduler name : </label>
+            <label class="control-label col-sm-4">
+                Scheduler name : 
+                <span class="glyphicon glyphicon-question-sign"
+                    data-toggle="tooltip" data-placement="top" title="You can choose any name you wish, as long as it is unique. You can also include a version number by appending _x.x.x to the scheduler name">
+                        
+                </span>
+            </label>
             <div class="col-sm-4">
                 <div class="input-group">
                     <span class="input-group-addon">{{user.username}}.schedulers.</span>
                     <input class="form-control" type="text" name="sched_name"></input>
+
                 </div>
-                
             </div>            
             <div id="name_error" class="alert alert-danger alert-sm col-sm-4 info" style="display: none">
-                    
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-4">Scheduler class name : </label>
+            <label class="control-label col-sm-4">
+                Scheduler class name : 
+                <span class="glyphicon glyphicon-question-sign"
+                    data-toggle="tooltip" data-placement="top" title="The name of class containing the scheduler code in the python file.">
+                        
+                </span>
+            </label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="sched_class_name"></input>
             </div>
@@ -37,7 +48,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-4">Scheduler code : </label>
+            <label class="control-label col-sm-4">Scheduler code : 
+            <span class="glyphicon glyphicon-question-sign"
+                data-toggle="tooltip" data-placement="top" title="Python code of the scheduler.">
+                    
+            </span>
+            </label>
             <div class="col-sm-8">
                 <input data-show-upload="false" class="file input-sm " type="file" name="sched_file"></input>
             </div>
@@ -149,6 +165,9 @@
             posting.fail(function(data) {
                 $('#upload_error').css('display', 'block');
             });
+        });
+        $(function () {
+          $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
 </div>
