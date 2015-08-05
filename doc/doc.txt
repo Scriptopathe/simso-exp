@@ -5,7 +5,7 @@
 # MySQL-3.23 -> 5.5
 
 sudo apt-get install git python-pip python-dev mysql-server libmysqlclient-dev
-sudo pip install mysqlclient
+sudo pip install mysqlclient django
 sudo mysql_install_db
 sudo mysql_secure_installation
 
@@ -23,18 +23,21 @@ mysql> FLUSH PRIVILEGES;
 
 git clone https://github.com/Scriptopathe/simso-exp
 
-# Now go to simsodata_server/dbsettings.py
+# Now edit simsodata_server/dbsettings.py
 # Provide the database username and password you used in 
 # the previous step.
 
-# Now go to simsodata_server/secretkey.py
-# generate a new secret key 
-# http://www.miniwebtool.com/django-secret-key-generator/
+# Now edit simsodata_server/secretkey.py
+# Change the secret key by generating a new one.
+# THIS IS REALLY, REALLY, REALLY important for security !!!!
+# (you can use this tool http://www.miniwebtool.com/django-secret-key-generator/)
 
-# Django create super user
-sudo pip install django
+# Now Create Django's super user.
+# You will be able to log in the app with this user.
+# To do so, go to the root of the simso-exp project and type :
 python manage.py migrate
 python manage.py createsuperuser
+# You will be prompted a new username and password for this user.
 
 # -----------------------------------------------------------------------------
 # Run the dev server (DEVELOPMENT ONLY)
