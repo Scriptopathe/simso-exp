@@ -97,6 +97,7 @@ class DBResults:
 			self.identifier, self.testset_id, self.scheduler_id
 		)
 	
+_testprefixreg = re.compile('^([\w]*\.testsets\.)')
 class DBTestSet:
 	"""
 	Represents a test set taken from a remote Simso Experiment Database.
@@ -130,7 +131,11 @@ class DBTestSet:
 		:type newdb: SimsoDatabase
 		"""
 		_check_type(newdb, 'newdb', SimsoDatabase)
-		newdb.upload_testset(self.name, self.description, self.categories, [c.configuration for c in self.conf_files])
+		
+		# Replaces the user name from the old db by nothing
+		name = re.sub(_testprefixreg, "", self.name)
+		
+		newdb.upload_testset(name, self.description, self.categories, [c.configuration for c in self.conf_files])
 		
 	@property
 	def name(self):
