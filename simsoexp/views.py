@@ -12,7 +12,10 @@ from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.contrib.sites.models import Site
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
 
+import smtplib
 import re
 import urllib
 import hashlib
@@ -20,10 +23,37 @@ import base64
 import os
 import zipfile
 import StringIO
+import mail_config
+
 from math import ceil
 from models import *
-
-
+# -----------------------------------------------------------------------------
+# Mail
+# -----------------------------------------------------------------------------
+def sendmail(user, subject, content):
+	if not mail_config.MAIL_ENABLED:
+		return
+	msg = MIMEMultipart()
+	mail_server = mail_config.MAIL_SERVER
+	mail_server_port = mail_config.MAIL_SERVER_PORT
+	mail_from = mail_config.MAIL_SENDER_ADDRESS # email address of the sender
+	mail_from_pw = mail_config.MAIL_SENDER_PASSWORD # password of the sender
+	
+	# Creates the message
+	msg['From'] = mail_from
+	msg['To'] = user.email
+	msg['Subject'] = subject
+	msg.attach(MIMEText(content))
+	
+	# Sens the mail
+	mailserver = smtplib.SMTP(mail_server, mail_server_port)
+	mailserver.ehlo()
+	mailserver.starttls()
+	mailserver.ehlo()
+	mailserver.login(mail_from, mail_from_pw)
+	mailserver.sendmail(mail_from, user.email, msg.as_string())
+	mailserver.quit()
+	
 # -----------------------------------------------------------------------------
 # Utils
 # -----------------------------------------------------------------------------
@@ -319,6 +349,8 @@ def validation_action(request):
 			notif.content = reason
 			notif.ntype = "danger"
 			notif.save()
+			sendmail(notif.user, notif.title, notif.content)
+			
 		item.delete()
 		return HttpResponse("success")
 	elif action == "validate":
@@ -330,6 +362,7 @@ def validation_action(request):
 		notif.content = "Congratulations ! Your {} has been added to the database.".format(item_type)
 		notif.ntype = "success"
 		notif.save()
+		sendmail(notif.user, notif.title, notif.content)
 		return HttpResponse("success")
 	else:
 		return HttpResponse("error:bad action")
