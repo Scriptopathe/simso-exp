@@ -6,6 +6,7 @@ from .metrics_collector import MetricsCollector
 from simso.core import Model
 from simso.configuration import Configuration
 from simso.configuration.GenerateConfiguration import generate
+import re
 import numpy
 import os
 
@@ -215,7 +216,8 @@ class DBConfFile:
 		
 	def __repr__(self):
 		return "<DBConfFile id={}>".format(self.identifier)
-		
+
+_schedprefixreg = re.compile('^([\w]*\.schedulers\.)')
 class DBScheduler:
 	"""
 	Represents a scheduler taken from a remote Simso Experiment Database.
@@ -285,7 +287,11 @@ class DBScheduler:
 		:type newdb: SimsoDatabase
 		"""
 		_check_type(newdb, 'newdb', SimsoDatabase)
-		newdb.upload_scheduler(self.name, self.class_name, self.code)
+		
+		# Replaces the user name from the old db by nothing
+		name = re.sub(_schedprefixreg, "", self.name)
+		
+		newdb.upload_scheduler(name, self.class_name, self.code)
 		
 	def __repr__(self):
 		return "<DBScheduler id={} name={} class_name={}>".format(self.identifier, self.name, self.class_name)
@@ -345,7 +351,6 @@ class Experiment:
 		"""
 		Runs the experiment and computes the metrics.
 		"""
-		
 		self.results = []
 		all_results = []
 		for configuration in self.conf_files:
