@@ -68,10 +68,14 @@ class Api:
 		self.session = requests.session()
 		
 		# Prompts user name / password.
-		if(username == None):
-			print("Please enter your credentials for Simso Experiment Database")
+		nouser = username == None
+		if username == None:
+			print("Please enter your credentials for Simso Experiment Database website.")
 			username = input("Username : ")
-		if(password == None):
+		
+		if password == None:
+			if not nouser:
+				print("Enter password for user " + username)
 			password = getpass.getpass()
 		
 		self.login(username, password)
@@ -330,6 +334,22 @@ class Api:
 			return tuples
 			
 		else: self.handle_error(r)
+	
+	def upload_scheduler(self, name, class_name, code):
+		"""
+		Uploads a scheduler given its name, class_name and source code.
+		"""
+		response = self.post(self.base_addr + "/api/schedulers/upload/", {
+			'sched_name' : name, 'sched_class_name' : class_name, 'sched_content' : code	
+		})
+		
+		if self.urlok(response):
+			value = self.urlread(response)
+			if "error" in value:
+				raise ApiError('upload_scheduler: The server returned the following status : ' + value)
+			
+		else: self.handle_error(r)
+		
 		
 	def upload_experiment(self, postdata):
 		"""
