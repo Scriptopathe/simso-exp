@@ -226,6 +226,16 @@ def push_testset():
 	testset = db.testset_by_name("simso.testsets.sample")
 	testset.db = baddb
 	testset.push(db)
+
+@register("upload_scheduler")
+def upload_scheduler():
+	db.upload_scheduler("name", "class_name", "code")
+
+@register("push_scheduler")
+def push_scheduler():
+	sched = db.scheduler_by_name("simso.schedulers.EDF")
+	sched.db = baddb
+	sched.push(db)
 	
 # Choose the samples to run
 print("Available tests: ")
