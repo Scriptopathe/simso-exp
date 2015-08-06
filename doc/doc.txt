@@ -32,6 +32,10 @@ git clone https://github.com/Scriptopathe/simso-exp
 # THIS IS REALLY, REALLY, REALLY important for security !!!!
 # (you can use this tool http://www.miniwebtool.com/django-secret-key-generator/)
 
+# Setup the mail server connexion
+# Now edit simsoexp/mail_config.py : follow the instructions in the file.
+# 
+
 # Now Create Django's super user.
 # You will be able to log in the app with this user.
 # To do so, go to the root of the simso-exp project and type :
