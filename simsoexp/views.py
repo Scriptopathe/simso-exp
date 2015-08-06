@@ -14,6 +14,7 @@ from django.db.models import Q
 from django.contrib.sites.models import Site
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
+from django.core.urlresolvers import reverse as urlreverse
 
 import smtplib
 import re
@@ -37,8 +38,6 @@ def sendmail(user, subject, content):
 	if not get_settings(user).enable_mail_notifications:
 		return
 	
-
-		
 	msg = MIMEMultipart()
 	mail_server = mail_config.MAIL_SERVER
 	mail_server_port = mail_config.MAIL_SERVER_PORT
@@ -60,21 +59,52 @@ def sendmail(user, subject, content):
 	mailserver.sendmail(mail_from, user.email, msg.as_string())
 	mailserver.quit()
 
+def notify(notif):
+	"""
+	Sends a mail to the user concerning the given notification
+	"""
+	sendmail(notif.user, 
+		"[Simso Experiment Platform] " + notif.title,
+		notif.title + "\n-----" + "\nMessage : " + notif.content)
+
+def notify_staff(title, content):
+	"""
+	Sends an email to all the staff members with the given content.
+	"""
+	staff = User.objects.filter(is_staff=True)
+	for user in staff:
+		notif = Notification()
+		notif.title = title
+		notif.user = user
+		notif.content = content
+		notif.ntype = "primary"
+		notif.save()
+		notify(notif)
+
 def get_settings(user):
 	try:
 		user.settings
 	except:
 		settings = UserSettings()
+		settings.user = user
 		settings.save()
 		user.save()
 		
 	return user.settings
-	
+
+
 # -----------------------------------------------------------------------------
 # Utils
 # -----------------------------------------------------------------------------
 name_reg = r'^([\w|\.]*)$'
 
+def get_site_root(request):
+	"""
+	Gets this websites root url
+	"""
+	return request.build_absolute_uri().replace("://", ":::").split('/')[0].replace(':::', '://')
+	
+	
 def is_valid_name(name):
 	"""
 	Gets a value indicating if a ressource name is correct,
@@ -392,7 +422,7 @@ def validation_action(request):
 			notif.content = reason
 			notif.ntype = "danger"
 			notif.save()
-			sendmail(notif.user, notif.title, notif.content)
+			notify(notif) # sends a mail to the user
 			
 		item.delete()
 		return HttpResponse("success")
@@ -405,7 +435,7 @@ def validation_action(request):
 		notif.content = "Congratulations ! Your {} has been added to the database.".format(item_type)
 		notif.ntype = "success"
 		notif.save()
-		sendmail(notif.user, notif.title, notif.content)
+		notify(notif) # sends a mail to the user
 		return HttpResponse("success")
 	else:
 		return HttpResponse("error:bad action")
@@ -558,6 +588,7 @@ def upload_scheduler(request):
 		sched = SchedulingPolicy()
 		ret_code = "new"
 	
+	# Scheduler save
 	sched.name = name
 	sched.contributor = request.user
 	sched.approved = request.user.is_staff
@@ -565,6 +596,17 @@ def upload_scheduler(request):
 	sched.code = code
 	sched.sha1 = hashlib.sha1(code.encode('utf-8')).hexdigest()
 	sched.save()
+	
+	# Staff notification
+	siteroot = get_site_root(request)
+	url = siteroot + urlreverse('simsoexp.views.contributions') + "?type=scheduler&display=all&approved=no"
+	notify_staff("Submission of a scheduler",
+		"Scheduler {} has been sent for examination by {}.\n Link : {}".format(
+			 sched.name,
+			 sched.contributor.username,
+			 url)
+	)
+	
 	return HttpResponse(ret_code)
 
 @login_required
@@ -624,6 +666,16 @@ def api_upload_testset(request):
 	testset.files = save(files)
 	testset.save()
 	
+	# Staff notification
+	siteroot = get_site_root(request)
+	url = siteroot + urlreverse('simsoexp.views.contributions') + "?type=testset&display=all&approved=no"
+	notify_staff("Submission of a test set",
+		"Scheduler {} has been sent for examination by {}.\n Link : {}".format(
+			 testset.name,
+			 testset.contributor.username,
+			 url)
+	)
+	
 	return HttpResponse("success")
 	
 @login_required
@@ -671,6 +723,16 @@ def api_upload_experiment(request):
 	result.save()
 	result.metrics = save(metrics_db)
 	result.save()
+	
+	# Staff notification
+	siteroot = get_site_root(request)
+	url = siteroot + urlreverse('simsoexp.views.contributions') + "?type=results&display=all&approved=no"
+	notify_staff("Submission of an experiment result",
+		"Experiment result '{}' has been sent for examination by {}.\n Link : {}".format(
+			 repr(result),
+			 result.contributor.username,
+			 url)
+	)
 	
 	return HttpResponse("success")
 
