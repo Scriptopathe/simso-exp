@@ -445,6 +445,7 @@ def unread_notifications_count(request):
 # -----------------------------------------------------------------------------
 # Upload
 # -----------------------------------------------------------------------------
+@csrf_exempt
 @login_required
 def upload_scheduler(request):
 	"""
