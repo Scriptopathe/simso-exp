@@ -1,0 +1,1 @@
+For information about this package, consult : https://github.com/Scriptopathe/simso-exp
