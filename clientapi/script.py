@@ -1,9 +1,9 @@
-from simsoexp.simsodb import SimsoDatabase, Experiment
-from simsoexp.api import Api
+from simsoexp.clientapi.simsodb import SimsoDatabase, Experiment
+from simsoexp.clientapi.api import Api
 from simso.configuration import Configuration
 from simso.core import Model
 from simso.configuration.GenerateConfiguration import generate
-from simsoexp.api import ApiError
+from simsoexp.clientapi.api import ApiError
 
 OKBLUE = '\033[94m'
 OKGREEN = '\033[92m'

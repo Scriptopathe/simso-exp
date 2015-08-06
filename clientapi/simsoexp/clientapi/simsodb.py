@@ -50,7 +50,8 @@ class DBResults:
 	@property	
 	def testset_id(self):
 		"""
-		:returns: int -- The id of the testset used to build these results.
+		:returns: The id of the testset used to build these results.
+		:rtype: int
 		"""
 		if self.__testset_id == None:
 			self.__load_metrics()
@@ -59,7 +60,8 @@ class DBResults:
 	@property
 	def scheduler_id(self):
 		"""
-		:returns: int -- The id of the scheduler used to build these results.
+		:returns: The id of the scheduler used to build these results.
+		:rtype: int
 		"""
 		if self.__scheduler_id == None:
 			self.__load_metrics()
@@ -70,8 +72,9 @@ class DBResults:
 		This is a shortcut to *metrics[name]*.
 		:param name: The name of the metric to retrieve.
 		
-		:returns: dict -- A dictionnary of key-values pairs containing as keys
+		:returns: A dictionnary of key-values pairs containing as keys
 		the measure name (avg, minimum, median, maximum, sum, std).
+		:rtype: dict
 		"""
 		if self.__metrics == None:
 			self.__load_metrics()
@@ -81,7 +84,8 @@ class DBResults:
 	@property
 	def metrics(self):
 		"""
-		:returns: dict of dict -- A dictionnary containing a set of metrics indexed by their name.
+		:returns: A dictionnary containing a set of metrics indexed by their name.
+		:rtype: dict of dict
 		"""
 		if self.__metrics == None:
 			self.__load_metrics()
@@ -132,6 +136,7 @@ class DBTestSet:
 	def name(self):
 		"""
 		:returns: The name of the test set
+		:rtype: str
 		"""
 		if self.__name == None:
 			self.__load_data()
@@ -141,6 +146,7 @@ class DBTestSet:
 	def description(self):
 		"""
 		:returns: The description of the test set.
+		:rtype: str
 		"""
 		if self.__description == None:
 			self.__load_data()
@@ -149,7 +155,8 @@ class DBTestSet:
 	@property
 	def categories(self):
 		"""
-		:returns: list -- This test set's categories as a list.
+		:returns: This test set's categories as a list.
+		:rtype: list of string
 		"""
 		if self.__categories == None:
 			self.__load_data()
@@ -158,7 +165,8 @@ class DBTestSet:
 	@property
 	def conf_files(self):
 		"""
-		:returns: list -- a list of DBConfFile object for each configuration file in this test set.
+		:returns: a list of DBConfFile object for each configuration file in this test set.
+		:rtype: list of DBConfFile
 		"""
 		if self.__conf_files == None:
 			self.__load_conf_files()
@@ -199,7 +207,8 @@ class DBConfFile:
 	@property
 	def content(self):
 		"""
-		:returns: string -- this configuration file's XML content.
+		:returns: this configuration file's XML content.
+		:rtype: str
 		"""
 		if self.__content == None:
 			self.__load_data()
@@ -208,7 +217,8 @@ class DBConfFile:
 	@property
 	def configuration(self):
 		"""
-		:returns: simso.configuration.Configuration -- the Simso configuration object represented by this configuration file.
+		:returns: the Simso configuration object represented by this configuration file.
+		:rtype: simso.configuration.Configuration
 		"""
 		if self.__configuration == None:
 			self.__load_configuration()
@@ -245,7 +255,8 @@ class DBScheduler:
 	@property
 	def cls(self):
 		"""
-		:returns: type -- the scheduler's class object.
+		:returns: the scheduler's class object.
+		:rtype: type
 		"""
 		if(self.__cls == None):
 			self.__load_cls()
@@ -254,7 +265,8 @@ class DBScheduler:
 	@property
 	def code(self):
 		"""
-		:returns: string -- this scheduler's python code
+		:returns: this scheduler's python code
+		:rtype: str
 		"""
 		if self.__code == None:
 			self.__load_data()
@@ -263,7 +275,8 @@ class DBScheduler:
 	@property
 	def name(self):
 		"""
-		:returns: string -- this scheduler visible name
+		:returns: this scheduler visible name
+		:rtype: str
 		"""
 		if self.__name == None:
 			self.__load_data()
@@ -272,7 +285,8 @@ class DBScheduler:
 	@property
 	def class_name(self):
 		"""
-		:returns: string -- the scheduler's main class in the scheduler's code
+		:returns: the scheduler's main class in the scheduler's code
+		:rtype: str
 		"""
 		if self.__class_name == None:
 			self.__load_data()
@@ -381,7 +395,7 @@ class Experiment:
 		
 		*Note you won't be able to upload your results if you used a custom test set.*
 		
-		:raises ApiError: the operation is not allowed (see exception details).
+		:raise ApiError: the operation is not allowed (see exception details).
 		"""
 		if self.testset == None:
 			raise Exception("You cannot upload an experiment with a custom testset.")
@@ -546,7 +560,7 @@ class SimsoDatabase:
 		:param categories: categories linked to the test set. They must already exist in the DB.
 		:type categories: list of str
 		:raise HttpError: there was an error in the request.
-		:raises ApiError: the operation is not allowed (see exception details)
+		:raise ApiError: the operation is not allowed (see exception details)
 		"""
 		for conf_file in conf_files:
 			_check_type(conf_file, 'conf_file', Configuration)
@@ -575,7 +589,7 @@ class SimsoDatabase:
 		:param code: python code of the scheduler.
 		:type code: str
 		:raise HttpError: there was an error in the request.
-		:raises ApiError: the operation is not allowed (see exception details)
+		:raise ApiError: the operation is not allowed (see exception details)
 		"""
 		_check_type(name, 'name', str)
 		_check_type(class_name, 'class_name', str)

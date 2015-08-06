@@ -11,10 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-.. automodule:: simsoexp
+.. automodule:: simsoexp.clientapi
    :members:
 
-.. automodule:: simsoexp.simsodb
+.. automodule:: simsoexp.clientapi.simsodb
    :members:
 
 Indices and tables

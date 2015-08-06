@@ -24,14 +24,43 @@
             <h4 class="blue">
                 What is Simso Experiment Database ?
             </h4>
+            
             <p align="justify">
                 Simso Experiment Database is an open source platform for sharing experiments made with Simso.
                 It provides a collection of Test Sets and Schedulers that can be used to make experiments with Simso.
-                A Test Set is a set of many Simso Configuration files which are used to analyse the behavior of a scheduler
-                a lot of different scenarios.
+                
                 All these features are designed to help researchers working on Scheduling algorithms to be able to reproduce 
                 other people's experiments.
             </p>
+            
+            <h5 class="blue"> Configuration files</h5>
+            <p align="justify">
+                A <b>configuration file</b> is an XML file that provides information about a SimSo simulation such as
+                the available processors, the tasks (their type, period, etc...), the scheduler used for the simulation.<br />
+                You can find more information about Configuration files here : 
+                <a href="http://projects.laas.fr/simso/doc/text_mode.html#creating-a-configuration-from-scratch">
+                    Creating a configuration from scratch
+                </a>.
+            </p>
+            
+            <h5 class="blue"> Test Sets</h5>
+            <p align="justify">
+                A <b>Test Set</b> is a set of many Simso Configuration files which are used to analyse the behavior of a scheduler
+                a lot of different scenarios.
+                Each Test Set belongs to a set of <b>Test Categories</b>. These categories are used to regroup test sets that have
+                common caracteristics.
+            </p>
+            
+            <h5 class="blue">Schedulers</h5>
+            <p align="justify">
+                The <b>schedulers</b> are the actual programs that are used to simulate a scheduling algorithm. 
+                They are written in python for SimSo.
+                More information about SimSo schedulers can be found here : 
+                <a href="http://projects.laas.fr/simso/doc/write_scheduler.html">
+                How to write a scheduling policy
+                </a>.
+            </p>
+            <br />
             <h4 class="blue">
                 What can I do with Simso Experiment Database ?
             </h4>
@@ -44,21 +73,18 @@
                             Run simulations using schedulers and test sets in the Database.
                         </li>
                         <li>
-                            Upload your own test sets 
-                            <div class="alert alert-warning alert-sm">
-                                Note : Test Sets are validated manually by the Database maintainers.
-                            </div>
+                            Upload your own test sets, schedulers and experiment results.
                         </li>
                     </ul>
+                    <p>
+                        The documentation of the API is available here : <a href="{% static 'doc/index.html' %}">API Reference</a>.
+                    </p>
                 </div>
                 <div class="well well-sm">
-                    <h5 class="blue">A Web Service (this website) which helps you :</h5>
+                    <h5 class="blue">A Web Service (this website) that helps you :</h5>
                     <ul>
                         <li>
                             Upload your own scheduler.
-                            <div class="alert alert-warning alert-sm">
-                                Note : Schedulers are validated manually by the Database maintainers.
-                            </div>
                         </li>
                         <li>
                             View the other users contributions : Schedulers, Test Sets, Experiment results...
@@ -90,10 +116,13 @@
             </ul>
             
             <div class="alert alert-warning">
-                You need to install simso for python 3 !<br />
-                You can do this using this command : sudo pip3 install simso<br />
+                <span class="glyphicon glyphicon-warning-sign"></span> 
+                You need to install simso for python 3 !
+                You can do this using this command : 
+                <span style="font-family:monospace">sudo pip3 install simso</span><br />
                 
-                If you don't have pip3 installed, type : sudo apt-get install python3-pip
+                If you don't have pip3 installed, type :
+                <span style="font-family:monospace">sudo apt-get install python3-pip</span>
             </div>
         </p>
         <h4 class="blue">
@@ -198,10 +227,19 @@ e.upload()</div>
         <p>
             This example shows how to upload a Test Set.
             
-            <div class="alert alert-warning">
+            <div class="alert alert-warning alert-sm">
                 <span class="glyphicon glyphicon-warning-sign"></span>
                 The categories you choose for the test set must already exist in the Database.
                 (unless you are an database Administrator)
+            </div>
+            <br />
+            <div class="alert alert-warning alert">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                If a test set with the same name already exists then
+                <ul>
+                    <li>If you are the owner and the test set has not been validated by the maintainers : it will be overriden.</li>
+                    <li>Otherwise, an ApiError will be raised.</li>
+                </ul>
             </div>
         </p>
         
@@ -245,21 +283,30 @@ res = db.results(testset, scheduler)
 print(repr(res))</div>
 
         <h4 class="blue">
-            Pushing testsets from a database to another.
+            Pushing testsets / schedulers from a database to another.
         </h4>
         <p>
             You may happen to use your <b>own Simso Experiment Database</b> in order to work faster.
             In this case, you might want to upload your testsets to another database (say the Central database).<br />
             The following example shows you how to proceed.
         </p>
-        <div readonly class="editor" id="editor6" style="height: 10em">from simsoexp.simsodb import SimsoDatabase
-db_src = SimsoDatabase("http://myowndatabase.com/", "username", "password")
-db_dst = SimsoDatabase("{{ domain }}", "username", "password")
+        <div class="alert alert-warning">
+            <span class="glyphicon glyphicon-warning-sign"></span> 
+            The name of the scheduler/testset will change once in the destination database.
+            If you are logged as user_dst on the destination database, the name will change from
+            <b>simso</b>.testsets.sample_testset to <b>user_dst</b>.testsets.sample_testset
+        </div>
+        <div readonly class="editor" id="editor6" style="height: 13em">from simsoexp.simsodb import SimsoDatabase
+db_src = SimsoDatabase("http://myowndatabase.com/", "user_src", "password")
+db_dst = SimsoDatabase("{{ domain }}", "user_dst", "password")
 
-# 1. Get a testset from the source database.
+# 1. Get a testset or scheduler from the source database.
 testset = db_src.testset_by_name("simso.testsets.sample_testset")
+scheduler = db_src.scheduler_by_name("simso.schedulers.sample_scheduler")
+
 # 2. Push it to the destination database.
-testset.push(db_dst)</div>
+testset.push(db_dst)
+scheduler.push(db_dst)</div>
     </div>
 </div>
 
