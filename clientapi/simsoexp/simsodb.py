@@ -377,7 +377,11 @@ class Experiment:
 		"""
 		Uploads the experiment results to Simso Experiment Database.
 		
+		An ApiError will be raised if the results of the experiment already exist.
+		
 		*Note you won't be able to upload your results if you used a custom test set.*
+		
+		:raises ApiError: the operation is not allowed (see exception details).
 		"""
 		if self.testset == None:
 			raise Exception("You cannot upload an experiment with a custom testset.")
@@ -530,6 +534,11 @@ class SimsoDatabase:
 		The testset will be available in the database as soon as 
 		it is validated by a maintainer.
 		
+		If a VALIDATED testset with the same name already exists, an 
+		ApiError is raised. If a non-validated testset with the same name 
+		already exists, it will be overriden if you are the author of the 
+		existing test set.
+		
 		:param name: name of the test set to upload
 		:type name: str
 		:param description: description of the test set to upload.
@@ -553,6 +562,11 @@ class SimsoDatabase:
 		
 		The scheduler will be available in the database as soon as 
 		it is validated by a maintainer.
+		
+		If a VALIDATED scheduler with the same name already exists, an 
+		ApiError is raised. If a non-validated scheduler with the same name 
+		already exists, it will be overriden if you are the author of the 
+		existing scheduler.
 		
 		:param name: name of the scheduler to upload. Should be unique.
 		:type name: str
