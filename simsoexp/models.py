@@ -2,6 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 import pickle
 
+class UserSettings(models.Model):
+	# User to whom the settings are bound.
+	user = models.OneToOneField(User, related_name="settings",on_delete=models.CASCADE)
+	
+	# Mail notifications
+	enable_mail_notifications = models.BooleanField(default=True)
+
 class Notification(models.Model):
 	# The notification's title
 	title = models.TextField()
