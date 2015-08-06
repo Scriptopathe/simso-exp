@@ -51,7 +51,7 @@ def get_test_category(request, name):
 	if request.user.is_staff:
 		cat = TestCategory()
 		cat.name = name
-		cat.description = ""
+		cat.description = "TODO: Put a description to this category."
 		cat.save()
 		return cat
 	else:
