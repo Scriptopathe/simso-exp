@@ -275,7 +275,18 @@ class DBScheduler:
 		if self.__class_name == None:
 			self.__load_data()
 		return self.__class_name
-	
+		
+	def push(self, newdb):
+		"""
+		Pushes this DBScheduler object to another database.
+		*Note : this scheduler might need to be validated by the maintainers of the destination database.*
+		
+		:param newdb: Destination database where the object will be pushed.
+		:type newdb: SimsoDatabase
+		"""
+		_check_type(newdb, 'newdb', SimsoDatabase)
+		newdb.upload_scheduler(self.name, self.class_name, self.code)
+		
 	def __repr__(self):
 		return "<DBScheduler id={} name={} class_name={}>".format(self.identifier, self.name, self.class_name)
 
@@ -409,7 +420,8 @@ class SimsoDatabase:
 		"""
 		:param identifier: The identifier of the testset to retrieve.
 		:type identifier: int
-		:returns: DBTestset -- DBTestset instance whose id is *identifier*
+		:returns: DBTestset instance whose id is *identifier*
+		:rtype: DBTestset
 		"""
 		_check_type(identifier, 'identifier', int)
 		
@@ -417,7 +429,8 @@ class SimsoDatabase:
 	
 	def testset_by_name(self, name):
 		"""
-		:returns: DBTestset -- DBTestset instance whose name is *name*
+		:returns: DBTestset instance whose name is *name*
+		:rtype: DBTestset
 		"""
 		_check_type(name, 'name', str)
 		
@@ -434,7 +447,9 @@ class SimsoDatabase:
 		:type testset: DBTestSet
 		:param scheduler: A DBScheduler instance.
 		:type scheduler: DBScheduler
-		:returns: DBResults -- The results corresponding to the given scheduler and testset.
+		:returns: The results corresponding to the given scheduler and testset.
+		:rtype: list of DBResults
+		:raise HttpError: there was an error in the request.
 		"""
 		_check_type(testset, 'testset', DBTestSet)
 		_check_type(scheduler, 'scheduler', DBScheduler)
@@ -444,27 +459,32 @@ class SimsoDatabase:
 	
 	def result(self, identifier):
 		"""
-		:returns: DBResults -- a result set given its identifier in the database.
+		:returns: a result set given its identifier in the database.
+		:rtype: DBResults
 		"""
 		_check_type(identifier, 'identifier', int)
 		return DBResults(self, identifier)
 		
 	def categories(self):
 		"""
-		:returns: list of str -- a list of all the test categories in the database.
+		:returns: a list of all the test categories in the database.
+		:rtype: list of str
+		:raise HttpError: there was an error in the request.
 		"""
-		
 		return [cat[0] for cat in self.api.get_categories()]
 	
 	def categories_and_description(self):
 		"""
-		:returns: list of (str, str) -- a list of tuples (category_name, description) for each test category.
+		:returns: a list of tuples (category_name, description) for each test category.
+		:rtype: list of (str, str)
+		:raise HttpError: there was an error in the request.
 		"""
 		return self.api.get_categories()
 		
 	def scheduler(self, identifier):
 		"""
-		:returns: DBScheduler -- a scheduler given its id in the database.
+		:returns: a scheduler given its id in the database.
+		:rtype: DBScheduler
 		"""
 		_check_type(identifier, 'identifier', int)
 		return DBScheduler(self, identifier)
@@ -473,7 +493,10 @@ class SimsoDatabase:
 		"""		
 		:param name: The exact name of the schedulers to find.
 		:type name: str
-		:returns: DBScheduler -- a scheduler given its name in the database.
+		:returns: a scheduler given its name in the database.
+		:rtype: DBScheduler
+		:raise HttpError: there was an error in the request.
+		:raise ApiError: the scheduler with the given name does not exist.
 		"""
 		_check_type(name, 'name', str)
 		return DBScheduler(self, self.api.get_scheduler_by_name(name))
@@ -485,7 +508,9 @@ class SimsoDatabase:
 		
 		:param category: the category of testsets to display.
 		:type category: str
-		:returns: list of DBTestSet -- list of testsets given a category.
+		:returns: list of testsets given a category.
+		:rtype: list of DBTestSet
+		:raise HttpError: there was an error in the request.
 		"""
 		_check_type(category, 'category', str)
 		sets = self.api.get_testsets_by_category(category)
@@ -497,12 +522,17 @@ class SimsoDatabase:
 		Uploads a test set with the given name, categories
 		and configuration files (list of Configuration objects).
 		
+		The testset will be available in the database as soon as 
+		it is validated by a maintainer.
+		
 		:param name: name of the test set to upload
 		:type name: str
 		:param description: description of the test set to upload.
 		:type description: str
 		:param categories: categories linked to the test set. They must already exist in the DB.
 		:type categories: list of str
+		:raise HttpError: there was an error in the request.
+		:raises ApiError: the operation is not allowed (see exception details)
 		"""
 		for conf_file in conf_files:
 			_check_type(conf_file, 'conf_file', Configuration)
@@ -511,3 +541,25 @@ class SimsoDatabase:
 		self.api.upload_testset(name, description, categories, [generate(f) for f in conf_files])
 		
 
+	def upload_scheduler(self, name, class_name, code):
+		"""
+		Uploads a scheduler with the given name, class name and code
+		to the database.
+		
+		The scheduler will be available in the database as soon as 
+		it is validated by a maintainer.
+		
+		:param name: name of the scheduler to upload. Should be unique.
+		:type name: str
+		:param class_name: name of the main class of the scheduler in the code.
+		:type class_name: str
+		:param code: python code of the scheduler.
+		:type code: str
+		:raise HttpError: there was an error in the request.
+		:raises ApiError: the operation is not allowed (see exception details)
+		"""
+		_check_type(name, 'name', str)
+		_check_type(class_name, 'class_name', str)
+		_check_type(code, 'code', str)
+		
+		self.api.upload_scheduler(name, class_name, code)
