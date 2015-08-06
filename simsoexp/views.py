@@ -30,9 +30,15 @@ from models import *
 # -----------------------------------------------------------------------------
 # Mail
 # -----------------------------------------------------------------------------
-def sendmail(user, subject, content):
+def sendmail(user, subject, content):	
 	if not mail_config.MAIL_ENABLED:
 		return
+		
+	if not get_settings(user).enable_mail_notifications:
+		return
+	
+
+		
 	msg = MIMEMultipart()
 	mail_server = mail_config.MAIL_SERVER
 	mail_server_port = mail_config.MAIL_SERVER_PORT
@@ -53,6 +59,16 @@ def sendmail(user, subject, content):
 	mailserver.login(mail_from, mail_from_pw)
 	mailserver.sendmail(mail_from, user.email, msg.as_string())
 	mailserver.quit()
+
+def get_settings(user):
+	try:
+		user.settings
+	except:
+		settings = UserSettings()
+		settings.save()
+		user.save()
+		
+	return user.settings
 	
 # -----------------------------------------------------------------------------
 # Utils
@@ -179,8 +195,35 @@ def logout(request):
 	"""Logs out the user"""
 	user_logout(request)
 	return redirect(auth_views.login)
+	
+@login_required
+def account_settings(request):
+	"""
+	View where an user can see its account settings
+	"""
+	settings = get_settings(request.user)
+	template = loader.get_template('account_settings.html')
+	context = RequestContext(request, {
+		'user' : request.user,
+		'settings' : settings
+	})
+	return HttpResponse(template.render(context))
 
-
+@csrf_exempt
+@login_required
+def post_account_settings(request):
+	"""
+	Ajax view where the user can post its settings
+	"""
+	settings = get_settings(request.user)
+	enable_mail_notifications = request.POST["enable_mail_notifications"]
+	
+	# Saves the new settings
+	settings.enable_mail_notifications = True if enable_mail_notifications == "true" else False
+	settings.save()
+	request.user.save()
+	return HttpResponse("success");
+	
 @login_required
 def download_scheduler(request, identifier):
 	"""

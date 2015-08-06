@@ -7,8 +7,10 @@ urlpatterns = [
 	url('^view/testset/([0-9]*)$', views.view_testset, name="view_testset"),
 	url('^notifications/$', views.notifications, name="notifications"),
 	url('^contributions/$', views.contributions, name="contributions"),
+	url('^account/settings/$', views.account_settings, name="account_settings"),
 	url('^categories/$', views.categories, name="categories"),
 	# 'Ajax' views
+	url('^account/settings/save/$', views.post_account_settings, name="post_account_settings"),
 	url('^upload/scheduler$', views.scheduler_upload_form, name='scheduler_upload_form'),
 	url('^categories/description/([0-9]*)$', views.post_category_description, name="post_category_description"),
 	url('^validation/action/$', views.validation_action, name="validation_action"),
