@@ -25,6 +25,7 @@ import os
 import zipfile
 import StringIO
 import mail_config
+import thread
 
 from math import ceil
 from models import *
@@ -37,27 +38,30 @@ def sendmail(user, subject, content):
 		
 	if not get_settings(user).enable_mail_notifications:
 		return
+		
+	def sendmail_thread():
+		msg = MIMEMultipart()
+		mail_server = mail_config.MAIL_SERVER
+		mail_server_port = mail_config.MAIL_SERVER_PORT
+		mail_from = mail_config.MAIL_SENDER_ADDRESS # email address of the sender
+		mail_from_pw = mail_config.MAIL_SENDER_PASSWORD # password of the sender
+		
+		# Creates the message
+		msg['From'] = mail_from
+		msg['To'] = user.email
+		msg['Subject'] = subject
+		msg.attach(MIMEText(content))
+		
+		# Sens the mail
+		mailserver = smtplib.SMTP(mail_server, mail_server_port)
+		mailserver.ehlo()
+		mailserver.starttls()
+		mailserver.ehlo()
+		mailserver.login(mail_from, mail_from_pw)
+		mailserver.sendmail(mail_from, user.email, msg.as_string())
+		mailserver.quit()
 	
-	msg = MIMEMultipart()
-	mail_server = mail_config.MAIL_SERVER
-	mail_server_port = mail_config.MAIL_SERVER_PORT
-	mail_from = mail_config.MAIL_SENDER_ADDRESS # email address of the sender
-	mail_from_pw = mail_config.MAIL_SENDER_PASSWORD # password of the sender
-	
-	# Creates the message
-	msg['From'] = mail_from
-	msg['To'] = user.email
-	msg['Subject'] = subject
-	msg.attach(MIMEText(content))
-	
-	# Sens the mail
-	mailserver = smtplib.SMTP(mail_server, mail_server_port)
-	mailserver.ehlo()
-	mailserver.starttls()
-	mailserver.ehlo()
-	mailserver.login(mail_from, mail_from_pw)
-	mailserver.sendmail(mail_from, user.email, msg.as_string())
-	mailserver.quit()
+	thread.start_new_thread(sendmail_thread, ())
 
 def notify(notif):
 	"""
