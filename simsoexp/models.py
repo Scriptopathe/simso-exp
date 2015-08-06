@@ -8,6 +8,10 @@ class UserSettings(models.Model):
 	
 	# Mail notifications
 	enable_mail_notifications = models.BooleanField(default=True)
+	
+	# Unread notifications only
+	unread_only = models.BooleanField(default=False)
+	
 
 class Notification(models.Model):
 	# The notification's title

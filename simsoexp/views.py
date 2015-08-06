@@ -63,15 +63,36 @@ def sendmail(user, subject, content):
 	
 	thread.start_new_thread(sendmail_thread, ())
 
-def notify(notif):
+def notify(notif, request):
 	"""
-	Sends a mail to the user concerning the given notification
+	Sends a mail to the user concerning the given notification.
+	If the user settings tells to mail only for unread notifications,
+	just sends a mail telling that the user has new notifications.
 	"""
-	sendmail(notif.user, 
-		"[Simso Experiment Platform] " + notif.title,
-		notif.title + "\n-----" + "\nMessage : " + notif.content)
+	settings = get_settings(notif.user)
+	
+	# Check enabled notifications
+	if not settings.enable_mail_notifications:
+		return
+	
+	if settings.unread_only:
+		# Check if there was unread notifications
+		notifs = Notification.objects.filter(user=notif.user, read=False).count()
+		if notifs == 1:
+			# If this notification is the first unread
+			siteroot = get_site_root(request)
+			url = siteroot + urlreverse('simsoexp.views.notifications')
+			sendmail(notif.user,
+				"[Simso Experiment Platform] You have new unread notification(s).\n",
+				"You have new unread notification(s) : " + url)
+			
+	else:
+		# Sends the notification
+		sendmail(notif.user, 
+			"[Simso Experiment Platform] " + notif.title,
+			notif.title + "\n-----" + "\nMessage : " + notif.content)
 
-def notify_staff(title, content):
+def notify_staff(title, content, request):
 	"""
 	Sends an email to all the staff members with the given content.
 	"""
@@ -83,7 +104,7 @@ def notify_staff(title, content):
 		notif.content = content
 		notif.ntype = "primary"
 		notif.save()
-		notify(notif)
+		notify(notif, request)
 
 def get_settings(user):
 	try:
@@ -251,9 +272,10 @@ def post_account_settings(request):
 	"""
 	settings = get_settings(request.user)
 	enable_mail_notifications = request.POST["enable_mail_notifications"]
-	
+	unread_only = request.POST["unread_only"]
 	# Saves the new settings
 	settings.enable_mail_notifications = True if enable_mail_notifications == "true" else False
+	settings.unread_only = True if unread_only == "true" else False
 	settings.save()
 	request.user.save()
 	return HttpResponse("success");
@@ -426,7 +448,7 @@ def validation_action(request):
 			notif.content = reason
 			notif.ntype = "danger"
 			notif.save()
-			notify(notif) # sends a mail to the user
+			notify(notif, request) # sends a mail to the user
 			
 		item.delete()
 		return HttpResponse("success")
@@ -439,7 +461,7 @@ def validation_action(request):
 		notif.content = "Congratulations ! Your {} has been added to the database.".format(item_type)
 		notif.ntype = "success"
 		notif.save()
-		notify(notif) # sends a mail to the user
+		notify(notif, request) # sends a mail to the user
 		return HttpResponse("success")
 	else:
 		return HttpResponse("error:bad action")
@@ -605,10 +627,11 @@ def upload_scheduler(request):
 	siteroot = get_site_root(request)
 	url = siteroot + urlreverse('simsoexp.views.contributions') + "?type=scheduler&display=all&approved=no"
 	notify_staff("Submission of a scheduler",
-		"Scheduler {} has been sent for examination by {}.\n Link : {}".format(
+		"Scheduler {} has been sent for examination by {}.\nLink : {}".format(
 			 sched.name,
 			 sched.contributor.username,
-			 url)
+			 url),
+		request
 	)
 	
 	return HttpResponse(ret_code)
@@ -674,10 +697,11 @@ def api_upload_testset(request):
 	siteroot = get_site_root(request)
 	url = siteroot + urlreverse('simsoexp.views.contributions') + "?type=testset&display=all&approved=no"
 	notify_staff("Submission of a test set",
-		"Scheduler {} has been sent for examination by {}.\n Link : {}".format(
+		"Scheduler {} has been sent for examination by {}.\nLink : {}".format(
 			 testset.name,
 			 testset.contributor.username,
-			 url)
+			 url),
+		request
 	)
 	
 	return HttpResponse("success")
@@ -732,10 +756,11 @@ def api_upload_experiment(request):
 	siteroot = get_site_root(request)
 	url = siteroot + urlreverse('simsoexp.views.contributions') + "?type=results&display=all&approved=no"
 	notify_staff("Submission of an experiment result",
-		"Experiment result '{}' has been sent for examination by {}.\n Link : {}".format(
+		"Experiment result '{}' has been sent for examination by {}.\nLink : {}".format(
 			 repr(result),
 			 result.contributor.username,
-			 url)
+			 url),
+		request
 	)
 	
 	return HttpResponse("success")
