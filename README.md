@@ -1,7 +1,7 @@
 # simso-exp
 Simso Experiment Platform is a web server written in Python / Django hosting a website and an API designed to help researchers to share and run experiments made with SimSo.
 
-There is a central Simso Experiment Platform instance running at : (TODO : put production website here).
+There is a central Simso Experiment Platform instance running at : (www.simsoexp.com).
 It has been open sourced so researchers can also run the platform locally and export their work later to the central instance.
 
 Components
